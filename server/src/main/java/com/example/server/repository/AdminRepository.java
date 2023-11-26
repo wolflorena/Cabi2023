@@ -1,6 +1,6 @@
-package com.example.cabi2023backend.repository;
+package com.example.server.repository;
 
-import com.example.cabi2023backend.entity.Admin;
+import com.example.server.entity.Admin;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AdminRepository extends JpaRepository<Admin, Long> {

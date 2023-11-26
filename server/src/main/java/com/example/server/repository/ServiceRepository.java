@@ -1,7 +1,7 @@
-package com.example.cabi2023backend.repository;
+package com.example.server.repository;
 
 
-import com.example.cabi2023backend.entity.Service;
+import com.example.server.entity.Service;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ServiceRepository extends JpaRepository<Service, Long> {

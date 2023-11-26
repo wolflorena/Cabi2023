@@ -1,6 +1,6 @@
-package com.example.cabi2023backend.repository;
+package com.example.server.repository;
 
-import com.example.cabi2023backend.entity.DoctorUnavailability;
+import com.example.server.entity.DoctorUnavailability;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DoctorUnavailabilityRepository extends JpaRepository<DoctorUnavailability, Long> {

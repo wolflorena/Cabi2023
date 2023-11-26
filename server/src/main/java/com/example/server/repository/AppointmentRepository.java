@@ -1,6 +1,6 @@
-package com.example.cabi2023backend.repository;
+package com.example.server.repository;
 
-import com.example.cabi2023backend.entity.Appointment;
+import com.example.server.entity.Appointment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {

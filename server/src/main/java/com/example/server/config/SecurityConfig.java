@@ -1,4 +1,4 @@
-package com.example.cabi2023backend.config;
+package com.example.server.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

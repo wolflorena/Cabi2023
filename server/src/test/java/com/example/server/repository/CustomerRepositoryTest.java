@@ -1,6 +1,6 @@
-package com.example.cabi2023backend.repository;
+package com.example.server.repository;
 
-import com.example.cabi2023backend.entity.Customer;
+import com.example.server.entity.Customer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
