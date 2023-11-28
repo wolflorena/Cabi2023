@@ -22,15 +22,14 @@ public class SecurityConfig{
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests(authz -> authz
-                        .antMatchers("/", "/home").permitAll()  // Permit these paths without authentication
+                        .antMatchers("/api/**").permitAll()  // Permit these paths without authentication
                         .anyRequest().authenticated())          // Other requests need to be authenticated
                 .formLogin(form -> form
                         .loginPage("/login")                    // Custom login page, if you have one
                         .permitAll())
-                .logout(logout -> logout.permitAll());     // Allow logout for everyone
+                .logout(logout -> logout.permitAll())
+                .csrf().disable();     // Allow logout for everyone
 
         return http.build();
     }
-
-
 }

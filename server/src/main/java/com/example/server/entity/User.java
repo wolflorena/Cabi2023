@@ -1,6 +1,7 @@
 package com.example.server.entity;
 
 import lombok.Data;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,4 +19,7 @@ public abstract class User {
     private String email;
     private String password;
 
+    public void setPassword(String password){
+        this.password = new BCryptPasswordEncoder().encode(password);
+    }
 }

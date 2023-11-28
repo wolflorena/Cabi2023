@@ -23,19 +23,24 @@ public class Appointment {
     private Long appointmentId;
 
     private LocalDate dateAndTime;  // Consider splitting into two fields if needed: one for LocalDate and one for LocalTime
-    private LocalTime duration;
+    private LocalTime finalDuration;
 
     // Enum type for status, e.g., SCHEDULED, CANCELLED, COMPLETED
     // Assuming you will create an Enum called AppointmentStatus
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
 
-    // This will be linked to a Customer
-    // private Customer customer;
 
-    // This will be linked to a Doctor
-    // private Doctor doctor;
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
 
-    // This will be linked to a Service
-    // private Service service;
+    @ManyToOne
+    @JoinColumn(name = "doctor_id", nullable = false)
+    private Doctor doctor;
+
+    @ManyToOne
+    @JoinColumn(name = "service_id", nullable = false)
+    private Service service;
+
 }

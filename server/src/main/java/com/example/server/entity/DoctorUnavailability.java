@@ -3,10 +3,7 @@ package com.example.server.entity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -19,12 +16,13 @@ public class DoctorUnavailability {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long unavailabilityId;
 
-    // This will be linked to a Doctor
-    // private Doctor doctor;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalTime startTime;
     private LocalTime endTime;
     private String reason;
 
+    @ManyToOne
+    @JoinColumn(name = "doctor_id", nullable = false)
+    private Doctor doctor;
 }

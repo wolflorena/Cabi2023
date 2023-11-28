@@ -14,8 +14,7 @@ public class DoctorRepositoryTest {
 
     @Autowired
     private DoctorRepository doctorRepository;
-
-    @Test
+   @Test
     public void testSaveAndRetrieveDoctor(){
         Doctor savedDoctor = new Doctor();
         savedDoctor.setFirstName("Ciorea");

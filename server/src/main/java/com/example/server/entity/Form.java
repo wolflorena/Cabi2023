@@ -7,18 +7,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.time.LocalDateTime;
 
 @Entity
 @Data
 @NoArgsConstructor
-public class Service {
-
+public class Form {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long serviceId;
+    private Long formId;
+    private String title;
+    private String description;
+    private Boolean visibility;
 
-    private LocalDateTime duration;
-    private String name;
-    private float price;
 }
