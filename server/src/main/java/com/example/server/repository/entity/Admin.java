@@ -1,6 +1,5 @@
-package com.example.server.entity;
+package com.example.server.repository.entity;
 
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;

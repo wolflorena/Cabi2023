@@ -1,14 +1,13 @@
 package com.example.server.repository;
 
-import com.example.server.entity.Customer;
-import com.example.server.entity.Form;
-import com.example.server.entity.FormSeenByCustomer;
+import com.example.server.repository.entity.Customer;
+import com.example.server.repository.entity.Form;
+import com.example.server.repository.entity.FormSeenByCustomer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;

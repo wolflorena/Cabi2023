@@ -1,7 +1,6 @@
-package com.example.server.entity;
+package com.example.server.repository.entity;
 
-import com.example.server.DTOs.RegisterCustomerDto;
-import com.example.server.service.CustomerService;
+import com.example.server.repository.DTOs.RegisterCustomerDto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

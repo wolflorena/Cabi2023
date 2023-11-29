@@ -1,4 +1,4 @@
-package com.example.server.DTOs;
+package com.example.server.repository.DTOs;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class RegisterCustomerDto {
 
-    @NotBlank(message = "Last name cannot be empty")
+    @NotBlank(message = "First name cannot be empty")
     @Pattern(regexp = "^[A-Za-z]+$", message = "First name must contain only letters")
     private String firstName;
 

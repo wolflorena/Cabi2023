@@ -1,4 +1,4 @@
-package com.example.server.entity;
+package com.example.server.repository.entity;
 
 import lombok.Data;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
