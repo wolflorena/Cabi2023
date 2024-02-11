@@ -1,10 +1,20 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import SidebarButton from "./SidebarButton.vue";
 import { useRoute } from "vue-router";
+
+const hideSidebar = ref(false);
 </script>
 
 <template>
-  <div class="container">
+  <button
+    @click="hideSidebar = !hideSidebar"
+    class="hideSidebar"
+    :class="{ hided: hideSidebar }"
+  >
+    <font-awesome-icon id="icon" icon="bars" />
+  </button>
+  <div class="sidebar" v-show="!hideSidebar">
     <div class="logo-container">
       <img src="@/assets/logo.png" alt="" />
     </div>
@@ -41,22 +51,41 @@ import { useRoute } from "vue-router";
 <style scoped lang="less">
 @import (reference) "@/assets/styles.less";
 
-.container {
+.sidebar {
   height: 100vh;
-  width: 20vw;
+  width: 15vw;
   background-color: @blue;
   border-top-right-radius: 100px;
+
+  .logo-container {
+    padding-top: 20px;
+    display: flex;
+    justify-content: center;
+
+    img {
+      width: 200px;
+    }
+  }
+
+  .selections {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 15px;
+  }
 }
 
-.logo-container {
-  display: flex;
-  justify-content: center;
-}
+.hideSidebar {
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  position: absolute;
+  top: 10px;
+  left: 10px;
 
-.selections {
-  display: flex;
-  align-items: flex-end;
-  flex-direction: column;
-  gap: 15px;
+  #icon {
+    color: @black;
+    height: 20px;
+  }
 }
 </style>

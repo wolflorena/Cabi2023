@@ -15,7 +15,9 @@ const props = withDefaults(
 <template>
   <button :class="{ selected }">
     <font-awesome-icon id="icon" :icon="icon" />
-    {{ text }}
+    <span>
+      {{ text }}
+    </span>
   </button>
 </template>
 
@@ -24,6 +26,8 @@ const props = withDefaults(
 
 .selected {
   background-color: @gray;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
 
   #icon {
     background-color: @red;
@@ -35,21 +39,22 @@ const props = withDefaults(
 
 button {
   cursor: pointer;
-  width: 15vw;
+  width: 14vw;
   height: 6vh;
   color: @sugar;
   font-size: 17px;
   background-color: transparent;
   border: none;
 
+  padding-left: 5vw;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 
   position: relative;
 
   #icon {
-    font-size: 30px;
+    font-size: 25px;
     position: absolute;
     left: 5px;
     padding: 8px;
