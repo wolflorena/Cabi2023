@@ -2,12 +2,14 @@
 import { ref, computed } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import MonthScheduler from "@/components/MonthScheduler.vue";
+import DayScheduler from "@/components/DayScheduler.vue";
 
 const doctors = ref(["Doctor 1", "Doctor 2", "Doctor 3", "Ana"]);
 const displayDropdown = ref(false);
 const searchQuery = ref("");
 const selectedDoctors = ref(["Abccc"]);
 const showCalendars = ref(true);
+const showMonthCalendar = ref(true);
 
 function selectDoctors(doctor: string) {
   selectedDoctors.value.push(doctor);
@@ -31,6 +33,10 @@ function toggleCalendars() {
 function updateSearchQuery(event: Event) {
   const target = event.target as HTMLInputElement;
   searchQuery.value = target.value;
+}
+
+function toggleCalendar() {
+  showMonthCalendar.value = !showMonthCalendar.value;
 }
 </script>
 
@@ -80,7 +86,14 @@ function updateSearchQuery(event: Event) {
         </div>
       </div>
     </div>
-    <MonthScheduler />
+    <MonthScheduler
+      v-show="showMonthCalendar"
+      @toggle-calendar="toggleCalendar"
+    />
+    <DayScheduler
+      v-show="!showMonthCalendar"
+      @toggle-calendar="toggleCalendar"
+    />
   </div>
 </template>
 

@@ -67,13 +67,19 @@ function navigate(monthIncrement: number): void {
     1
   );
 }
+
+const emit = defineEmits(["toggle-calendar"]);
+
+function toggleCalendar() {
+  emit("toggle-calendar");
+}
 </script>
 
 <template>
   <div class="scheduler">
     <div class="header">
       <div class="controls">
-        <button class="calendar-pick">Month</button>
+        <button class="calendar-pick" @click="toggleCalendar">Month</button>
         <button @click="navigate(-1)" class="header-button">
           <font-awesome-icon icon="chevron-left" />
         </button>
