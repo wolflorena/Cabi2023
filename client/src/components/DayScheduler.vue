@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 
+const props = withDefaults(
+  defineProps<{
+    selectedCalendars: any[];
+  }>(),
+  {}
+);
+
 const currentDate = ref(new Date());
 const timeSlots: string[] = createTimeSlots(9, 17);
-const calendars = ref(["Calendar 2", "Dr. Ciora"]);
+const calendars = ref(["Ana", "Doctor 1"]);
 const calendarsNumber = computed(() => calendars.value.length);
 
 type Appointment = {
@@ -70,21 +77,30 @@ function navigate(dayIncrement: number): void {
 const appointments = ref([
   {
     id: "1",
-    startTime: "09:10",
+    startTime: "09:00AM",
     endTime: "10:00",
-    description: "Example Appointment 1",
+    description: "Example Appointment 2",
     patient: "gigel",
-    doctor: "Dr. Ciora",
-    day: "16",
+    doctor: "Ana",
+    day: "19",
   },
   {
     id: "2",
-    startTime: "10:40",
+    startTime: "10:20",
     endTime: "11:00",
     description: "Example Appointment 1",
     patient: "gigel",
-    doctor: "Dr. Ciora",
-    day: "17",
+    doctor: "Doctor 1",
+    day: "18",
+  },
+  {
+    id: "2",
+    startTime: "13:30",
+    endTime: "14:00",
+    description: "Example Appointment 2",
+    patient: "gigel",
+    doctor: "Doctor 1",
+    day: "18",
   },
 ]);
 
@@ -93,14 +109,17 @@ function getAppointmentStyle(appointment: Appointment) {
   const startMinutes = parseInt(appointment.startTime.split(":")[1]);
   const endHour = parseInt(appointment.endTime.split(":")[0]);
   const endMinutes = parseInt(appointment.endTime.split(":")[1]);
+
   const startPosition = (startHour - 9) * 60 + startMinutes;
+  console.log("startPosition", startPosition);
 
   const endPosition = (endHour - 9) * 60 + endMinutes;
+  console.log("endPosition", endPosition);
+
   const duration = endPosition - startPosition;
-  console.log((startPosition / 60) * 100);
   return {
-    top: `${(startPosition / 60) * 100}%`,
-    height: `${(duration * (88 / 5)) / 60}vh`,
+    top: `${((startPosition - 60 * (startHour - 9)) * 100) / 60}%`,
+    height: `${(duration / 60) * (88 / 5)}vh`,
   };
 }
 
@@ -114,20 +133,37 @@ function computeStyle(appointment: Appointment, slot: string) {
   return getAppointmentStyle(appointment);
 }
 
-function getAppointments(calendar: String, day: String): Appointment[] {
-  let appointmentsForCalendar: Appointment[] = [];
-  appointments.value.forEach((appointment) => {
-    if (appointment.doctor === calendar && appointment.day === day) {
-      appointmentsForCalendar.push(appointment);
-    }
+function getAppointments(calendar: string, fullDate: string): Appointment[] {
+  return appointments.value.filter((appointment: Appointment) => {
+    return (
+      selectedDoctorsNames.value.includes(appointment.doctor) &&
+      appointment.day === fullDate &&
+      appointment.doctor === calendar
+    );
   });
-  return appointmentsForCalendar;
 }
 
 const emit = defineEmits(["toggle-calendar"]);
 
 function toggleCalendar() {
   emit("toggle-calendar");
+}
+
+const selectedDoctorsNames = computed(() => {
+  return props.selectedCalendars
+    .filter((calendar) => calendar.checked)
+    .map((calendar) => calendar.name);
+});
+
+const selectedCalendarsFiltered = computed(() => {
+  return props.selectedCalendars.filter((calendar) => calendar.checked);
+});
+
+function getDoctorColor(doctorName: string): string {
+  const doctor = props.selectedCalendars.find(
+    (calendar) => calendar.name === doctorName
+  );
+  return doctor ? doctor.color : "#ffffff";
 }
 </script>
 
@@ -152,8 +188,11 @@ function toggleCalendar() {
         <thead>
           <tr class="calendar-header">
             <th class="column-header">Hour</th>
-            <th v-for="calendar in calendars" class="column-header">
-              {{ calendar }}
+            <th
+              v-for="calendar in selectedCalendarsFiltered"
+              class="column-header"
+            >
+              {{ calendar.name }}
             </th>
           </tr>
         </thead>
@@ -164,16 +203,24 @@ function toggleCalendar() {
                 {{ slot }}
               </span>
             </td>
-            <td v-for="calendar in calendars" class="slot calendar">
+            <td
+              v-for="calendar in selectedCalendarsFiltered"
+              class="slot calendar"
+            >
               <div
                 v-for="appointment in getAppointments(
-                  calendar,
+                  calendar.name,
                   currentDate.getDate().toString()
                 )"
                 class="appointment"
-                :style="computeStyle(appointment, slot)"
+                :style="[
+                  computeStyle(appointment, slot),
+                  `background-color: ${getDoctorColor(calendar.name)}`,
+                ]"
               >
-                {{ appointment.description }}
+                <span>{{ appointment.startTime }}</span>
+                <span>{{ appointment.description }}</span>
+                <span>{{ `Patient: ${appointment.patient}` }}</span>
               </div>
             </td>
           </tr>
@@ -259,10 +306,17 @@ function toggleCalendar() {
         left: 50%;
         transform: translateX(-50%);
         width: 90%;
-        background-color: @light-gray;
         overflow: hidden;
 
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        justify-content: center;
         box-sizing: border-box;
+
+        color: @white;
+        font-size: 12px;
+        font-weight: bold;
       }
     }
   }

@@ -1,19 +1,47 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 
+const props = withDefaults(
+  defineProps<{
+    selectedCalendars: any[];
+  }>(),
+  {}
+);
+
 type Day = {
   date: number;
   fullDate: string;
 };
 
 type Appointment = {
-  id: string;
-  time: string;
-  description: string;
+  details: string;
+  hour: string;
+  day: string;
+  doctor: string;
+  id?: string;
 };
 
 const currentDate = ref(new Date());
-const appointments: any = ref([]);
+const appointments: any = ref([
+  {
+    details: "Appointment",
+    hour: "09:00AM",
+    day: "2024-02-20",
+    doctor: "Doctor 1",
+  },
+  {
+    details: "Appointment",
+    hour: "08:00AM",
+    day: "2024-02-20",
+    doctor: "Doctor 2",
+  },
+  {
+    details: "Appointment",
+    hour: "11:00AM",
+    day: "2024-02-22",
+    doctor: "Doctor 3",
+  },
+]);
 
 const weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
@@ -39,7 +67,8 @@ function weeksInMonth(date: Date): Day[][] {
 
   const lastDay = new Date(year, month + 1, 0).getDate();
   for (let date = 1; date <= lastDay; date++) {
-    const fullDate = new Date(year, month, date);
+    const fullDate = new Date(year, month, date + 1);
+
     const dayObj: Day = {
       date,
       fullDate: fullDate.toISOString().split("T")[0],
@@ -72,6 +101,45 @@ const emit = defineEmits(["toggle-calendar"]);
 
 function toggleCalendar() {
   emit("toggle-calendar");
+}
+
+const selectedAppointments = computed(() => {
+  const selectedDoctorsNames = props.selectedCalendars
+    .filter((doctor) => doctor.checked)
+    .map((doctor) => doctor.name);
+
+  return appointments.value
+    .filter((appointment: Appointment) =>
+      selectedDoctorsNames.includes(appointment.doctor)
+    )
+    .sort((a: Appointment, b: Appointment) => {
+      const timeA = convertTime12to24(a.hour);
+      const timeB = convertTime12to24(b.hour);
+
+      return timeA - timeB;
+    });
+});
+
+function getDoctorColor(doctorName: string): string {
+  const doctor = props.selectedCalendars.find(
+    (calendar) => calendar.name === doctorName
+  );
+  return doctor ? doctor.color : "#ffffff";
+}
+
+function convertTime12to24(time: string): number {
+  const [timePart, modifier] = time.split(" ");
+  let [hours, minutes] = timePart.split(":").map((num) => parseInt(num, 10));
+
+  if (hours === 12) {
+    hours = 0;
+  }
+
+  if (modifier === "PM") {
+    hours += 12;
+  }
+
+  return hours * 60 + minutes;
 }
 </script>
 
@@ -116,21 +184,18 @@ function toggleCalendar() {
 
               <div class="appointments">
                 <div
-                  v-for="appointment in appointments[day.fullDate]"
+                  v-for="appointment in selectedAppointments.filter((appointment:Appointment) => appointment.day === day.fullDate)"
                   :key="appointment.id"
                   class="appointment"
                 >
-                  {{ appointment.time }} - {{ appointment.description }}
-                </div>
-                <div class="appointment">
-                  <div id="circle"></div>
-                  <span id="hour">9:00pm</span>
-                  <span id="details">Appointment</span>
-                </div>
-                <div class="appointment">
-                  <div id="circle"></div>
-                  <span id="hour">9:00pm</span>
-                  <span id="details">Appointment</span>
+                  <div
+                    id="circle"
+                    :style="{
+                      backgroundColor: getDoctorColor(appointment.doctor),
+                    }"
+                  ></div>
+                  <span id="hour">{{ appointment.hour }}</span>
+                  <span id="details">{{ appointment.details }}</span>
                 </div>
               </div>
             </td>
@@ -200,6 +265,7 @@ function toggleCalendar() {
     }
     .day {
       height: calc(88vh / 5);
+      max-height: calc(88vh / 5);
       width: calc(65vw / 7);
 
       border: 1px solid @border-gray;
@@ -225,8 +291,12 @@ function toggleCalendar() {
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
+        margin-top: 2vh;
+        max-height: calc(88vh / 5 - 4vh);
+        overflow-y: scroll;
         .appointment {
           max-width: calc(65vw / 7);
+
           padding: 2px;
           display: flex;
           flex-wrap: wrap;
@@ -249,6 +319,8 @@ function toggleCalendar() {
           #details {
             color: @black;
             font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         }
       }

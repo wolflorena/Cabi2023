@@ -1,42 +1,68 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import MonthScheduler from "@/components/MonthScheduler.vue";
 import DayScheduler from "@/components/DayScheduler.vue";
+import CustomCheckbox from "@/components/CustomCheckbox.vue";
+import CustomDropdown from "@/components/CustomDropdown.vue";
 
 const doctors = ref(["Doctor 1", "Doctor 2", "Doctor 3", "Ana"]);
-const displayDropdown = ref(false);
 const searchQuery = ref("");
-const selectedDoctors = ref(["Abccc"]);
+const selectedDoctors = ref([
+  { name: "Doctor 1", checked: false, color: generateRandomPurpleColor() },
+]);
 const showCalendars = ref(true);
 const showMonthCalendar = ref(true);
 
-function selectDoctors(doctor: string) {
-  selectedDoctors.value.push(doctor);
-  displayDropdown.value = false;
+function selectDoctors(doctorName: string) {
+  if (!selectedDoctors.value.some((doctor) => doctor.name === doctorName))
+    selectedDoctors.value.push({
+      name: doctorName,
+      checked: false,
+      color: generateRandomPurpleColor(),
+    });
 }
 
-const filteredDoctors = computed(() => {
-  return doctors.value.filter((doctor) =>
-    doctor.toUpperCase().includes(searchQuery.value.toUpperCase())
-  );
-});
+watch(
+  selectedDoctors,
+  () => {
+    sortSelectedDoctors();
+    console.log(selectedDoctors.value);
+  },
+  { deep: true }
+);
 
-function toggleDropdown() {
-  displayDropdown.value = !displayDropdown.value;
+function sortSelectedDoctors() {
+  selectedDoctors.value.sort((a, b) => {
+    if (a.checked && !b.checked) {
+      return -1;
+    } else if (!a.checked && b.checked) {
+      return 1;
+    } else {
+      return a.name.localeCompare(b.name);
+    }
+  });
 }
 
 function toggleCalendars() {
   showCalendars.value = !showCalendars.value;
 }
 
-function updateSearchQuery(event: Event) {
-  const target = event.target as HTMLInputElement;
-  searchQuery.value = target.value;
-}
-
 function toggleCalendar() {
   showMonthCalendar.value = !showMonthCalendar.value;
+}
+
+function generateRandomPurpleColor(): string {
+  const red = Math.floor(Math.random() * (255 - 128) + 128).toString(16);
+  const green = Math.floor(Math.random() * 101).toString(16);
+  const blue = Math.floor(Math.random() * (255 - 128) + 128).toString(16);
+
+  const color = `#${red.padStart(2, "0")}${green.padStart(
+    2,
+    "0"
+  )}${blue.padStart(2, "0")}`;
+
+  return color;
 }
 </script>
 
@@ -49,26 +75,13 @@ function toggleCalendar() {
         <span>Add appointment</span>
       </button>
 
-      <div class="add-calendar">
-        <label
-          >Add calendar...
-          <input
-            type="text"
-            placeholder="Search for a doctor"
-            @click="toggleDropdown"
-            @keyup="updateSearchQuery"
-        /></label>
+      <CustomDropdown
+        :doctors="doctors"
+        label="Add calendar..."
+        placeholder="Search for a doctor"
+        @select="selectDoctors"
+      />
 
-        <div class="dropdown" v-show="displayDropdown">
-          <span
-            v-for="doctor in filteredDoctors"
-            class="element"
-            @click="selectDoctors(doctor)"
-          >
-            {{ doctor }}</span
-          >
-        </div>
-      </div>
       <div class="calendars">
         <div class="title">
           <h4>Available calendars</h4>
@@ -80,18 +93,30 @@ function toggleCalendar() {
           </button>
         </div>
         <div class="doctors">
-          <span v-for="doctor in selectedDoctors" v-show="showCalendars">{{
-            doctor
-          }}</span>
+          <div
+            class="checkbox-wrapper-4"
+            v-for="doctor in selectedDoctors"
+            :key="doctor.name"
+            v-show="showCalendars"
+          >
+            <CustomCheckbox
+              v-model="doctor.checked"
+              :text="doctor.name"
+              :color="doctor.color"
+              :uuid="`checkbox-${doctor.name}`"
+            />
+          </div>
         </div>
       </div>
     </div>
     <MonthScheduler
       v-show="showMonthCalendar"
+      :selected-calendars="selectedDoctors"
       @toggle-calendar="toggleCalendar"
     />
     <DayScheduler
       v-show="!showMonthCalendar"
+      :selected-calendars="selectedDoctors"
       @toggle-calendar="toggleCalendar"
     />
   </div>
@@ -133,55 +158,6 @@ function toggleCalendar() {
         color: @gray;
       }
     }
-    .add-calendar {
-      position: relative;
-      label {
-        color: @font-dark-gray;
-        font-weight: bolder;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        width: 19vw;
-
-        input {
-          height: 3vh;
-          border: none;
-          background-color: @light-gray;
-          box-sizing: border-box;
-
-          padding: 3px;
-
-          &:focus {
-            border-color: transparent;
-            outline: none;
-          }
-        }
-      }
-
-      .dropdown {
-        background-color: @light-gray;
-        width: 19vw;
-        position: absolute;
-        top: 100%;
-        max-height: 100px;
-        overflow: scroll;
-        scrollbar-color: @gray;
-
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-
-        .element {
-          border-bottom: 0.1px solid @gray;
-          cursor: pointer;
-
-          &:hover {
-            background-color: @red;
-          }
-        }
-      }
-    }
-
     .calendars {
       color: @font-dark-gray;
       font-weight: bolder;
@@ -201,7 +177,6 @@ function toggleCalendar() {
           }
         }
       }
-
       .doctors {
         height: 20vh;
         display: flex;
@@ -210,9 +185,9 @@ function toggleCalendar() {
         max-height: 20vh;
         overflow: scroll;
         scrollbar-color: @gray;
-        span {
-          color: @black;
-          font-weight: 300;
+
+        .checkbox-wrapper-4 * {
+          box-sizing: border-box;
         }
       }
     }
