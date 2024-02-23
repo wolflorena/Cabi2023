@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 
 const props = withDefaults(
   defineProps<{
     selectedCalendars: any[];
+    daySelected: Date;
   }>(),
   {}
 );
 
-const currentDate = ref(new Date());
+const currentDate = ref(props.daySelected);
+
 const timeSlots: string[] = createTimeSlots(9, 17);
 const calendars = ref(["Ana", "Doctor 1"]);
 const calendarsNumber = computed(() => calendars.value.length);
+const currentDateKey = computed(() => currentDate.value.toISOString());
 
 type Appointment = {
   startTime: string;
@@ -19,7 +22,7 @@ type Appointment = {
   description: string;
   patient: string;
   doctor: string;
-  day: string;
+  day: string; //format: "YYYY-DD-MM"
 };
 
 function createTimeSlots(startHour: number, endHour: number): string[] {
@@ -46,6 +49,13 @@ function getOrdinalSuffix(day: number): string {
   }
 }
 
+watch(
+  () => props.daySelected,
+  (newDay) => {
+    currentDate.value = newDay;
+  }
+);
+
 const currentDay = computed(() => {
   const day = currentDate.value.getDate();
   const ordinalSuffix = getOrdinalSuffix(day);
@@ -64,16 +74,6 @@ const currentDay = computed(() => {
   return formattedDay;
 });
 
-function navigate(dayIncrement: number): void {
-  const current = currentDate.value;
-  currentDate.value = new Date(
-    current.getFullYear(),
-    current.getMonth(),
-    current.getDate() + dayIncrement,
-    1
-  );
-}
-
 const appointments = ref([
   {
     id: "1",
@@ -82,7 +82,7 @@ const appointments = ref([
     description: "Example Appointment 2",
     patient: "gigel",
     doctor: "Ana",
-    day: "19",
+    day: "2024-02-19",
   },
   {
     id: "2",
@@ -91,7 +91,7 @@ const appointments = ref([
     description: "Example Appointment 1",
     patient: "gigel",
     doctor: "Doctor 1",
-    day: "18",
+    day: "2024-03-18",
   },
   {
     id: "2",
@@ -100,7 +100,7 @@ const appointments = ref([
     description: "Example Appointment 2",
     patient: "gigel",
     doctor: "Doctor 1",
-    day: "18",
+    day: "2024-02-20",
   },
 ]);
 
@@ -111,10 +111,8 @@ function getAppointmentStyle(appointment: Appointment) {
   const endMinutes = parseInt(appointment.endTime.split(":")[1]);
 
   const startPosition = (startHour - 9) * 60 + startMinutes;
-  console.log("startPosition", startPosition);
 
   const endPosition = (endHour - 9) * 60 + endMinutes;
-  console.log("endPosition", endPosition);
 
   const duration = endPosition - startPosition;
   return {
@@ -133,14 +131,35 @@ function computeStyle(appointment: Appointment, slot: string) {
   return getAppointmentStyle(appointment);
 }
 
-function getAppointments(calendar: string, fullDate: string): Appointment[] {
-  return appointments.value.filter((appointment: Appointment) => {
-    return (
-      selectedDoctorsNames.value.includes(appointment.doctor) &&
-      appointment.day === fullDate &&
-      appointment.doctor === calendar
-    );
-  });
+function navigate(dayIncrement: number): void {
+  const current = currentDate.value;
+  currentDate.value = new Date(
+    current.getFullYear(),
+    current.getMonth(),
+    current.getDate() + dayIncrement,
+    1
+  );
+}
+
+const getAppointmentsForCalendar = computed(() => {
+  return (calendar: string) => {
+    return appointments.value.filter((appointment: Appointment) => {
+      return (
+        selectedDoctorsNames.value.includes(appointment.doctor) &&
+        appointment.day === toLocalISOString(currentDate.value) &&
+        appointment.doctor === calendar
+      );
+    });
+  };
+});
+
+// Dacă currentDate.value este setată la 2024-02-20 01:00 în fusul orar UTC-3, atunci currentDate.value.toISOString() va returna 2024-02-19T04:00:00.000Z
+function toLocalISOString(date: Date): string {
+  const tzOffset = date.getTimezoneOffset() * 60000;
+  const localISOTime = new Date(date.getTime() - tzOffset)
+    .toISOString()
+    .slice(0, -1);
+  return localISOTime.split("T")[0];
 }
 
 const emit = defineEmits(["toggle-calendar"]);
@@ -183,7 +202,7 @@ function getDoctorColor(doctorName: string): string {
       <span class="current-date">{{ currentDay }}</span>
     </div>
 
-    <div class="calendar-container">
+    <div class="calendar-container" :key="currentDateKey">
       <table class="calendar">
         <thead>
           <tr class="calendar-header">
@@ -208,10 +227,7 @@ function getDoctorColor(doctorName: string): string {
               class="slot calendar"
             >
               <div
-                v-for="appointment in getAppointments(
-                  calendar.name,
-                  currentDate.getDate().toString()
-                )"
+                v-for="appointment in getAppointmentsForCalendar(calendar.name)"
                 class="appointment"
                 :style="[
                   computeStyle(appointment, slot),

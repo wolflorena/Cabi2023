@@ -72,7 +72,7 @@ function toggleDropdown() {
     width: 19vw;
 
     input {
-      height: 3vh;
+      height: 5vh;
       border: none;
       background-color: @light-gray;
       box-sizing: border-box;

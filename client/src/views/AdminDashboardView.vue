@@ -5,14 +5,22 @@ import MonthScheduler from "@/components/MonthScheduler.vue";
 import DayScheduler from "@/components/DayScheduler.vue";
 import CustomCheckbox from "@/components/CustomCheckbox.vue";
 import CustomDropdown from "@/components/CustomDropdown.vue";
+import DatePicker from "@/components/DatePicker.vue";
 
 const doctors = ref(["Doctor 1", "Doctor 2", "Doctor 3", "Ana"]);
-const searchQuery = ref("");
 const selectedDoctors = ref([
-  { name: "Doctor 1", checked: false, color: generateRandomPurpleColor() },
+  { name: "Doctor 1", checked: true, color: generateRandomPurpleColor() },
 ]);
 const showCalendars = ref(true);
 const showMonthCalendar = ref(true);
+const daySelected = ref(new Date());
+
+type Day = {
+  date: number;
+  fullDate: string;
+  currentMonth: boolean;
+  isWeekend: boolean;
+};
 
 function selectDoctors(doctorName: string) {
   if (!selectedDoctors.value.some((doctor) => doctor.name === doctorName))
@@ -50,6 +58,7 @@ function toggleCalendars() {
 
 function toggleCalendar() {
   showMonthCalendar.value = !showMonthCalendar.value;
+  daySelected.value = new Date();
 }
 
 function generateRandomPurpleColor(): string {
@@ -64,6 +73,11 @@ function generateRandomPurpleColor(): string {
 
   return color;
 }
+
+function openDailyCalendar(day: Day) {
+  daySelected.value = new Date(day.fullDate);
+  showMonthCalendar.value = false;
+}
 </script>
 
 <template>
@@ -74,6 +88,8 @@ function generateRandomPurpleColor(): string {
         <font-awesome-icon id="icon" icon="circle-plus" />
         <span>Add appointment</span>
       </button>
+
+      <DatePicker @select-day="openDailyCalendar" />
 
       <CustomDropdown
         :doctors="doctors"
@@ -117,6 +133,7 @@ function generateRandomPurpleColor(): string {
     <DayScheduler
       v-show="!showMonthCalendar"
       :selected-calendars="selectedDoctors"
+      :day-selected="daySelected"
       @toggle-calendar="toggleCalendar"
     />
   </div>
@@ -134,7 +151,8 @@ function generateRandomPurpleColor(): string {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 100px;
+    gap: 20px;
+
     padding: 0 15px;
     .add-button {
       background-color: @green;
@@ -143,6 +161,7 @@ function generateRandomPurpleColor(): string {
       width: 19vw;
       height: 40px;
       cursor: pointer;
+      margin-bottom: 20px;
 
       display: flex;
       align-items: center;
@@ -178,7 +197,7 @@ function generateRandomPurpleColor(): string {
         }
       }
       .doctors {
-        height: 20vh;
+        height: 10vh;
         display: flex;
         flex-direction: column;
 

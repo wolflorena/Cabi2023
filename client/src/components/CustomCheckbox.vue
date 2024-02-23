@@ -51,62 +51,71 @@ function onCheckedChange(event: Event) {
   border-radius: 6px;
   overflow: hidden;
   transition: all 0.2s ease;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+
+  &:not(:last-child) {
+    margin-right: 6px;
+  }
+  &:hover {
+    background: rgba(0, 119, 255, 0.06);
+
+    span:first-child {
+      border-color: v-bind(color);
+    }
+  }
+  span {
+    float: left;
+    vertical-align: middle;
+    transform: translate3d(0, 0, 0);
+
+    &:first-child {
+      position: relative;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      transform: scale(1);
+      border: 1px solid #cccfdb;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 1px rgba(0, 16, 75, 0.05);
+
+      svg {
+        position: absolute;
+        top: 3px;
+        left: 2px;
+        fill: none;
+        stroke: #fff;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 16px;
+        stroke-dashoffset: 16px;
+        transition: all 0.3s ease;
+        transition-delay: 0.1s;
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
+    &:last-child {
+      padding-left: 8px;
+      line-height: 18px;
+    }
+  }
 }
-.cbx:not(:last-child) {
-  margin-right: 6px;
-}
-.cbx:hover {
-  background: rgba(0, 119, 255, 0.06);
-}
-.cbx span {
-  float: left;
-  vertical-align: middle;
-  transform: translate3d(0, 0, 0);
-}
-.cbx span:first-child {
-  position: relative;
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  transform: scale(1);
-  border: 1px solid #cccfdb;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 1px rgba(0, 16, 75, 0.05);
-}
-.cbx span:first-child svg {
-  position: absolute;
-  top: 3px;
-  left: 2px;
-  fill: none;
-  stroke: #fff;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 16px;
-  stroke-dashoffset: 16px;
-  transition: all 0.3s ease;
-  transition-delay: 0.1s;
-  transform: translate3d(0, 0, 0);
-}
-.cbx span:last-child {
-  padding-left: 8px;
-  line-height: 18px;
-}
-.cbx:hover span:first-child {
-  border-color: v-bind(color);
-}
+
 .inp-cbx {
   position: absolute;
   visibility: hidden;
-}
-.inp-cbx:checked + .cbx span:first-child {
-  background: v-bind(color);
-  border-color: v-bind(color);
-  animation: wave-4 0.4s ease;
-}
-.inp-cbx:checked + .cbx span:first-child svg {
-  stroke-dashoffset: 0;
+
+  &:checked + .cbx span:first-child {
+    background: v-bind(color);
+    border-color: v-bind(color);
+    animation: wave-4 0.4s ease;
+
+    svg {
+      stroke-dashoffset: 0;
+    }
+  }
 }
 .inline-svg {
   position: absolute;
@@ -115,12 +124,7 @@ function onCheckedChange(event: Event) {
   pointer-events: none;
   user-select: none;
 }
-@media screen and (max-width: 640px) {
-  .checkbox-wrapper-4 .cbx {
-    width: 100%;
-    display: inline-block;
-  }
-}
+
 @-moz-keyframes wave-4 {
   50% {
     transform: scale(0.9);
