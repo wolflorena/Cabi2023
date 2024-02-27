@@ -1,32 +1,47 @@
 package com.example.server.service.implementation;
 
-import com.example.server.repository.DTOs.RegisterCustomerDto;
+import com.example.server.repository.DTOs.RegisterCustomerDTO;
+import com.example.server.repository.DTOs.ResponseCustomerDTO;
 import com.example.server.repository.entity.Customer;
 import com.example.server.repository.CustomerRepository;
+import com.example.server.service.CustomerService;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class CustomerServiceImpl {
+public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final ModelMapper modelMapper;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository) {
+    public CustomerServiceImpl(CustomerRepository customerRepository, ModelMapper modelMapper) {
         this.customerRepository = customerRepository;
+        this.modelMapper = modelMapper;
     }
 
-    public Customer save(RegisterCustomerDto registerCustomerDto){
+    public ResponseCustomerDTO register(RegisterCustomerDTO registerCustomerDto){
         Customer customerToBeSaved = new Customer(registerCustomerDto);
-        return customerRepository.save(customerToBeSaved);
+        customerRepository.save(customerToBeSaved);
+        return modelMapper.map(customerToBeSaved, ResponseCustomerDTO.class);
     }
 
-    public Customer findById(Long id){
-        return customerRepository.findById(id).orElse(null);
+    public ResponseCustomerDTO getById(Long id){
+        Customer returnedCustomer = customerRepository.findById(id).orElse(null);
+        if(returnedCustomer==null){
+            //TODO THROW EXCEPTION
+        }
+
+        return modelMapper.map(returnedCustomer, ResponseCustomerDTO.class);
     }
 
-    public List<Customer> findAll(){
-        return customerRepository.findAll();
+    public List<ResponseCustomerDTO> getAll(){
+        return customerRepository
+                .findAll()
+                .stream()
+                .map( user -> modelMapper.map(user, ResponseCustomerDTO.class))
+                .toList();
     }
 
     public void deleteById(Long id){

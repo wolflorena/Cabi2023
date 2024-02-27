@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
-public class RegisterCustomerDto {
+public class RegisterCustomerDTO {
 
     @NotBlank(message = "First name cannot be empty")
     @Pattern(regexp = "^[A-Za-z]+$", message = "First name must contain only letters")

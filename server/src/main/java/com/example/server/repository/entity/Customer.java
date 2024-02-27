@@ -1,6 +1,6 @@
 package com.example.server.repository.entity;
 
-import com.example.server.repository.DTOs.RegisterCustomerDto;
+import com.example.server.repository.DTOs.RegisterCustomerDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -37,15 +37,15 @@ public class Customer extends User {
     @OneToMany(mappedBy = "customer")
     private Set<FormSeenByCustomer> formsSeen;
 
-    public Customer(RegisterCustomerDto registerCustomerDto){
-        super.setFirstName(registerCustomerDto.getFirstName());
-        super.setLastName(registerCustomerDto.getLastName());
-        super.setEmail(registerCustomerDto.getEmail());
-        super.setPassword(registerCustomerDto.getPassword());
-        this.phoneNo = registerCustomerDto.getPhoneNo();
-        this.dateOfBirth = registerCustomerDto.getDateOfBirth();
+    public Customer(RegisterCustomerDTO registerCustomerDTO){
+        super.setFirstName(registerCustomerDTO.getFirstName());
+        super.setLastName(registerCustomerDTO.getLastName());
+        super.setEmail(registerCustomerDTO.getEmail());
+        super.setPassword(registerCustomerDTO.getPassword());
+        this.phoneNo = registerCustomerDTO.getPhoneNo();
+        this.dateOfBirth = registerCustomerDTO.getDateOfBirth();
         this.accountStatus = AccountStatus.ACTIVE;
-        this.occupation = registerCustomerDto.getOccupation();
+        this.occupation = registerCustomerDTO.getOccupation();
     }
 
 }
