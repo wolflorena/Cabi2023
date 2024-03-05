@@ -1,5 +1,6 @@
 package com.example.server.service.implementation;
 
+import com.example.server.exception.types.EmailExistsException;
 import com.example.server.repository.DTOs.RegisterCustomerDTO;
 import com.example.server.repository.DTOs.ResponseCustomerDTO;
 import com.example.server.repository.entity.Customer;
@@ -22,6 +23,10 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     public ResponseCustomerDTO register(RegisterCustomerDTO registerCustomerDto){
+        registerCustomerDto.setEmail(registerCustomerDto.getEmail().toLowerCase());
+        if(emailExists(registerCustomerDto.getEmail())){
+            throw new EmailExistsException("Email already in use");
+        }
         Customer customerToBeSaved = new Customer(registerCustomerDto);
         customerRepository.save(customerToBeSaved);
         return modelMapper.map(customerToBeSaved, ResponseCustomerDTO.class);
