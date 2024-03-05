@@ -14,15 +14,11 @@ public class Doctor extends User{
 
     private String address;
     private String phoneNo;
-
     @Lob
     private byte[] avatar;
-
     private LocalDate dateOfEmployment;
-
     @OneToMany(mappedBy = "doctor")
     private Set<Appointment> appointments;
-
     @OneToMany(mappedBy = "doctor")
     private Set<DoctorUnavailability> unavailabilities;
 }

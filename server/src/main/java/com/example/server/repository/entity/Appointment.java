@@ -1,14 +1,17 @@
 package com.example.server.repository.entity;
 
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Appointment {
 
@@ -21,15 +24,14 @@ public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long appointmentId;
-
-    private LocalDate dateAndTime;  // Consider splitting into two fields if needed: one for LocalDate and one for LocalTime
-    private LocalTime finalDuration;
+    private LocalDate date;
+    private LocalTime time;
+    private int finalDuration;
 
     // Enum type for status, e.g., SCHEDULED, CANCELLED, COMPLETED
     // Assuming you will create an Enum called AppointmentStatus
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
-
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
@@ -42,5 +44,4 @@ public class Appointment {
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)
     private Service service;
-
 }

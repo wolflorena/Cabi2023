@@ -2,7 +2,9 @@ package com.example.server.repository.entity;
 
 import com.example.server.repository.DTOs.RegisterCustomerDTO;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -10,7 +12,8 @@ import java.util.Set;
 
 @Entity
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class Customer extends User {
 
     public enum AccountStatus {
