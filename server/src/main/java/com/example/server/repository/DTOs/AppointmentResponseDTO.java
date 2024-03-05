@@ -10,7 +10,7 @@ import java.time.LocalTime;
 @Data
 @NoArgsConstructor
 public class AppointmentResponseDTO {
-    private Long appintmentId;
+    private Long appointmentId;
     private LocalDate date;
     private LocalTime time;
     private int finalDuration;
