@@ -17,8 +17,7 @@ public class Service {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long serviceId;
-
-    private LocalDateTime duration;
+    private int duration;
     private String name;
     private float price;
 }
