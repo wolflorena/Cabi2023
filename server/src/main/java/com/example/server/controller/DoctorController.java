@@ -1,7 +1,7 @@
 package com.example.server.controller;
 
 import com.example.server.repository.DTOs.DoctorRequestDTO;
-import com.example.server.service.implementation.DoctorServiceImpl;
+import com.example.server.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/doctors")
 public class DoctorController {
     @Autowired
-    private DoctorServiceImpl doctorServiceImpl;
+    private DoctorService doctorService;
 
-    public DoctorController(DoctorServiceImpl doctorServiceImpl){
-        this.doctorServiceImpl = doctorServiceImpl;
+    public DoctorController(DoctorService doctorService){
+        this.doctorService = doctorService;
     }
 
     @PostMapping("/addDoctor")
     public ResponseEntity<Object> addDoctor(@RequestBody DoctorRequestDTO doctorRequestDTO){
-        return new ResponseEntity<>(doctorServiceImpl.addDoctor(doctorRequestDTO), HttpStatus.OK);
+        return new ResponseEntity<>(doctorService.addDoctor(doctorRequestDTO), HttpStatus.OK);
     }
 }

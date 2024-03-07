@@ -14,7 +14,6 @@ public class ServiceServiceImpl implements ServiceService {
         this.serviceRepository = serviceRepository;
         this.modelMapper = modelMapper;
     }
-
     @Override
     public Service addService(Service service) {
         serviceRepository.save(service);

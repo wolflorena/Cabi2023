@@ -1,6 +1,7 @@
 package com.example.server.controller;
 
 import com.example.server.repository.entity.Service;
+import com.example.server.service.ServiceService;
 import com.example.server.service.implementation.ServiceServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,14 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/services")
 public class ServiceController {
     @Autowired
-    private ServiceServiceImpl serviceServiceImpl;
+    private ServiceService serviceService;
 
-    public ServiceController(ServiceServiceImpl serviceServiceImpl){
-        this.serviceServiceImpl = serviceServiceImpl;
+    public ServiceController(ServiceService serviceService){
+        this.serviceService = serviceService;
     }
 
     @PostMapping("/addService")
     public ResponseEntity<Object> addService(@RequestBody Service service){
-        return new ResponseEntity<>(serviceServiceImpl.addService(service), HttpStatus.OK);
+        return new ResponseEntity<>(serviceService.addService(service), HttpStatus.OK);
     }
 }

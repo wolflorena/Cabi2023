@@ -13,5 +13,4 @@ public class AppointmentRequestDTO {
     private LocalTime time;
     private Long doctorId;
     private Long serviceId;
-
 }

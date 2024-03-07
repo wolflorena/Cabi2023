@@ -1,5 +1,6 @@
 package com.example.server.exception;
 
+import com.example.server.exception.types.AppointmentExistsException;
 import com.example.server.exception.types.EmailExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,5 +24,14 @@ public class GlobalExceptionHandler {
 
         // Return response entity with status code
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AppointmentExistsException.class)
+    public ResponseEntity<Object> handleAppointmentExistsException(AppointmentExistsException ex, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "An appointment already exists at this date and time for the selected doctor.");
+
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 }
