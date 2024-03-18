@@ -1,6 +1,7 @@
 package com.example.server.repository.entity;
 
 import com.example.server.repository.DTOs.RegisterCustomerDTO;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class Customer extends User {
     private AccountStatus accountStatus;
 
     @OneToMany(mappedBy = "customer")
+    @JsonManagedReference(value = "customer-appointments")
     private Set<Appointment> appointments;
 
     @OneToMany(mappedBy = "customer")

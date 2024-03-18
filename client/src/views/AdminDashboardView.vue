@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import MonthScheduler from "@/components/MonthScheduler.vue";
 import DayScheduler from "@/components/DayScheduler.vue";
@@ -7,15 +7,17 @@ import CustomCheckbox from "@/components/CustomCheckbox.vue";
 import CustomDropdown from "@/components/CustomDropdown.vue";
 import DatePicker from "@/components/DatePicker.vue";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
+import { getAllDoctors } from "@/services/doctor_service";
+import type { Doctor } from "@/data/types/Entities";
 
-const doctors = ref(["Doctor 1", "Doctor 2", "Doctor 3", "Ana"]);
-const selectedDoctors = ref([
-  { name: "Doctor 1", checked: true, color: generateRandomPurpleColor() },
-]);
+const doctors = ref<Doctor[]>([]);
+const selectedDoctors = ref<SelectedDoctor[]>([]);
 const showCalendars = ref(true);
 const showMonthCalendar = ref(true);
 const daySelected = ref(new Date());
 const selectedContent = ref("");
+
+type SelectedDoctor = Doctor & { checked: boolean; color: string };
 
 type Day = {
   date: number;
@@ -24,10 +26,14 @@ type Day = {
   isWeekend: boolean;
 };
 
-function selectDoctors(doctorName: string) {
-  if (!selectedDoctors.value.some((doctor) => doctor.name === doctorName))
+function selectDoctors(doctor: Doctor) {
+  if (
+    !selectedDoctors.value.some(
+      (selectedDoctor) => doctor.id === selectedDoctor.id
+    )
+  )
     selectedDoctors.value.push({
-      name: doctorName,
+      ...doctor,
       checked: false,
       color: generateRandomPurpleColor(),
     });
@@ -37,7 +43,6 @@ watch(
   selectedDoctors,
   () => {
     sortSelectedDoctors();
-    console.log(selectedDoctors.value);
   },
   { deep: true }
 );
@@ -49,7 +54,7 @@ function sortSelectedDoctors() {
     } else if (!a.checked && b.checked) {
       return 1;
     } else {
-      return a.name.localeCompare(b.name);
+      return a.firstName.localeCompare(b.firstName);
     }
   });
 }
@@ -84,6 +89,16 @@ function openDailyCalendar(day: Day) {
 const handleContentChanged = (newContent: string) => {
   selectedContent.value = newContent;
 };
+async function loadDoctors() {
+  await getAllDoctors().then((res: any) => {
+    res.forEach((element: any) => doctors.value.push(element));
+  });
+}
+
+onMounted(() => {
+  loadDoctors();
+  console.log(doctors.value);
+});
 </script>
 
 <template>
@@ -122,14 +137,14 @@ const handleContentChanged = (newContent: string) => {
           <div
             class="checkbox-wrapper-4"
             v-for="doctor in selectedDoctors"
-            :key="doctor.name"
+            :key="doctor.id"
             v-show="showCalendars"
           >
             <CustomCheckbox
               v-model="doctor.checked"
-              :text="doctor.name"
+              :text="`Dr. ${doctor.firstName} ${doctor.lastName}`"
               :color="doctor.color"
-              :uuid="`checkbox-${doctor.name}`"
+              :uuid="`checkbox-doctor-${doctor.id}`"
             />
           </div>
         </div>

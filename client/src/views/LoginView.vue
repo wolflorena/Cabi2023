@@ -5,7 +5,7 @@ import CustomInput from "@/components/CustomInput.vue";
 
 <template>
   <div class="container">
-    <div class="img-contaier">
+    <div class="img-container">
       <img class="img-right" src="@/assets/form.jpeg" alt="" />
     </div>
     <div class="login-container">

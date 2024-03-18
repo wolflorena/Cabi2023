@@ -29,7 +29,7 @@ function onCheckedChange(event: Event) {
     @change="onCheckedChange"
     :id="uuid"
   />
-  <label class="cbx" :for="uuid"
+  <label class="cbx" :for="uuid" :key="uuid"
     ><span>
       <svg width="12px" height="10px">
         <use xlink:href="#check-4"></use></svg></span

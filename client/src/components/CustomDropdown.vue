@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { Doctor } from "@/data/types/Entities";
 import { ref, defineProps, defineEmits, computed } from "vue";
 
 const props = withDefaults(
   defineProps<{
-    doctors: string[];
+    doctors: Doctor[];
     label: string;
     placeholder: string;
   }>(),
@@ -17,7 +18,7 @@ const displayDropdown = ref(false);
 
 const filteredDoctors = computed(() => {
   return props.doctors.filter((doctor) =>
-    doctor.toUpperCase().includes(searchQuery.value.toUpperCase())
+    doctor.firstName.toUpperCase().includes(searchQuery.value.toUpperCase())
   );
 });
 
@@ -26,8 +27,8 @@ function updateSearchQuery(event: Event) {
   searchQuery.value = target.value;
 }
 
-function selectDoctor(doctorName: string) {
-  emit("select", doctorName);
+function selectDoctor(doctor: Doctor) {
+  emit("select", doctor);
   displayDropdown.value = false;
 }
 
@@ -49,11 +50,11 @@ function toggleDropdown() {
     <div v-if="displayDropdown" class="dropdown">
       <div
         v-for="doctor in filteredDoctors"
-        :key="doctor"
+        :key="doctor.id"
         @click="selectDoctor(doctor)"
         class="element"
       >
-        {{ doctor }}
+        {{ "Dr. " + doctor.firstName + " " + doctor.lastName }}
       </div>
     </div>
   </div>
@@ -94,6 +95,7 @@ function toggleDropdown() {
     max-height: 100px;
     overflow: scroll;
     scrollbar-color: @gray;
+    z-index: 100;
 
     display: flex;
     flex-direction: column;

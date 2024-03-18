@@ -1,5 +1,6 @@
 package com.example.server.repository.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,7 +16,6 @@ public class DoctorUnavailability {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long unavailabilityId;
-
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalTime startTime;
@@ -24,5 +24,6 @@ public class DoctorUnavailability {
 
     @ManyToOne
     @JoinColumn(name = "doctor_id", nullable = false)
+    @JsonBackReference(value="unavailabilities-doctor")
     private Doctor doctor;
 }

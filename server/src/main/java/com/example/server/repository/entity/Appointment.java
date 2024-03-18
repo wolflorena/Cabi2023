@@ -1,5 +1,6 @@
 package com.example.server.repository.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,6 @@ public class Appointment {
         CANCELLED,
         COMPLETED
     }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long appointmentId;
@@ -35,10 +35,12 @@ public class Appointment {
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
+    @JsonBackReference(value="appointments-customer")
     private Customer customer;
 
     @ManyToOne
     @JoinColumn(name = "doctor_id", nullable = false)
+    @JsonBackReference(value="appointments-doctor")
     private Doctor doctor;
 
     @ManyToOne

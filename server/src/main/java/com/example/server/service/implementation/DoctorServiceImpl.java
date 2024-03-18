@@ -8,6 +8,9 @@ import com.example.server.service.DoctorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class DoctorServiceImpl implements DoctorService {
     private final DoctorRepository doctorRepository;
@@ -33,5 +36,17 @@ public class DoctorServiceImpl implements DoctorService {
         return modelMapper.map(doctor, DoctorResponseDTO.class);
     }
 
+    @Override
+    public DoctorResponseDTO getDoctorById(Long doctorId){
+        Doctor doctor = doctorRepository.findById(doctorId).orElseThrow();
+        return modelMapper.map(doctor, DoctorResponseDTO.class);
+    }
 
+    @Override
+    public List<DoctorResponseDTO> getAll(){
+        List<Doctor> doctors = doctorRepository.findAll();
+        return doctors.stream()
+                .map(doctor -> modelMapper.map(doctor, DoctorResponseDTO.class))
+                .collect(Collectors.toList());
+    }
 }

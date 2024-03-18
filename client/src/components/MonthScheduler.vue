@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
+import { getAll } from "@/services/appointments_service";
 
 const props = withDefaults(
   defineProps<{
@@ -8,6 +9,7 @@ const props = withDefaults(
   {}
 );
 
+// Types for the data used in the component
 type Day = {
   date: number;
   fullDate: string;
@@ -21,6 +23,7 @@ type Appointment = {
   id?: string;
 };
 
+// Reactive state of the component: the current date and the list of appointments
 const currentDate = ref(new Date());
 const appointments: any = ref([
   {
@@ -43,8 +46,10 @@ const appointments: any = ref([
   },
 ]);
 
+// A list of the days of the week, used for displaying the calendar header
 const weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
+// A computed property that formats the current month and year for display
 const currentMonthYear = computed(() => {
   return currentDate.value.toLocaleString("default", {
     month: "long",
@@ -52,6 +57,28 @@ const currentMonthYear = computed(() => {
   });
 });
 
+const selectedAppointments = computed(() => {
+  const selectedDoctorsNames = props.selectedCalendars
+    .filter((doctor) => doctor.checked)
+    .map((doctor) => doctor.name);
+
+  return appointments.value
+    .filter((appointment: Appointment) =>
+      selectedDoctorsNames.includes(appointment.doctor)
+    )
+    .sort((a: Appointment, b: Appointment) => {
+      const timeA = convertTime12to24(a.hour);
+      const timeB = convertTime12to24(b.hour);
+
+      return timeA - timeB;
+    });
+});
+
+// onMounted(() => {
+//   loadAppointments();
+// });
+
+// Function that calculates the structure of days in the current month for display in the calendar
 function weeksInMonth(date: Date): Day[][] {
   const month = date.getMonth();
   const year = date.getFullYear();
@@ -97,29 +124,6 @@ function navigate(monthIncrement: number): void {
   );
 }
 
-const emit = defineEmits(["toggle-calendar"]);
-
-function toggleCalendar() {
-  emit("toggle-calendar");
-}
-
-const selectedAppointments = computed(() => {
-  const selectedDoctorsNames = props.selectedCalendars
-    .filter((doctor) => doctor.checked)
-    .map((doctor) => doctor.name);
-
-  return appointments.value
-    .filter((appointment: Appointment) =>
-      selectedDoctorsNames.includes(appointment.doctor)
-    )
-    .sort((a: Appointment, b: Appointment) => {
-      const timeA = convertTime12to24(a.hour);
-      const timeB = convertTime12to24(b.hour);
-
-      return timeA - timeB;
-    });
-});
-
 function getDoctorColor(doctorName: string): string {
   const doctor = props.selectedCalendars.find(
     (calendar) => calendar.name === doctorName
@@ -141,6 +145,18 @@ function convertTime12to24(time: string): number {
 
   return hours * 60 + minutes;
 }
+
+async function loadAppointments() {
+  await getAll().then((res) => console.log(res));
+}
+
+// Function for toggling the calendar view
+function toggleCalendar() {
+  emit("toggle-calendar");
+}
+
+// Emitter for communication with the parent of the component
+const emit = defineEmits(["toggle-calendar"]);
 </script>
 
 <template>
