@@ -10,10 +10,18 @@ const props = withDefaults(
     selected: false,
   }
 );
+
+const emits = defineEmits<{
+  (e: "selectionChanged", payload: string): void;
+}>();
+
+const handleOptionClicked = () => {
+  emits("selectionChanged", props.text);
+};
 </script>
 
 <template>
-  <button :class="{ selected }">
+  <button :class="{ selected }" @click="handleOptionClicked">
     <font-awesome-icon id="icon" :icon="icon" />
     <span>
       {{ text }}

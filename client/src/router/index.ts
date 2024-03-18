@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import SignupView from "../views/SignupView.vue";
 import LoginView from "../views/LoginView.vue";
 import AdminDashboardView from "../views/AdminDashboardView.vue";
+import CustomerProfile from "@/views/CustomerProfile.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -20,9 +21,14 @@ const routes: Array<RouteRecordRaw> = [
     component: LoginView,
   },
   {
-    path: "/dashboard",
+    path: "/admin/dashboard",
     name: "dashboard",
     component: AdminDashboardView,
+  },
+  {
+    path: "/profile",
+    name: "CustomerProfile",
+    component: CustomerProfile,
   },
 ];
 

@@ -6,6 +6,7 @@ import DayScheduler from "@/components/DayScheduler.vue";
 import CustomCheckbox from "@/components/CustomCheckbox.vue";
 import CustomDropdown from "@/components/CustomDropdown.vue";
 import DatePicker from "@/components/DatePicker.vue";
+import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 
 const doctors = ref(["Doctor 1", "Doctor 2", "Doctor 3", "Ana"]);
 const selectedDoctors = ref([
@@ -14,6 +15,7 @@ const selectedDoctors = ref([
 const showCalendars = ref(true);
 const showMonthCalendar = ref(true);
 const daySelected = ref(new Date());
+const selectedContent = ref("");
 
 type Day = {
   date: number;
@@ -78,11 +80,19 @@ function openDailyCalendar(day: Day) {
   daySelected.value = new Date(day.fullDate);
   showMonthCalendar.value = false;
 }
+
+const handleContentChanged = (newContent: string) => {
+  selectedContent.value = newContent;
+};
 </script>
 
 <template>
   <div class="container">
-    <Sidebar />
+    <Sidebar
+      :options="AdminSidebarOptions"
+      @content-changed="handleContentChanged"
+    />
+    <span> {{ selectedContent }}</span>
     <div class="settings">
       <button class="add-button">
         <font-awesome-icon id="icon" icon="circle-plus" />
@@ -213,3 +223,4 @@ function openDailyCalendar(day: Day) {
   }
 }
 </style>
+@/data/types/SidebarOptions@/data/types/SidebarOptions

@@ -1,9 +1,26 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import SidebarButton from "./SidebarButton.vue";
-import { useRoute } from "vue-router";
+import type { SidebarOption } from "@/data/types/SidebarOptions";
+import { useRoute, useRouter } from "vue-router";
+
+defineProps<{
+  options: SidebarOption[];
+}>();
+
+const router = useRouter();
+const emits = defineEmits<{
+  (e: "contentChanged", payload: string): void;
+}>();
 
 const hideSidebar = ref(false);
+const selectedContent = ref("Dashboard");
+
+const handleContentChange = (newValue: string, newPath: string): void => {
+  selectedContent.value = newValue;
+  router.push(`/admin${newPath}`);
+  emits("contentChanged", newValue);
+};
 </script>
 
 <template>
@@ -14,35 +31,18 @@ const hideSidebar = ref(false);
   >
     <font-awesome-icon id="icon" icon="bars" />
   </button>
-  <div class="sidebar" v-show="!hideSidebar">
+  <div class="sidebar" :class="{ hided: hideSidebar }">
     <div class="logo-container">
       <img src="@/assets/logo.png" alt="" />
     </div>
     <div class="selections">
       <SidebarButton
-        :selected="useRoute().path === '/dashboard'"
-        text="Dashboard"
-        icon="table-columns"
-      />
-      <SidebarButton
-        :selected="useRoute().path === ''"
-        text="Appointments"
-        icon="calendar-check"
-      />
-      <SidebarButton
-        :selected="useRoute().path === ''"
-        text="Patients"
-        icon="hospital-user"
-      />
-      <SidebarButton
-        :selected="useRoute().path === ''"
-        text="Inventory"
-        icon="cart-flatbed"
-      />
-      <SidebarButton
-        :selected="useRoute().path === ''"
-        text="Forms"
-        icon="highlighter"
+        v-for="(option, index) in options"
+        :key="index"
+        :selected="selectedContent === option.text"
+        :text="option.text"
+        :icon="option.icon"
+        @selection-changed="handleContentChange(option.text, option.path)"
       />
     </div>
   </div>
@@ -56,6 +56,7 @@ const hideSidebar = ref(false);
   width: 15vw;
   background-color: @blue;
   border-top-right-radius: 100px;
+  transition: transform 0.3s ease;
 
   .logo-container {
     padding-top: 20px;
@@ -73,6 +74,10 @@ const hideSidebar = ref(false);
     flex-direction: column;
     gap: 15px;
   }
+
+  &.hided {
+    transform: translateX(-100%);
+  }
 }
 
 .hideSidebar {
@@ -89,3 +94,4 @@ const hideSidebar = ref(false);
   }
 }
 </style>
+@/data/types/SidebarOptions@/data/types/SidebarOptions
