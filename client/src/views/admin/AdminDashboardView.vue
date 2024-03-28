@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import MonthScheduler from "@/components/MonthScheduler.vue";
 import DayScheduler from "@/components/DayScheduler.vue";
 import CustomCheckbox from "@/components/CustomCheckbox.vue";
 import CustomDropdown from "@/components/CustomDropdown.vue";
+import CustomModal from "@/components/CustomModal.vue";
 import DatePicker from "@/components/DatePicker.vue";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 import { getAllDoctors } from "@/services/doctor_service";
@@ -13,6 +14,7 @@ import type { Doctor, SelectedDoctor } from "@/data/types/Entities";
 const doctors = ref<Doctor[]>([]);
 const selectedDoctors = ref<SelectedDoctor[]>([]);
 const showCalendars = ref(true);
+const showModal = ref(false);
 const showMonthCalendar = ref(true);
 const daySelected = ref(new Date());
 const selectedContent = ref("");
@@ -106,7 +108,7 @@ onMounted(() => {
     />
     <span> {{ selectedContent }}</span>
     <div class="settings">
-      <button class="add-button">
+      <button class="add-button" @click="showModal = true">
         <font-awesome-icon id="icon" icon="circle-plus" />
         <span>Add appointment</span>
       </button>
@@ -159,6 +161,13 @@ onMounted(() => {
       @toggle-calendar="toggleCalendar"
     />
   </div>
+
+  <CustomModal
+    :show="showModal"
+    @button2="showModal = false"
+    title="New appointment"
+  >
+  </CustomModal>
 </template>
 
 <style scoped lang="less">
