@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { getAll } from "@/services/appointments_service";
+import type { SelectedDoctor, Appointment } from "@/data/types/Entities";
 
 const props = withDefaults(
   defineProps<{
-    selectedCalendars: any[];
+    selectedCalendars: SelectedDoctor[];
   }>(),
   {}
 );
@@ -15,36 +16,9 @@ type Day = {
   fullDate: string;
 };
 
-type Appointment = {
-  details: string;
-  hour: string;
-  day: string;
-  doctor: string;
-  id?: string;
-};
-
 // Reactive state of the component: the current date and the list of appointments
 const currentDate = ref(new Date());
-const appointments: any = ref([
-  {
-    details: "Appointment",
-    hour: "09:00AM",
-    day: "2024-02-20",
-    doctor: "Doctor 1",
-  },
-  {
-    details: "Appointment",
-    hour: "08:00AM",
-    day: "2024-02-20",
-    doctor: "Doctor 2",
-  },
-  {
-    details: "Appointment",
-    hour: "11:00AM",
-    day: "2024-02-22",
-    doctor: "Doctor 3",
-  },
-]);
+const appointments = ref<Appointment[]>([]);
 
 // A list of the days of the week, used for displaying the calendar header
 const weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
@@ -58,25 +32,25 @@ const currentMonthYear = computed(() => {
 });
 
 const selectedAppointments = computed(() => {
-  const selectedDoctorsNames = props.selectedCalendars
+  const selectedDoctors = props.selectedCalendars
     .filter((doctor) => doctor.checked)
-    .map((doctor) => doctor.name);
+    .map((doctor) => doctor.id);
 
   return appointments.value
     .filter((appointment: Appointment) =>
-      selectedDoctorsNames.includes(appointment.doctor)
+      selectedDoctors.includes(appointment.doctorId)
     )
     .sort((a: Appointment, b: Appointment) => {
-      const timeA = convertTime12to24(a.hour);
-      const timeB = convertTime12to24(b.hour);
+      const timeA = convertTime12to24(a.time);
+      const timeB = convertTime12to24(b.time);
 
       return timeA - timeB;
     });
 });
 
-// onMounted(() => {
-//   loadAppointments();
-// });
+onMounted(() => {
+  loadAppointments();
+});
 
 // Function that calculates the structure of days in the current month for display in the calendar
 function weeksInMonth(date: Date): Day[][] {
@@ -124,9 +98,9 @@ function navigate(monthIncrement: number): void {
   );
 }
 
-function getDoctorColor(doctorName: string): string {
+function getDoctorColor(doctorId: number): string {
   const doctor = props.selectedCalendars.find(
-    (calendar) => calendar.name === doctorName
+    (calendar) => calendar.id === doctorId
   );
   return doctor ? doctor.color : "#ffffff";
 }
@@ -147,7 +121,9 @@ function convertTime12to24(time: string): number {
 }
 
 async function loadAppointments() {
-  await getAll().then((res) => console.log(res));
+  await getAll().then((res) => {
+    appointments.value = res;
+  });
 }
 
 // Function for toggling the calendar view
@@ -200,18 +176,27 @@ const emit = defineEmits(["toggle-calendar"]);
 
               <div class="appointments">
                 <div
-                  v-for="appointment in selectedAppointments.filter((appointment:Appointment) => appointment.day === day.fullDate)"
+                  v-for="appointment in selectedAppointments.filter((appointment: Appointment) => {
+    return appointment.date === day.fullDate;
+  })"
                   :key="appointment.id"
                   class="appointment"
                 >
                   <div
                     id="circle"
                     :style="{
-                      backgroundColor: getDoctorColor(appointment.doctor),
+                      backgroundColor: getDoctorColor(appointment.doctorId),
                     }"
                   ></div>
-                  <span id="hour">{{ appointment.hour }}</span>
-                  <span id="details">{{ appointment.details }}</span>
+                  <span id="hour">{{
+                    appointment.time.substring(
+                      0,
+                      appointment.time.lastIndexOf(":")
+                    )
+                  }}</span>
+                  <span id="details">{{
+                    "Service id:" + appointment.serviceId
+                  }}</span>
                 </div>
               </div>
             </td>

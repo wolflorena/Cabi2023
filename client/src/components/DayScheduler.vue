@@ -1,29 +1,25 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { Appointment, SelectedDoctor } from "@/data/types/Entities";
+import { ref, computed, watch, onMounted } from "vue";
+import { getAll } from "@/services/appointments_service";
 
 const props = withDefaults(
   defineProps<{
-    selectedCalendars: any[];
+    selectedCalendars: SelectedDoctor[];
     daySelected: Date;
   }>(),
   {}
 );
 
+type CalendarAppointment = Appointment & { endTime: string };
+
 const currentDate = ref(props.daySelected);
 
-const timeSlots: string[] = createTimeSlots(9, 17);
+const timeSlots: string[] = createTimeSlots(9, 18);
 const calendars = ref(["Ana", "Doctor 1"]);
 const calendarsNumber = computed(() => calendars.value.length);
 const currentDateKey = computed(() => currentDate.value.toISOString());
-
-type Appointment = {
-  startTime: string;
-  endTime: string;
-  description: string;
-  patient: string;
-  doctor: string;
-  day: string; //format: "YYYY-DD-MM"
-};
+const appointments = ref<CalendarAppointment[]>([]);
 
 function createTimeSlots(startHour: number, endHour: number): string[] {
   const slots: string[] = [];
@@ -74,39 +70,9 @@ const currentDay = computed(() => {
   return formattedDay;
 });
 
-const appointments = ref([
-  {
-    id: "1",
-    startTime: "09:00AM",
-    endTime: "10:00",
-    description: "Example Appointment 2",
-    patient: "gigel",
-    doctor: "Ana",
-    day: "2024-02-19",
-  },
-  {
-    id: "2",
-    startTime: "10:20",
-    endTime: "11:00",
-    description: "Example Appointment 1",
-    patient: "gigel",
-    doctor: "Doctor 1",
-    day: "2024-03-18",
-  },
-  {
-    id: "2",
-    startTime: "13:30",
-    endTime: "14:00",
-    description: "Example Appointment 2",
-    patient: "gigel",
-    doctor: "Doctor 1",
-    day: "2024-02-20",
-  },
-]);
-
-function getAppointmentStyle(appointment: Appointment) {
-  const startHour = parseInt(appointment.startTime.split(":")[0]);
-  const startMinutes = parseInt(appointment.startTime.split(":")[1]);
+function getAppointmentStyle(appointment: CalendarAppointment) {
+  const startHour = parseInt(appointment.time.split(":")[0]);
+  const startMinutes = parseInt(appointment.time.split(":")[1]);
   const endHour = parseInt(appointment.endTime.split(":")[0]);
   const endMinutes = parseInt(appointment.endTime.split(":")[1]);
 
@@ -121,8 +87,8 @@ function getAppointmentStyle(appointment: Appointment) {
   };
 }
 
-function computeStyle(appointment: Appointment, slot: string) {
-  const startHour = parseInt(appointment.startTime.split(":")[0]);
+function computeStyle(appointment: CalendarAppointment, slot: string) {
+  const startHour = parseInt(appointment.time.split(":")[0]);
   const slotStartHour = parseInt(slot.split(":")[0]);
 
   if (startHour !== slotStartHour) {
@@ -141,17 +107,17 @@ function navigate(dayIncrement: number): void {
   );
 }
 
-const getAppointmentsForCalendar = computed(() => {
-  return (calendar: string) => {
-    return appointments.value.filter((appointment: Appointment) => {
-      return (
-        selectedDoctorsNames.value.includes(appointment.doctor) &&
-        appointment.day === toLocalISOString(currentDate.value) &&
-        appointment.doctor === calendar
-      );
-    });
-  };
-});
+function getAppointmentsForCalendar(calendar: number) {
+  const filteredAppointments = appointments.value.filter((appointment) => {
+    const condition =
+      appointment.date === toLocalISOString(currentDate.value) &&
+      selectedDoctors.value.includes(appointment.doctorId) &&
+      appointment.doctorId === calendar;
+    return condition;
+  });
+
+  return filteredAppointments;
+}
 
 // Dacă currentDate.value este setată la 2024-02-20 01:00 în fusul orar UTC-3, atunci currentDate.value.toISOString() va returna 2024-02-19T04:00:00.000Z
 function toLocalISOString(date: Date): string {
@@ -168,22 +134,54 @@ function toggleCalendar() {
   emit("toggle-calendar");
 }
 
-const selectedDoctorsNames = computed(() => {
+const selectedDoctors = computed(() => {
   return props.selectedCalendars
-    .filter((calendar) => calendar.checked)
-    .map((calendar) => calendar.name);
+    .filter((doctor) => doctor.checked)
+    .map((doctor) => doctor.id);
 });
 
 const selectedCalendarsFiltered = computed(() => {
-  return props.selectedCalendars.filter((calendar) => calendar.checked);
+  return props.selectedCalendars.filter((doctor) => doctor.checked);
 });
 
-function getDoctorColor(doctorName: string): string {
+function getDoctorColor(doctorId: number): string {
   const doctor = props.selectedCalendars.find(
-    (calendar) => calendar.name === doctorName
+    (calendar) => calendar.id === doctorId
   );
   return doctor ? doctor.color : "#ffffff";
 }
+
+async function loadAppointments() {
+  await getAll().then((res) => {
+    const updatedAppointments = res.map((appointment: CalendarAppointment) => {
+      let [hour, minute] = appointment.time.split(":").map(Number);
+      // Adaugă durata la minute
+      minute += appointment.finalDuration;
+
+      // Verifică dacă suma minutelor depășește 59 și ajustează orele și minutele corespunzător
+      while (minute >= 60) {
+        hour += 1;
+        minute -= 60;
+      }
+
+      appointment.endTime = `${hour.toString().padStart(2, "0")}:${minute
+        .toString()
+        .padStart(2, "0")}`;
+
+      appointment.time = appointment.time.substring(
+        0,
+        appointment.time.lastIndexOf(":")
+      );
+      return appointment;
+    });
+
+    appointments.value = updatedAppointments;
+  });
+}
+
+onMounted(() => {
+  loadAppointments();
+});
 </script>
 
 <template>
@@ -211,7 +209,7 @@ function getDoctorColor(doctorName: string): string {
               v-for="calendar in selectedCalendarsFiltered"
               class="column-header"
             >
-              {{ calendar.name }}
+              {{ calendar.firstName }}
             </th>
           </tr>
         </thead>
@@ -227,16 +225,16 @@ function getDoctorColor(doctorName: string): string {
               class="slot calendar"
             >
               <div
-                v-for="appointment in getAppointmentsForCalendar(calendar.name)"
+                v-for="appointment in getAppointmentsForCalendar(calendar.id)"
                 class="appointment"
                 :style="[
                   computeStyle(appointment, slot),
-                  `background-color: ${getDoctorColor(calendar.name)}`,
+                  `background-color: ${getDoctorColor(calendar.id)}`,
                 ]"
               >
-                <span>{{ appointment.startTime }}</span>
-                <span>{{ appointment.description }}</span>
-                <span>{{ `Patient: ${appointment.patient}` }}</span>
+                <span>{{ appointment.time }}</span>
+                <span>{{ "service id" + appointment.serviceId }}</span>
+                <span>{{ `Patient: ${appointment.customerId}` }}</span>
               </div>
             </td>
           </tr>
@@ -293,7 +291,7 @@ function getDoctorColor(doctorName: string): string {
 .calendar-container {
   padding: 0px 10px;
   overflow: scroll;
-  max-height: 95vh;
+  max-height: 97vh;
 
   .calendar {
     border-collapse: collapse;
@@ -335,6 +333,15 @@ function getDoctorColor(doctorName: string): string {
         font-weight: bold;
       }
     }
+  }
+  &&::-webkit-scrollbar {
+    width: 4px;
+    background-color: @light-gray;
+  }
+
+  &&::-webkit-scrollbar-thumb {
+    background-color: @blue;
+    border-radius: 10px;
   }
 }
 </style>

@@ -9,10 +9,12 @@ export type Doctor = {
   appointments: Appointment[];
 };
 
+export type SelectedDoctor = Doctor & { checked: boolean; color: string };
+
 export type Appointment = {
   id: number;
-  date: Date;
-  time: Date;
+  date: string;
+  time: string;
   finalDuration: number;
   status: string;
   customerId: number;

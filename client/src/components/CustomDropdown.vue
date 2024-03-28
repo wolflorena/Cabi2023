@@ -34,6 +34,7 @@ function selectDoctor(doctor: Doctor) {
 
 function toggleDropdown() {
   displayDropdown.value = !displayDropdown.value;
+  console.log(displayDropdown.value);
 }
 </script>
 
@@ -90,24 +91,40 @@ function toggleDropdown() {
   .dropdown {
     background-color: @light-gray;
     width: 19vw;
-    position: absolute;
-    top: 100%;
     max-height: 100px;
     overflow: scroll;
-    scrollbar-color: @gray;
     z-index: 100;
 
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    position: absolute;
+
+    border-radius: 6px;
+    margin-top: 5px;
+    max-height: 180px;
+    overflow-y: auto;
+    -webkit-transition: 0.4s linear 0.2s;
+    -o-transition: 0.4s linear 0.2s;
+    transition: 0.4s linear 0.2s;
 
     .element {
-      border-bottom: 0.1px solid @gray;
-      cursor: pointer;
+      padding: 8px 5px;
+      font-weight: 500;
+      font-size: 14px;
+      -webkit-transition: 0.3s ease-in-out;
+      -o-transition: 0.3s ease-in-out;
+      transition: 0.3s ease-in-out;
 
       &:hover {
-        background-color: @red;
+        color: @blue;
       }
+    }
+
+    &&::-webkit-scrollbar {
+      width: 4px;
+      background-color: @light-gray;
+    }
+
+    &&::-webkit-scrollbar-thumb {
+      background-color: @blue;
     }
   }
 }

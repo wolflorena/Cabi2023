@@ -8,7 +8,7 @@ import CustomDropdown from "@/components/CustomDropdown.vue";
 import DatePicker from "@/components/DatePicker.vue";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 import { getAllDoctors } from "@/services/doctor_service";
-import type { Doctor } from "@/data/types/Entities";
+import type { Doctor, SelectedDoctor } from "@/data/types/Entities";
 
 const doctors = ref<Doctor[]>([]);
 const selectedDoctors = ref<SelectedDoctor[]>([]);
@@ -16,8 +16,6 @@ const showCalendars = ref(true);
 const showMonthCalendar = ref(true);
 const daySelected = ref(new Date());
 const selectedContent = ref("");
-
-type SelectedDoctor = Doctor & { checked: boolean; color: string };
 
 type Day = {
   date: number;
@@ -97,7 +95,6 @@ async function loadDoctors() {
 
 onMounted(() => {
   loadDoctors();
-  console.log(doctors.value);
 });
 </script>
 
@@ -151,12 +148,12 @@ onMounted(() => {
       </div>
     </div>
     <MonthScheduler
-      v-show="showMonthCalendar"
+      v-if="showMonthCalendar"
       :selected-calendars="selectedDoctors"
       @toggle-calendar="toggleCalendar"
     />
     <DayScheduler
-      v-show="!showMonthCalendar"
+      v-else
       :selected-calendars="selectedDoctors"
       :day-selected="daySelected"
       @toggle-calendar="toggleCalendar"

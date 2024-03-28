@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import SignupView from "../views/SignupView.vue";
-import LoginView from "../views/LoginView.vue";
-import AdminDashboardView from "../views/AdminDashboardView.vue";
-import CustomerProfile from "@/views/CustomerProfile.vue";
+import LoginView from "../views/admin/LoginView.vue";
+import AdminDashboardView from "../views/admin/AdminDashboardView.vue";
+import CustomerProfile from "@/views/customer/CustomerProfile.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
