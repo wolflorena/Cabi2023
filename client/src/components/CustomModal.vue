@@ -2,7 +2,7 @@
 const props = withDefaults(
   defineProps<{
     show: boolean;
-    title: string;
+    title?: string;
   }>(),
   {}
 );
@@ -75,6 +75,7 @@ const emits = defineEmits(["button1", "button2"]);
     .modal-footer {
       display: flex;
       justify-content: space-between;
+      padding-top: 15px;
 
       button {
         background-color: transparent;

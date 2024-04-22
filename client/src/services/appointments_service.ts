@@ -29,6 +29,13 @@ async function getById(appointmentId: number) {
   return json;
 }
 
+async function deleteAppointment(appointmentId: number) {
+  const response = fetch(API_URL + "?appointmentId=" + appointmentId, {
+    method: "DELETE",
+  });
+  return response;
+}
+
 async function getAll() {
   const response = await fetch(`${API_URL}/getAll`);
   const json = await response.json();
@@ -64,4 +71,5 @@ export {
   getAllForCalendar,
   getAllPageable,
   getById,
+  deleteAppointment,
 };

@@ -9,16 +9,21 @@ import CustomModal from "@/components/CustomModal.vue";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 
 import {
-  Appointment,
+  AppointmentDetail,
   AppointmentAdmin,
   type SelectedDoctor,
 } from "@/data/types/Entities";
 import { getAllDoctors } from "@/services/doctor_service";
-import { getById, getAllPageable } from "@/services/appointments_service";
+import {
+  getById,
+  getAllPageable,
+  deleteAppointment,
+} from "@/services/appointments_service";
 
 const showModal = ref(false);
-const showInfo = ref(true);
-const appointmentDetails = ref<Appointment>();
+const showInfo = ref(false);
+const showDelete = ref(false);
+const appointmentDetails = ref<AppointmentDetail>();
 
 const doctors = ref<SelectedDoctor[]>([]);
 const appointments = ref<AppointmentAdmin[]>([]);
@@ -90,6 +95,129 @@ async function showInfoModal(appointmentId: number) {
     appointmentDetails.value = res;
   });
 }
+
+async function showDeleteModal(appointmentId: number) {
+  showDelete.value = true;
+  await getById(appointmentId).then((res) => {
+    appointmentDetails.value = res;
+  });
+}
+
+async function deleteAppointmentById(appointmentId: number | undefined) {
+  if (appointmentId) {
+    await deleteAppointment(appointmentId)
+      .then((res) => {
+        if (res.ok) {
+          console.log("Appointment successfull deleted!");
+          showDelete.value = false;
+          loadAppointments();
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  } else return;
+}
+
+function formatDateForTable(dateStr: string): string {
+  const monthsOfYear = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sept",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  if (dateStr) {
+    const date = new Date(dateStr);
+    const dayOfMonth = date.getDate();
+    const year = date.getFullYear();
+    const month = monthsOfYear[date.getMonth()];
+
+    return `${dayOfMonth} ${month} ${year}`;
+  }
+  return "";
+}
+
+//the string format of the date from the server is: YYYY-MM-DD
+function formatDate(dateStr: string | undefined): string {
+  const daysOfWeek = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const monthsOfYear = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  if (dateStr) {
+    const date = new Date(dateStr);
+    const dayOfWeek = daysOfWeek[date.getDay()];
+    const dayOfMonth = date.getDate();
+    const month = monthsOfYear[date.getMonth()];
+
+    const dayWithSuffix = getDayWithSuffix(dayOfMonth);
+
+    return `${dayOfWeek}, ${dayWithSuffix} of ${month}`;
+  }
+  return "";
+}
+
+function getDayWithSuffix(day: number): string {
+  if (day % 10 === 1 && day !== 11) {
+    return `${day}st`;
+  } else if (day % 10 === 2 && day !== 12) {
+    return `${day}nd`;
+  } else if (day % 10 === 3 && day !== 13) {
+    return `${day}rd`;
+  } else {
+    return `${day}th`;
+  }
+}
+
+function formatTime(timeStr: string | undefined): string {
+  if (timeStr) {
+    const timeParts = timeStr.split(":");
+    const date = new Date();
+    date.setHours(
+      parseInt(timeParts[0]),
+      parseInt(timeParts[1]),
+      parseInt(timeParts[2])
+    );
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+
+    const amPm = hours >= 12 ? "PM" : "AM";
+
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    return `${hours}:${formattedMinutes} ${amPm}`;
+  }
+  return "";
+}
 </script>
 
 <template>
@@ -148,8 +276,10 @@ async function showInfoModal(appointmentId: number) {
               </td>
               <td>
                 <div class="date">
-                  <span> {{ appointment.date }} </span>
-                  <span>{{ appointment.time }} </span>
+                  <span id="time">{{ formatTime(appointment.time) }} </span>
+                  <span id="date">
+                    {{ formatDateForTable(appointment.date) }}
+                  </span>
                 </div>
               </td>
               <td>
@@ -168,7 +298,7 @@ async function showInfoModal(appointmentId: number) {
                   <button>
                     <font-awesome-icon icon="pen" id="icon" />
                   </button>
-                  <button>
+                  <button @click="showDeleteModal(appointment.appointmentId)">
                     <font-awesome-icon icon="trash-can" id="icon" />
                   </button>
                 </div>
@@ -186,31 +316,53 @@ async function showInfoModal(appointmentId: number) {
       </div>
       <CustomModal
         :show="showInfo"
-        title="appointment"
+        title="Appointment"
         @button2="showInfo = false"
         class="appointment-info"
       >
         <div class="detail">
           <span>Patient</span>
-          <span>{{ appointmentDetails?.customerId }}</span>
+          <span>{{
+            appointmentDetails?.customerFirstName +
+            " " +
+            appointmentDetails?.customerLastName
+          }}</span>
         </div>
         <div class="detail">
           <span>Doctor</span>
-          <span>{{ appointmentDetails?.doctorId }}</span>
+          <span>{{
+            "Dr. " +
+            appointmentDetails?.doctorFirstName +
+            " " +
+            appointmentDetails?.doctorLastName
+          }}</span>
         </div>
         <div class="detail">
           <span>Date</span>
-          <span>{{ appointmentDetails?.date }}</span>
+          <span>{{ formatDate(appointmentDetails?.date) }}</span>
         </div>
         <div class="detail">
           <span>Hour</span>
-          <span>{{ appointmentDetails?.time }}</span>
+          <span>{{ formatTime(appointmentDetails?.time) }}</span>
         </div>
         <div class="detail">
           <span>Type of treatment</span>
-          <span>{{ appointmentDetails?.serviceId }}</span>
+          <span>{{ appointmentDetails?.serviceName }}</span>
         </div>
       </CustomModal>
+      <CustomModal
+        :show="showDelete"
+        @button2="showDelete = false"
+        @button1="deleteAppointmentById(appointmentDetails?.appointmentId)"
+      >
+        <span class="delete-text">{{
+          "Are you sure you want to delete the appointment for " +
+          appointmentDetails?.customerFirstName +
+          " " +
+          appointmentDetails?.customerLastName +
+          "?"
+        }}</span></CustomModal
+      >
     </div>
   </div>
 
@@ -288,15 +440,26 @@ async function showInfoModal(appointmentId: number) {
         thead tr {
           height: 8vh;
           background-color: @light-gray;
+          font-size: large;
         }
 
         tbody tr {
           height: 8vh;
+          font-size: 20px;
           td {
             text-align: center;
             .date {
               display: flex;
               flex-direction: column;
+
+              #time {
+                font-size: 20px;
+                font-weight: 500;
+              }
+
+              #date {
+                font-size: 12px;
+              }
             }
 
             .actions {
@@ -307,13 +470,12 @@ async function showInfoModal(appointmentId: number) {
               }
             }
           }
+          &:hover {
+            background-color: @sugar;
+          }
         }
         tr:nth-child(even) {
           background-color: @light-gray;
-        }
-
-        tr:hover {
-          background-color: @sugar;
         }
       }
 
@@ -333,9 +495,12 @@ async function showInfoModal(appointmentId: number) {
       .detail {
         padding: 10px;
         display: flex;
-        // flex-direction: column;
         justify-content: space-between;
       }
+    }
+
+    .delete-text {
+      color: @white;
     }
   }
 }

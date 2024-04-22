@@ -182,7 +182,7 @@ const emit = defineEmits(["toggle-calendar"]);
                   v-for="appointment in selectedAppointments.filter((appointment: AppointmentCalendar) => {
     return appointment.date === day.fullDate;
   })"
-                  :key="appointment.id"
+                  :key="appointment.appointmentId"
                   class="appointment"
                 >
                   <div

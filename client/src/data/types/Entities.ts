@@ -11,38 +11,39 @@ export type Doctor = {
 
 export type SelectedDoctor = Doctor & { checked: boolean; color: string };
 
-export type Appointment = {
-  id: number;
-  date: string;
-  time: string;
-  finalDuration: number;
-  status: string;
-  customerId: number;
-  doctorId: number;
-  serviceId: number;
-};
-
-export type AppointmentCalendar = {
-  id: number;
-  date: string;
-  time: string;
-  finalDuration: number;
-  status: string;
-  customerFirstName: string;
-  customerLastName: string;
-  doctorId: number;
-  serviceName: string;
-};
-
-export type AppointmentAdmin = {
+type AppointmentBasic = {
   appointmentId: number;
   date: string;
   time: string;
   status: string;
+  doctorId: number;
+  customerId: number;
+};
+
+export type Appointment = AppointmentBasic & {
+  finalDuration: number;
+  serviceId: number;
+};
+
+export type AppointmentCalendar = AppointmentBasic & {
+  finalDuration: number;
   customerFirstName: string;
   customerLastName: string;
-  doctorId: number;
+  serviceName: string;
+};
+
+export type AppointmentAdmin = AppointmentBasic & {
+  customerFirstName: string;
+  customerLastName: string;
   doctorFirstName: string;
   doctorLastName: string;
   serviceId: number;
+};
+
+export type AppointmentDetail = AppointmentBasic & {
+  customerFirstName: string;
+  customerLastName: string;
+  doctorFirstName: string;
+  doctorLastName: string;
+  serviceName: string;
 };
