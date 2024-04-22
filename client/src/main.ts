@@ -18,7 +18,8 @@ import {
   faHighlighter,
   faEye,
   faPen,
-  faTrash,
+  faUser,
+  faKey,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
@@ -37,7 +38,9 @@ library.add(
   faBars,
   faEye,
   faPen,
-  faTrashCan
+  faTrashCan,
+  faUser,
+  faKey
 );
 
 createApp(App)

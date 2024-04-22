@@ -7,11 +7,6 @@ import CustomerProfile from "@/views/customer/CustomerProfile.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: "/",
-    name: "default",
-    component: LoginView,
-  },
-  {
     path: "/register",
     name: "register",
     component: SignupView,

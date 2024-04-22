@@ -12,8 +12,8 @@ import CustomInput from "@/components/CustomInput.vue";
       <img src="@/assets/logo.png" alt="" />
       <div class="form">
         <div class="inputs">
-          <CustomInput label-text="Email" />
-          <CustomInput label-text="Password" type="password" />
+          <CustomInput label-text="Email" icon-token="user" />
+          <CustomInput label-text="Password" type="password" icon-token="key" />
           <div class="forgot-password">
             <router-link to="/recovery" id="forgot">
               Forgot password?

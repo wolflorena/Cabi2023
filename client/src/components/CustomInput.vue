@@ -4,6 +4,7 @@ const props = withDefaults(
     labelText: string;
     type: string;
     pattern?: string;
+    iconToken?: string;
   }>(),
   {
     labelText: "",
@@ -13,35 +14,55 @@ const props = withDefaults(
 </script>
 
 <template>
-  <label>
-    {{ labelText }}
-    <input :type="type" />
-  </label>
+  <div class="input-container">
+    <div class="input-box">
+      <font-awesome-icon :icon="iconToken" id="icon" />
+      <input :type="type" required class="input-input" placeholder="" />
+      <label for="" class="input-label">{{ labelText }}</label>
+    </div>
+  </div>
 </template>
 
 <style scoped lang="less">
 @import (reference) "@/assets/styles.less";
 
-label {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  gap: 5px;
+.input-container {
+  display: grid;
+  row-gap: 1.75rem;
+  margin-bottom: 1.5rem;
 
-  color: @black;
-  font-size: 15px;
-  font-weight: 100;
-  width: 30%;
-  min-width: 400px;
+  .input-box {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    align-items: center;
+    column-gap: 0.75rem;
+    position: relative;
+    border-bottom: 2px solid @gray;
 
-  input {
-    width: 200px;
-    height: 20px;
-    border-radius: 15px;
-    padding: 5px;
-    border: 1px solid rgba(0, 0, 0, 0.4);
-    background-color: transparent;
+    .input-input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 1rem;
+      padding-block: 0.75rem;
+      background: none;
+      color: @gray;
+    }
+
+    .input-label {
+      position: absolute;
+      padding-left: 30px;
+      left: 0;
+      top: 13px;
+      font-weight: 500;
+      transition: top 0.3s, font-size 0.3s;
+    }
+
+    .input-input:focus + .input-label,
+    .input-input:not(:placeholder-shown) + .input-label {
+      top: -12px;
+      font-size: 0.95rem;
+    }
   }
 }
 </style>
