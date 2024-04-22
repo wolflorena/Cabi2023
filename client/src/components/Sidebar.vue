@@ -9,17 +9,11 @@ defineProps<{
 }>();
 
 const router = useRouter();
-const emits = defineEmits<{
-  (e: "contentChanged", payload: string): void;
-}>();
 
 const hideSidebar = ref(false);
-const selectedContent = ref("Dashboard");
 
 const handleContentChange = (newValue: string, newPath: string): void => {
-  selectedContent.value = newValue;
   router.push(`/admin${newPath}`);
-  emits("contentChanged", newValue);
 };
 </script>
 
@@ -39,7 +33,7 @@ const handleContentChange = (newValue: string, newPath: string): void => {
       <SidebarButton
         v-for="(option, index) in options"
         :key="index"
-        :selected="selectedContent === option.text"
+        :selected="'/' + String(router.currentRoute.value.name) === option.path"
         :text="option.text"
         :icon="option.icon"
         @selection-changed="handleContentChange(option.text, option.path)"

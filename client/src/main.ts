@@ -12,11 +12,16 @@ import {
   faChevronUp,
   faCirclePlus,
   faTableColumns,
+  faCalendarCheck,
+  faHospitalUser,
+  faCartFlatbed,
+  faHighlighter,
+  faEye,
+  faPen,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { faCalendarCheck } from "@fortawesome/free-solid-svg-icons";
-import { faHospitalUser } from "@fortawesome/free-solid-svg-icons";
-import { faCartFlatbed } from "@fortawesome/free-solid-svg-icons";
-import { faHighlighter } from "@fortawesome/free-solid-svg-icons";
+
+import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
   faTableColumns,
@@ -29,7 +34,10 @@ library.add(
   faChevronUp,
   faChevronLeft,
   faCirclePlus,
-  faBars
+  faBars,
+  faEye,
+  faPen,
+  faTrashCan
 );
 
 createApp(App)

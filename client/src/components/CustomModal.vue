@@ -50,7 +50,7 @@ const emits = defineEmits(["button1", "button2"]);
     margin: auto;
     padding: 20px 30px;
     background-color: @gray;
-    border-radius: 5px;
+    border-radius: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
     transition: all 0.3s ease;
     backdrop-filter: blur(5px);
@@ -79,6 +79,7 @@ const emits = defineEmits(["button1", "button2"]);
       button {
         background-color: transparent;
         border: none;
+        cursor: pointer;
 
         &.modal-button {
           &1 {

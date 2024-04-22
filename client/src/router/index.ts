@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import SignupView from "../views/SignupView.vue";
 import LoginView from "../views/admin/LoginView.vue";
-import AdminDashboardView from "../views/admin/AdminDashboardView.vue";
+import AdminDashboardView from "@/views/admin/AdminDashboardView.vue";
+import AdminAppointmentsView from "@/views/admin/AdminAppointmentsView.vue";
 import CustomerProfile from "@/views/customer/CustomerProfile.vue";
 
 const routes: Array<RouteRecordRaw> = [
@@ -16,7 +17,7 @@ const routes: Array<RouteRecordRaw> = [
     component: SignupView,
   },
   {
-    path: "/login",
+    path: "/admin/login",
     name: "login",
     component: LoginView,
   },
@@ -24,6 +25,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/admin/dashboard",
     name: "dashboard",
     component: AdminDashboardView,
+  },
+  {
+    path: "/admin/appointments",
+    name: "appointments",
+    component: AdminAppointmentsView,
   },
   {
     path: "/profile",

@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar.vue";
 import MonthScheduler from "@/components/MonthScheduler.vue";
 import DayScheduler from "@/components/DayScheduler.vue";
 import CustomCheckbox from "@/components/CustomCheckbox.vue";
+import AddButton from "@/components/AddButton.vue";
 import CustomDropdown from "@/components/CustomDropdown.vue";
 import CustomModal from "@/components/CustomModal.vue";
 import DatePicker from "@/components/DatePicker.vue";
@@ -89,6 +90,7 @@ function openDailyCalendar(day: Day) {
 const handleContentChanged = (newContent: string) => {
   selectedContent.value = newContent;
 };
+
 async function loadDoctors() {
   await getAllDoctors().then((res: any) => {
     res.forEach((element: any) => doctors.value.push(element));
@@ -108,11 +110,7 @@ onMounted(() => {
     />
     <span> {{ selectedContent }}</span>
     <div class="settings">
-      <button class="add-button" @click="showModal = true">
-        <font-awesome-icon id="icon" icon="circle-plus" />
-        <span>Add appointment</span>
-      </button>
-
+      <AddButton @click="showModal = true" />
       <DatePicker @select-day="openDailyCalendar" />
 
       <CustomDropdown
@@ -185,29 +183,7 @@ onMounted(() => {
     gap: 20px;
 
     padding: 0 15px;
-    .add-button {
-      background-color: @green;
-      border: none;
-      border-radius: 20px;
-      width: 19vw;
-      height: 40px;
-      cursor: pointer;
-      margin-bottom: 20px;
 
-      display: flex;
-      align-items: center;
-      gap: 20px;
-
-      #icon {
-        height: 25px;
-        color: @gray;
-      }
-
-      span {
-        font-size: 15px;
-        color: @gray;
-      }
-    }
     .calendars {
       color: @font-dark-gray;
       font-weight: bolder;

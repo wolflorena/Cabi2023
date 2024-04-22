@@ -21,3 +21,28 @@ export type Appointment = {
   doctorId: number;
   serviceId: number;
 };
+
+export type AppointmentCalendar = {
+  id: number;
+  date: string;
+  time: string;
+  finalDuration: number;
+  status: string;
+  customerFirstName: string;
+  customerLastName: string;
+  doctorId: number;
+  serviceName: string;
+};
+
+export type AppointmentAdmin = {
+  appointmentId: number;
+  date: string;
+  time: string;
+  status: string;
+  customerFirstName: string;
+  customerLastName: string;
+  doctorId: number;
+  doctorFirstName: string;
+  doctorLastName: string;
+  serviceId: number;
+};

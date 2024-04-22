@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Appointment, SelectedDoctor } from "@/data/types/Entities";
+import { AppointmentCalendar, SelectedDoctor } from "@/data/types/Entities";
 import { ref, computed, watch, onMounted } from "vue";
-import { getAll } from "@/services/appointments_service";
+import { getAll, getAllForCalendar } from "@/services/appointments_service";
 
 const props = withDefaults(
   defineProps<{
@@ -11,7 +11,7 @@ const props = withDefaults(
   {}
 );
 
-type CalendarAppointment = Appointment & { endTime: string };
+type DayCalendarAppointment = AppointmentCalendar & { endTime: string };
 
 const currentDate = ref(props.daySelected);
 
@@ -19,7 +19,7 @@ const timeSlots: string[] = createTimeSlots(9, 18);
 const calendars = ref(["Ana", "Doctor 1"]);
 const calendarsNumber = computed(() => calendars.value.length);
 const currentDateKey = computed(() => currentDate.value.toISOString());
-const appointments = ref<CalendarAppointment[]>([]);
+const appointments = ref<DayCalendarAppointment[]>([]);
 
 function createTimeSlots(startHour: number, endHour: number): string[] {
   const slots: string[] = [];
@@ -70,7 +70,7 @@ const currentDay = computed(() => {
   return formattedDay;
 });
 
-function getAppointmentStyle(appointment: CalendarAppointment) {
+function getAppointmentStyle(appointment: DayCalendarAppointment) {
   const startHour = parseInt(appointment.time.split(":")[0]);
   const startMinutes = parseInt(appointment.time.split(":")[1]);
   const endHour = parseInt(appointment.endTime.split(":")[0]);
@@ -87,7 +87,7 @@ function getAppointmentStyle(appointment: CalendarAppointment) {
   };
 }
 
-function computeStyle(appointment: CalendarAppointment, slot: string) {
+function computeStyle(appointment: DayCalendarAppointment, slot: string) {
   const startHour = parseInt(appointment.time.split(":")[0]);
   const slotStartHour = parseInt(slot.split(":")[0]);
 
@@ -152,28 +152,30 @@ function getDoctorColor(doctorId: number): string {
 }
 
 async function loadAppointments() {
-  await getAll().then((res) => {
-    const updatedAppointments = res.map((appointment: CalendarAppointment) => {
-      let [hour, minute] = appointment.time.split(":").map(Number);
-      // Adaugă durata la minute
-      minute += appointment.finalDuration;
+  await getAllForCalendar().then((res) => {
+    const updatedAppointments = res.map(
+      (appointment: DayCalendarAppointment) => {
+        let [hour, minute] = appointment.time.split(":").map(Number);
+        // Adaugă durata la minute
+        minute += appointment.finalDuration;
 
-      // Verifică dacă suma minutelor depășește 59 și ajustează orele și minutele corespunzător
-      while (minute >= 60) {
-        hour += 1;
-        minute -= 60;
+        // Verifică dacă suma minutelor depășește 59 și ajustează orele și minutele corespunzător
+        while (minute >= 60) {
+          hour += 1;
+          minute -= 60;
+        }
+
+        appointment.endTime = `${hour.toString().padStart(2, "0")}:${minute
+          .toString()
+          .padStart(2, "0")}`;
+
+        appointment.time = appointment.time.substring(
+          0,
+          appointment.time.lastIndexOf(":")
+        );
+        return appointment;
       }
-
-      appointment.endTime = `${hour.toString().padStart(2, "0")}:${minute
-        .toString()
-        .padStart(2, "0")}`;
-
-      appointment.time = appointment.time.substring(
-        0,
-        appointment.time.lastIndexOf(":")
-      );
-      return appointment;
-    });
+    );
 
     appointments.value = updatedAppointments;
   });
@@ -233,8 +235,10 @@ onMounted(() => {
                 ]"
               >
                 <span>{{ appointment.time }}</span>
-                <span>{{ "service id" + appointment.serviceId }}</span>
-                <span>{{ `Patient: ${appointment.customerId}` }}</span>
+                <span>{{ appointment.serviceName }}</span>
+                <span>{{
+                  `Patient: ${appointment.customerFirstName} ${appointment.customerLastName}`
+                }}</span>
               </div>
             </td>
           </tr>

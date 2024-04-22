@@ -9,7 +9,7 @@ const props = withDefaults(
   {
     modelValue: false,
     text: "",
-    color: "#000000",
+    color: "#43506c",
   }
 );
 
@@ -43,6 +43,8 @@ function onCheckedChange(event: Event) {
 </template>
 
 <style scoped lang="less">
+@import (reference) "@/assets/styles.less";
+
 .cbx {
   -webkit-user-select: none;
   user-select: none;
@@ -75,7 +77,7 @@ function onCheckedChange(event: Event) {
       height: 18px;
       border-radius: 4px;
       transform: scale(1);
-      border: 1px solid #cccfdb;
+      border: 1.5px solid @font-dark-gray;
       transition: all 0.2s ease;
       box-shadow: 0 1px 1px rgba(0, 16, 75, 0.05);
 

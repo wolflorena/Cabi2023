@@ -79,7 +79,7 @@ function toggleDropdown() {
       background-color: @light-gray;
       box-sizing: border-box;
 
-      padding: 3px;
+      padding: 10px;
 
       &:focus {
         border-color: transparent;
@@ -100,7 +100,6 @@ function toggleDropdown() {
     border-radius: 6px;
     margin-top: 5px;
     max-height: 180px;
-    overflow-y: auto;
     -webkit-transition: 0.4s linear 0.2s;
     -o-transition: 0.4s linear 0.2s;
     transition: 0.4s linear 0.2s;
@@ -120,11 +119,12 @@ function toggleDropdown() {
 
     &&::-webkit-scrollbar {
       width: 4px;
-      background-color: @light-gray;
+      background-color: red;
     }
 
     &&::-webkit-scrollbar-thumb {
-      background-color: @blue;
+      background-color: green;
+      border-radius: 10px;
     }
   }
 }

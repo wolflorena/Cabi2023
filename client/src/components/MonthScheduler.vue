@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
-import { getAll } from "@/services/appointments_service";
-import type { SelectedDoctor, Appointment } from "@/data/types/Entities";
+import { getAll, getAllForCalendar } from "@/services/appointments_service";
+import type {
+  SelectedDoctor,
+  AppointmentCalendar,
+} from "@/data/types/Entities";
 
 const props = withDefaults(
   defineProps<{
@@ -18,7 +21,7 @@ type Day = {
 
 // Reactive state of the component: the current date and the list of appointments
 const currentDate = ref(new Date());
-const appointments = ref<Appointment[]>([]);
+const appointments = ref<AppointmentCalendar[]>([]);
 
 // A list of the days of the week, used for displaying the calendar header
 const weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
@@ -37,10 +40,10 @@ const selectedAppointments = computed(() => {
     .map((doctor) => doctor.id);
 
   return appointments.value
-    .filter((appointment: Appointment) =>
+    .filter((appointment: AppointmentCalendar) =>
       selectedDoctors.includes(appointment.doctorId)
     )
-    .sort((a: Appointment, b: Appointment) => {
+    .sort((a: AppointmentCalendar, b: AppointmentCalendar) => {
       const timeA = convertTime12to24(a.time);
       const timeB = convertTime12to24(b.time);
 
@@ -121,7 +124,7 @@ function convertTime12to24(time: string): number {
 }
 
 async function loadAppointments() {
-  await getAll().then((res) => {
+  await getAllForCalendar().then((res) => {
     appointments.value = res;
   });
 }
@@ -176,7 +179,7 @@ const emit = defineEmits(["toggle-calendar"]);
 
               <div class="appointments">
                 <div
-                  v-for="appointment in selectedAppointments.filter((appointment: Appointment) => {
+                  v-for="appointment in selectedAppointments.filter((appointment: AppointmentCalendar) => {
     return appointment.date === day.fullDate;
   })"
                   :key="appointment.id"
@@ -194,9 +197,7 @@ const emit = defineEmits(["toggle-calendar"]);
                       appointment.time.lastIndexOf(":")
                     )
                   }}</span>
-                  <span id="details">{{
-                    "Service id:" + appointment.serviceId
-                  }}</span>
+                  <span id="details">{{ appointment.serviceName }}</span>
                 </div>
               </div>
             </td>

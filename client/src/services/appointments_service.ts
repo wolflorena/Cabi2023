@@ -23,8 +23,20 @@ async function createAppointment(customerId: number) {
   return json;
 }
 
+async function getById(appointmentId: number) {
+  const response = await fetch(`${API_URL}?appointmentId=${appointmentId}`);
+  const json = await response.json();
+  return json;
+}
+
 async function getAll() {
   const response = await fetch(`${API_URL}/getAll`);
+  const json = await response.json();
+  return json;
+}
+
+async function getAllForCalendar() {
+  const response = await fetch(`${API_URL}/getAllForCalendar`);
   const json = await response.json();
   return json;
 }
@@ -37,4 +49,19 @@ async function getAppointmentsByDateAndDoctor(date: string, doctorId: number) {
   return json;
 }
 
-export { getAppointmentsByDateAndDoctor, getAll, createAppointment };
+async function getAllPageable(pageSize: number, pageNumber: number) {
+  const response = await fetch(
+    `${API_URL}/allPage?pageSize=${pageSize}&pageNumber=${pageNumber}`
+  );
+  const json = await response.json();
+  return json;
+}
+
+export {
+  getAppointmentsByDateAndDoctor,
+  getAll,
+  createAppointment,
+  getAllForCalendar,
+  getAllPageable,
+  getById,
+};
