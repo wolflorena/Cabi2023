@@ -31,56 +31,57 @@ import CustomInput from "@/components/CustomInput.vue";
 
 .container {
   display: flex;
-}
 
-.img-container {
-  width: 40vw;
-}
+  .img-container {
+    width: 40vw;
 
-.img-right {
-  height: 100vh;
-  width: 100%;
-}
-.login-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  height: 100vh;
-  width: 60%;
-  background-color: @sugar;
-
-  img {
-    width: 300px;
+    .img-right {
+      height: 100vh;
+      width: 100%;
+    }
   }
 
-  .form {
+  .login-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-evenly;
 
-    width: 60vw;
-    height: 50%;
+    height: 100vh;
+    width: 60%;
+    background-color: @sugar;
 
-    .inputs {
+    img {
+      width: 300px;
+    }
+
+    .form {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-evenly;
 
+      width: 60vw;
       height: 50%;
-      gap: 20px;
 
-      .forgot-password {
-        width: 100%;
+      .inputs {
         display: flex;
-        justify-content: flex-end;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
 
-        #forgot {
-          text-decoration: none;
-          color: @black;
-          font-size: 12px;
+        height: 50%;
+        gap: 20px;
+
+        .forgot-password {
+          width: 100%;
+          display: flex;
+          justify-content: flex-end;
+
+          #forgot {
+            text-decoration: none;
+            color: @black;
+            font-size: 12px;
+          }
         }
       }
     }
