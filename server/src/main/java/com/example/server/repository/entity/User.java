@@ -18,8 +18,4 @@ public abstract class User {
     private String lastName;
     private String email;
     private String password;
-
-    public void setPassword(String password){
-        this.password = new BCryptPasswordEncoder().encode(password);
-    }
 }

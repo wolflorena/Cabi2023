@@ -50,7 +50,6 @@ public class Customer extends User {
         this.phoneNo = registerCustomerDTO.getPhoneNo();
         this.dateOfBirth = registerCustomerDTO.getDateOfBirth();
         this.accountStatus = AccountStatus.ACTIVE;
-        this.occupation = registerCustomerDTO.getOccupation();
     }
 
 }

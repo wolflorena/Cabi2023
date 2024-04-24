@@ -7,6 +7,8 @@ import com.example.server.repository.entity.Customer;
 import com.example.server.repository.CustomerRepository;
 import com.example.server.service.CustomerService;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +17,9 @@ import java.util.List;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
     public CustomerServiceImpl(CustomerRepository customerRepository, ModelMapper modelMapper) {
@@ -27,6 +32,10 @@ public class CustomerServiceImpl implements CustomerService {
         if(emailExists(registerCustomerDto.getEmail())){
             throw new EmailExistsException("Email already in use");
         }
+
+        String encodedPassword = passwordEncoder.encode(registerCustomerDto.getPassword());
+        registerCustomerDto.setPassword(encodedPassword);
+
         Customer customerToBeSaved = new Customer(registerCustomerDto);
         customerRepository.save(customerToBeSaved);
         return modelMapper.map(customerToBeSaved, ResponseCustomerDTO.class);

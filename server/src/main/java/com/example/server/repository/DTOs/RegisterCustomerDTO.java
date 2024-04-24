@@ -32,9 +32,6 @@ public class RegisterCustomerDTO {
     @NotBlank(message = "Phone Number cannot be empty")
     private String phoneNo;
 
-    @NotBlank(message = "Occupation cannot be empty")
-    private String occupation;
-
     @NotNull(message = "Date of birth cannot be null")
     private LocalDate dateOfBirth;
 }
