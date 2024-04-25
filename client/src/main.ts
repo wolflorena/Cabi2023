@@ -20,6 +20,7 @@ import {
   faPen,
   faUser,
   faKey,
+  faEyeSlash,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
@@ -37,6 +38,7 @@ library.add(
   faCirclePlus,
   faBars,
   faEye,
+  faEyeSlash,
   faPen,
   faTrashCan,
   faUser,

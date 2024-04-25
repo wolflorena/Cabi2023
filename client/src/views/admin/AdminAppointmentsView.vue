@@ -26,6 +26,7 @@ const showDelete = ref(false);
 const appointmentDetails = ref<AppointmentDetail>();
 
 const doctors = ref<SelectedDoctor[]>([]);
+const doctorIds = ref<number[]>([]);
 const appointments = ref<AppointmentAdmin[]>([]);
 
 const showUpcoming = ref(true);
@@ -42,37 +43,30 @@ async function loadDoctors() {
 }
 
 async function loadAppointments() {
-  await getAllPageable(10, currentPage.value - 1).then((res: any) => {
-    // Clear existing appointments to avoid duplication or irrelevant data
-    appointments.value = [];
-    // Filter and add appointments based on the checked status of doctors
-    res.pagedAppointments.content.forEach((element: any) => {
-      const doctor = doctors.value.find(
-        (d) => d.id === element.doctorId && d.checked
-      );
-      if (doctor) {
-        appointments.value.push(element);
-      }
-    });
-    totalPages.value = Math.ceil(res.total / 10);
-  });
+  computeSelectedDoctorIds();
+  await getAllPageable(10, currentPage.value - 1, doctorIds.value).then(
+    (res: any) => {
+      appointments.value = res.pagedAppointments.content;
+      totalPages.value = Math.ceil(res.total / 10);
+    }
+  );
 }
 
 async function changePage(pageNumber: number) {
   currentPage.value = pageNumber;
-  await getAllPageable(10, currentPage.value - 1).then((res: any) => {
-    appointments.value = [];
+  await getAllPageable(10, currentPage.value - 1, doctorIds.value).then(
+    (res: any) => {
+      appointments.value = res.pagedAppointments.content;
+      totalPages.value = Math.ceil(res.total / 10);
+    }
+  );
+}
 
-    res.pagedAppointments.content.forEach((element: any) => {
-      const doctor = doctors.value.find(
-        (d) => d.id === element.doctorId && d.checked
-      );
-      if (doctor) {
-        appointments.value.push(element);
-      }
-    });
-    totalPages.value = Math.ceil(res.total / 10);
-  });
+function computeSelectedDoctorIds() {
+  doctorIds.value = doctors.value
+    .filter((doctor) => doctor.checked === true)
+    .map((doctor) => doctor.id);
+  console.log(doctorIds.value);
 }
 
 onMounted(() => {

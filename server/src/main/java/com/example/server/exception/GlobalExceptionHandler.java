@@ -1,6 +1,7 @@
 package com.example.server.exception;
 
 import com.example.server.exception.types.AppointmentExistsException;
+import com.example.server.exception.types.BadCredentialsException;
 import com.example.server.exception.types.EmailExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,15 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("message", "An appointment already exists at this date and time for the selected doctor.");
+
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "Bad credentials");
 
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }

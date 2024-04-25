@@ -22,10 +22,10 @@ const pagesToShow = computed(() => {
   let start = props.currentPage;
   let end = props.totalPages;
 
-  if (start !== end && start !== end - 1) {
+  if (start !== end && start !== end - 1 && start > 0) {
     pages.push(start);
   }
-  if (props.totalPages > 1 && start < end - 1) {
+  if (props.totalPages > 1 && start < end - 1 && start + 1 > 0) {
     pages.push(start + 1);
   }
 
@@ -33,17 +33,19 @@ const pagesToShow = computed(() => {
     pages.push("...");
   }
 
-  if (start + 1 !== end - 1) {
+  if (start + 1 !== end - 1 && start !== end && end > 1) {
     pages.push(end - 1);
   }
-  pages.push(end);
+  if (end) {
+    pages.push(end);
+  }
 
   return pages;
 });
 </script>
 
 <template>
-  <div class="pagination-container">
+  <div class="pagination-container" v-if="totalPages">
     <ul class="page">
       <li class="page__btn" @click="goToPage(currentPage - 1)">
         <font-awesome-icon id="icon" icon="chevron-left" />

@@ -5,19 +5,34 @@ const props = withDefaults(
     type: string;
     pattern?: string;
     iconToken?: string;
+    modelValue?: string;
   }>(),
   {
     labelText: "",
     type: "text",
   }
 );
+
+const emit = defineEmits(["update:modelValue"]);
+
+const inputChange = (event: any) => {
+  emit("update:modelValue", event.target.value);
+};
 </script>
 
 <template>
   <div class="input-container">
     <div class="input-box">
       <font-awesome-icon :icon="iconToken" id="icon" />
-      <input :type="type" required class="input-input" placeholder="" />
+      <input
+        :type="type"
+        :key="type"
+        required
+        class="input-input"
+        placeholder=""
+        :value="modelValue"
+        @input="inputChange"
+      />
       <label for="" class="input-label">{{ labelText }}</label>
     </div>
   </div>
@@ -29,7 +44,6 @@ const props = withDefaults(
 .input-container {
   display: grid;
   row-gap: 1.75rem;
-  margin-bottom: 1.5rem;
 
   .input-box {
     display: grid;

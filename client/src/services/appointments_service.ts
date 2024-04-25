@@ -56,9 +56,15 @@ async function getAppointmentsByDateAndDoctor(date: string, doctorId: number) {
   return json;
 }
 
-async function getAllPageable(pageSize: number, pageNumber: number) {
+async function getAllPageable(
+  pageSize: number,
+  pageNumber: number,
+  doctorIds: number[]
+) {
+  let doctorIdsString: string = doctorIds.join(",");
+  console.log("fetch:: ", doctorIdsString);
   const response = await fetch(
-    `${API_URL}/allPage?pageSize=${pageSize}&pageNumber=${pageNumber}`
+    `${API_URL}/allPage?pageSize=${pageSize}&pageNumber=${pageNumber}&doctorIds=${doctorIdsString}`
   );
   const json = await response.json();
   return json;

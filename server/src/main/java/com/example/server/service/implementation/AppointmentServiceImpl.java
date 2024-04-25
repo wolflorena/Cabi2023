@@ -3,8 +3,7 @@ package com.example.server.service.implementation;
 import com.example.server.exception.types.AppointmentExistsException;
 import com.example.server.repository.AppointmentRepository;
 import com.example.server.repository.CustomerRepository;
-import com.example.server.repository.DTOs.AppointmentRequestDTO;
-import com.example.server.repository.DTOs.AppointmentResponseDTO;
+import com.example.server.repository.DTOs.*;
 import com.example.server.repository.DoctorRepository;
 import com.example.server.repository.ServiceRepository;
 import com.example.server.repository.entity.Appointment;
@@ -12,7 +11,10 @@ import com.example.server.repository.entity.Customer;
 import com.example.server.repository.entity.Doctor;
 import com.example.server.service.AppointmentService;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -53,16 +55,23 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setDate(appointmentRequestDTO.getDate());
         appointment.setTime(appointmentRequestDTO.getTime());
         appointment.setFinalDuration(service.getDuration());
-        appointment.setStatus(Appointment.AppointmentStatus.SCHEDULED);
+        appointment.setStatus(Appointment.AppointmentStatus.REQUESTED);
 
         customer.getAppointments().add(appointment);
         return modelMapper.map(appointmentRepository.save(appointment), AppointmentResponseDTO.class);
     }
 
     @Override
-    public AppointmentResponseDTO getAppointmentById(Long appointmentId){
+    public AppointmentDetailDTO getAppointmentById(Long appointmentId){
         Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow();
-        return modelMapper.map(appointment, AppointmentResponseDTO.class);
+        return modelMapper.map(appointment, AppointmentDetailDTO.class);
+    }
+
+    @Override
+    public Boolean deleteAppointment(Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(() -> new AppointmentExistsException("Appointment not found"));
+        appointmentRepository.delete(appointment);
+        return true;
     }
 
     @Override
@@ -71,6 +80,35 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointments.stream()
                 .map(appointment -> modelMapper.map(appointment, AppointmentResponseDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AppointmentCalendarDTO> getAllAppointmentsForCalendar() {
+        List<Appointment> appointments = appointmentRepository.findAll();
+        return appointments.stream()
+                .map(appointment ->  modelMapper.map(appointment, AppointmentCalendarDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public AppointmentPageDTO getAllAppointmentsForAdmin(Pageable pageable, List<Long> doctorIds) {
+        AppointmentPageDTO appointmentPageDTO = new AppointmentPageDTO();
+        Page<Appointment> appointments;
+
+        if(doctorIds == null || doctorIds.isEmpty()) {
+            appointments = appointmentRepository.findAll(pageable);
+        } else {
+            appointments = appointmentRepository.findAllByDoctorIdIn(doctorIds, pageable);
+        }
+
+        List<AppointmentAdminDTO> result = appointments.getContent()
+                .stream()
+                .map(appointment -> modelMapper.map(appointment, AppointmentAdminDTO.class))
+                .collect(Collectors.toList());
+
+        appointmentPageDTO.setTotal((int) appointments.getTotalElements());
+        appointmentPageDTO.setPagedAppointments(new PageImpl<>(result, pageable, appointments.getTotalElements()));
+        return appointmentPageDTO;
     }
 
     @Override

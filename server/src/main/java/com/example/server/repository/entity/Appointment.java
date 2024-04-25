@@ -17,9 +17,9 @@ import java.time.LocalTime;
 public class Appointment {
 
     public enum AppointmentStatus {
+        REQUESTED,
         SCHEDULED,
-        CANCELLED,
-        COMPLETED
+        CANCELLED
     }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

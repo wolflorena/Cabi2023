@@ -1,6 +1,35 @@
 <script setup lang="ts">
+import { ref, watch } from "vue";
+import router from "../../router";
 import CustomButton from "@/components/CustomButton.vue";
 import CustomInput from "@/components/CustomInput.vue";
+import PasswordInput from "@/components/PasswordInput.vue";
+
+const emailText = ref("");
+const passwordText = ref("");
+
+function handlePasswordTextChanged(password: string) {
+  passwordText.value = password;
+}
+
+// async function login() {
+//   const hashPassword = await bcrypt.hash(
+//     passwordText.value,
+//     "$2a$10$QkRidA35ea0Fzm/ObrOEgO"
+//   );
+//   if (emailText.value && passwordText.value) {
+//     loginAdmin(emailText.value, hashPassword)
+//       .then((res) => {
+//         console.log(localStorage.getItem("email"));
+//       })
+//       .catch((error) => {
+//         emailText.value = "";
+//         passwordText.value = "";
+//       });
+//   } else {
+//     passwordText.value = "";
+//   }
+// }
 </script>
 
 <template>
@@ -12,8 +41,17 @@ import CustomInput from "@/components/CustomInput.vue";
       <img src="@/assets/logo.png" alt="" />
       <div class="form">
         <div class="inputs">
-          <CustomInput label-text="Email" icon-token="user" />
-          <CustomInput label-text="Password" type="password" icon-token="key" />
+          <CustomInput
+            label-text="Email"
+            icon-token="user"
+            v-model:model-value="emailText"
+            type="text"
+          />
+          <PasswordInput
+            label-text="Password"
+            :value="passwordText"
+            @password-changed="handlePasswordTextChanged"
+          />
           <div class="forgot-password">
             <router-link to="/recovery" id="forgot">
               Forgot password?
@@ -70,7 +108,7 @@ import CustomInput from "@/components/CustomInput.vue";
         justify-content: center;
 
         height: 50%;
-        gap: 20px;
+        gap: 3rem;
 
         .forgot-password {
           width: 100%;
@@ -88,3 +126,4 @@ import CustomInput from "@/components/CustomInput.vue";
   }
 }
 </style>
+@/services/admins_service

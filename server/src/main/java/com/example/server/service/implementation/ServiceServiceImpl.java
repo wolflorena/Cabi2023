@@ -19,4 +19,10 @@ public class ServiceServiceImpl implements ServiceService {
         serviceRepository.save(service);
         return service;
     }
+
+    @Override
+    public Service getService(Long serviceId){
+        Service service = serviceRepository.findById(serviceId).orElseThrow();
+        return service;
+    }
 }

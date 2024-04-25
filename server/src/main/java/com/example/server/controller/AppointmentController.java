@@ -1,13 +1,17 @@
 package com.example.server.controller;
 
-import com.example.server.repository.DTOs.AppointmentRequestDTO;
-import com.example.server.repository.DTOs.AppointmentResponseDTO;
+import com.example.server.repository.DTOs.*;
+import com.example.server.repository.entity.Appointment;
 import com.example.server.service.AppointmentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -22,19 +26,46 @@ public class AppointmentController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<AppointmentResponseDTO> addAppointment(@RequestBody AppointmentRequestDTO appointmentRequestDTO, @RequestParam Long customerId){
+    public ResponseEntity<AppointmentResponseDTO> addAppointment(@RequestBody AppointmentRequestDTO appointmentRequestDTO, @RequestParam Long customerId) {
         return new ResponseEntity<>(appointmentService.addAppointment(appointmentRequestDTO, customerId), HttpStatus.OK);
     }
 
     @GetMapping
-    public AppointmentResponseDTO getAppointmentById(@RequestParam(name="appointmentId") Long appointmentId){
+    public AppointmentDetailDTO getAppointmentById(@RequestParam(name="appointmentId") Long appointmentId) {
         return appointmentService.getAppointmentById(appointmentId);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Boolean> deleteAppointment(@RequestParam(name="appointmentId") Long appointmentId) {
+        return new ResponseEntity<>(appointmentService.deleteAppointment(appointmentId), HttpStatus.OK);
     }
 
     @GetMapping("/getAll")
     public ResponseEntity<List<AppointmentResponseDTO>> getAppointments() {
         List<AppointmentResponseDTO> appointments = appointmentService.getAllAppointments();
         return ResponseEntity.ok(appointments);
+    }
+
+    @GetMapping("/getAllForCalendar")
+    public ResponseEntity<List<AppointmentCalendarDTO>> getAppointmentsForCalendar() {
+        List<AppointmentCalendarDTO> appointments = appointmentService.getAllAppointmentsForCalendar();
+        return ResponseEntity.ok(appointments);
+    }
+
+    @GetMapping("/allPage")
+    public ResponseEntity<AppointmentPageDTO> getAppointmentsForAdmin(@RequestParam(required = true) int pageSize,
+                                                                      @RequestParam(required = true) int pageNumber,
+                                                                      @RequestParam(required = false) List<Long> doctorIds) {
+        return new ResponseEntity<>(
+                appointmentService.getAllAppointmentsForAdmin(
+                        PageRequest.of(
+                                pageNumber,
+                                pageSize
+                        ),
+                        doctorIds
+                ),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping("/getAllByDateAndDoctor")
