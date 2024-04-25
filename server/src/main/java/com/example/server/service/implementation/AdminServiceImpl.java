@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 @Service
 public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
@@ -31,8 +32,9 @@ public class AdminServiceImpl implements AdminService {
     }
     @Override
     public AdminResponseDTO loginAdmin(String email, String password) {
-        Admin admin = adminRepository.findByEmail(email);
-        if (admin != null) {
+        Optional<Admin> optionalAdmin = adminRepository.findByEmail(email);
+        if (optionalAdmin.isPresent()) {
+            Admin admin = optionalAdmin.get();
             if (password.equals(admin.getPassword())) {
                 return modelMapper.map(
                         admin,
