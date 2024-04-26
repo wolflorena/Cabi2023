@@ -21,8 +21,8 @@ public class AppointmentScheduler {
         this.appointmentRepository = appointmentRepository;
     }
 
-    // it runs every hour
-    @Scheduled(cron = "0 0 * * * ?")
+    // it runs every day
+    @Scheduled(cron = "0 0 0 * * ?")
     public void updatePastDueAppointments() {
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();

@@ -20,4 +20,6 @@ public interface AppointmentService {
 
     AppointmentPageDTO getAllAppointmentsForAdmin(Pageable pageable, List<Long> doctorIds, Appointment.AppointmentStatus status);
     List<AppointmentResponseDTO> getAllAppointmentsByDateAndDoctor(LocalDate date, Long doctorId);
+
+    AppointmentResponseDTO updateAppointmentStatus(Long appointmentId, Appointment.AppointmentStatus status);
 }

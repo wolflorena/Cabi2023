@@ -18,6 +18,7 @@ import {
   getById,
   getAllPageable,
   deleteAppointment,
+  updateStatus,
 } from "@/services/appointments_service";
 
 const showModal = ref(false);
@@ -29,7 +30,7 @@ const doctors = ref<SelectedDoctor[]>([]);
 const doctorIds = ref<number[]>([]);
 const appointments = ref<AppointmentAdmin[]>([]);
 
-const appointmentStatus = ref("SCHEDULED");
+const appointmentStatus = ref("COMPLETED");
 
 const currentPage = ref(1);
 const totalPages = ref(0);
@@ -114,6 +115,16 @@ async function deleteAppointmentById(appointmentId: number | undefined) {
       .catch((error) => {
         console.log(error);
       });
+  } else return;
+}
+
+async function updateAppointmentStatus(appointmentId: number, status: string) {
+  if (appointmentId) {
+    await updateStatus(appointmentId, status).then((res) => {
+      if (res) {
+        loadAppointments();
+      }
+    });
   } else return;
 }
 
@@ -252,10 +263,7 @@ function formatTime(timeStr: string | undefined): string {
           />
           <TableHeaderButton
             label="History"
-            :active="
-              appointmentStatus === 'CANCELlED' ||
-              appointmentStatus === 'COMPLETED'
-            "
+            :active="appointmentStatus === 'COMPLETED'"
             @click="appointmentStatus = 'COMPLETED'"
           />
         </div>
@@ -271,15 +279,8 @@ function formatTime(timeStr: string | undefined): string {
               <th>Patient</th>
               <th>Date</th>
               <th>Doctor</th>
-              <th
-                v-if="
-                  appointmentStatus == 'REQUESTED' ||
-                  appointmentStatus === 'SCHEDULED'
-                "
-              >
-                Actions
-              </th>
-              <th v-else>Status</th>
+              <th v-if="appointmentStatus == 'COMPLETED'">Status</th>
+              <th v-else>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -321,16 +322,37 @@ function formatTime(timeStr: string | undefined): string {
                   </button>
                 </div>
                 <div class="actions" v-if="appointmentStatus === 'REQUESTED'">
-                  <button>
+                  <button
+                    @click="
+                      updateAppointmentStatus(
+                        appointment.appointmentId,
+                        'SCHEDULED'
+                      )
+                    "
+                  >
                     <font-awesome-icon icon="check" id="icon" />
                   </button>
                   <button>
                     <font-awesome-icon icon="pen" id="icon" />
                   </button>
-                  <button>
+                  <button
+                    @click="
+                      updateAppointmentStatus(
+                        appointment.appointmentId,
+                        'CANCELLED'
+                      )
+                    "
+                  >
                     <font-awesome-icon icon="xmark" id="icon" />
                   </button>
                 </div>
+                <span
+                  class="status"
+                  v-if="appointmentStatus === 'COMPLETED'"
+                  :class="{ canceled: appointment.status === 'CANCELLED' }"
+                >
+                  {{ appointment.status }}
+                </span>
               </td>
             </tr>
           </tbody>
@@ -498,6 +520,15 @@ function formatTime(timeStr: string | undefined): string {
                 cursor: pointer;
               }
             }
+
+            .status {
+              background-color: @green;
+              padding: 5px;
+
+              &.canceled {
+                background-color: @red;
+              }
+            }
           }
           &:hover {
             background-color: @sugar;
@@ -521,6 +552,7 @@ function formatTime(timeStr: string | undefined): string {
       display: flex;
       color: @white;
       font-size: 15px;
+
       .detail {
         padding: 10px;
         display: flex;

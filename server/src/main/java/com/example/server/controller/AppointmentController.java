@@ -75,4 +75,9 @@ public class AppointmentController {
         List<AppointmentResponseDTO> appointments = appointmentService.getAllAppointmentsByDateAndDoctor(date, doctorId);
         return ResponseEntity.ok(appointments);
     }
+
+    @PutMapping("/status")
+    public AppointmentResponseDTO updateAppointmentStatus(@RequestParam Long appointmentId, @RequestParam Appointment.AppointmentStatus status) {
+        return appointmentService.updateAppointmentStatus(appointmentId, status);
+    }
 }

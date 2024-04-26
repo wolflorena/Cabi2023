@@ -11,12 +11,11 @@ import com.example.server.repository.entity.Customer;
 import com.example.server.repository.entity.Doctor;
 import com.example.server.service.AppointmentService;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -97,17 +96,24 @@ public class AppointmentServiceImpl implements AppointmentService {
         AppointmentPageDTO appointmentPageDTO = new AppointmentPageDTO();
         Page<Appointment> appointments;
 
+        Pageable sortedByDateAndTime = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                Sort.by("date").descending().and(Sort.by("time").descending()));
+
+        List<Appointment.AppointmentStatus> statusList = (status == Appointment.AppointmentStatus.COMPLETED) ?
+                Arrays.asList(Appointment.AppointmentStatus.COMPLETED, Appointment.AppointmentStatus.CANCELLED) :
+                Arrays.asList(status);
+
         if(doctorIds == null || doctorIds.isEmpty()) {
             if(status == null) {
-                appointments = appointmentRepository.findAll(pageable);
+                appointments = appointmentRepository.findAll(sortedByDateAndTime);
             } else {
-                appointments = appointmentRepository.findAllByStatus(status, pageable);
+                appointments = appointmentRepository.findAllByStatusIn(statusList, sortedByDateAndTime);
             }
         } else {
             if(status == null) {
-                appointments = appointmentRepository.findAllByDoctorIdIn(doctorIds, pageable);
+                appointments = appointmentRepository.findAllByDoctorIdIn(doctorIds, sortedByDateAndTime);
             } else {
-                appointments = appointmentRepository.findAllByDoctorIdInAndStatus(doctorIds, status, pageable);
+                appointments = appointmentRepository.findAllByDoctorIdInAndStatusIn(doctorIds, statusList, sortedByDateAndTime);
             }
         }
 
@@ -117,7 +123,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .collect(Collectors.toList());
 
         appointmentPageDTO.setTotal((int) appointments.getTotalElements());
-        appointmentPageDTO.setPagedAppointments(new PageImpl<>(result, pageable, appointments.getTotalElements()));
+        appointmentPageDTO.setPagedAppointments(new PageImpl<>(result, sortedByDateAndTime, appointments.getTotalElements()));
         return appointmentPageDTO;
     }
 
@@ -127,5 +133,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointments.stream()
                 .map(appointment -> modelMapper.map(appointment, AppointmentResponseDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public AppointmentResponseDTO updateAppointmentStatus(Long appointmentId, Appointment.AppointmentStatus status) {
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(() -> new RuntimeException("Appointment not found"));
+        appointment.setStatus(status);
+        appointmentRepository.save(appointment);
+        return modelMapper.map(appointment, AppointmentResponseDTO.class);
     }
 }

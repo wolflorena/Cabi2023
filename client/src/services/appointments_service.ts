@@ -63,12 +63,24 @@ async function getAllPageable(
   status: string
 ) {
   let doctorIdsString: string = doctorIds.join(",");
-  console.log("fetch:: ", doctorIdsString);
+
   const response = await fetch(
     `${API_URL}/allPage?pageSize=${pageSize}&pageNumber=${pageNumber}&doctorIds=${doctorIdsString}&status=${status}`
   );
+
   const json = await response.json();
   return json;
+}
+
+async function updateStatus(appointmentId: number, status: string) {
+  const response = fetch(
+    API_URL + "/status?appointmentId=" + appointmentId + "&status=" + status,
+    {
+      method: "PUT",
+    }
+  );
+
+  return response;
 }
 
 export {
@@ -79,4 +91,5 @@ export {
   getAllPageable,
   getById,
   deleteAppointment,
+  updateStatus,
 };
