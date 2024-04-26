@@ -21,6 +21,8 @@ import {
   faUser,
   faKey,
   faEyeSlash,
+  faCheck,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
@@ -42,7 +44,9 @@ library.add(
   faPen,
   faTrashCan,
   faUser,
-  faKey
+  faKey,
+  faCheck,
+  faXmark
 );
 
 createApp(App)

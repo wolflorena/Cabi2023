@@ -29,9 +29,7 @@ const doctors = ref<SelectedDoctor[]>([]);
 const doctorIds = ref<number[]>([]);
 const appointments = ref<AppointmentAdmin[]>([]);
 
-const showUpcoming = ref(true);
-const showAwaiting = ref(false);
-const showHistory = ref(false);
+const appointmentStatus = ref("SCHEDULED");
 
 const currentPage = ref(1);
 const totalPages = ref(0);
@@ -44,22 +42,28 @@ async function loadDoctors() {
 
 async function loadAppointments() {
   computeSelectedDoctorIds();
-  await getAllPageable(10, currentPage.value - 1, doctorIds.value).then(
-    (res: any) => {
-      appointments.value = res.pagedAppointments.content;
-      totalPages.value = Math.ceil(res.total / 10);
-    }
-  );
+  await getAllPageable(
+    10,
+    currentPage.value - 1,
+    doctorIds.value,
+    appointmentStatus.value
+  ).then((res: any) => {
+    appointments.value = res.pagedAppointments.content;
+    totalPages.value = Math.ceil(res.total / 10);
+  });
 }
 
 async function changePage(pageNumber: number) {
   currentPage.value = pageNumber;
-  await getAllPageable(10, currentPage.value - 1, doctorIds.value).then(
-    (res: any) => {
-      appointments.value = res.pagedAppointments.content;
-      totalPages.value = Math.ceil(res.total / 10);
-    }
-  );
+  await getAllPageable(
+    10,
+    currentPage.value - 1,
+    doctorIds.value,
+    appointmentStatus.value
+  ).then((res: any) => {
+    appointments.value = res.pagedAppointments.content;
+    totalPages.value = Math.ceil(res.total / 10);
+  });
 }
 
 function computeSelectedDoctorIds() {
@@ -75,7 +79,7 @@ onMounted(() => {
 });
 
 watch(
-  doctors,
+  [doctors, appointmentStatus],
   () => {
     currentPage.value = 1;
     loadAppointments();
@@ -236,12 +240,24 @@ function formatTime(timeStr: string | undefined): string {
     <div class="appointments">
       <div class="header">
         <div class="controls">
-          <TableHeaderButton label="Upcoming" :active="showUpcoming" />
+          <TableHeaderButton
+            label="Upcoming"
+            :active="appointmentStatus === 'SCHEDULED'"
+            @click="appointmentStatus = 'SCHEDULED'"
+          />
           <TableHeaderButton
             label="Awaiting confirmation"
-            :active="showAwaiting"
+            :active="appointmentStatus === 'REQUESTED'"
+            @click="appointmentStatus = 'REQUESTED'"
           />
-          <TableHeaderButton label="History" :active="showHistory" />
+          <TableHeaderButton
+            label="History"
+            :active="
+              appointmentStatus === 'CANCELlED' ||
+              appointmentStatus === 'COMPLETED'
+            "
+            @click="appointmentStatus = 'COMPLETED'"
+          />
         </div>
       </div>
       <div
@@ -255,7 +271,15 @@ function formatTime(timeStr: string | undefined): string {
               <th>Patient</th>
               <th>Date</th>
               <th>Doctor</th>
-              <th>Actions</th>
+              <th
+                v-if="
+                  appointmentStatus == 'REQUESTED' ||
+                  appointmentStatus === 'SCHEDULED'
+                "
+              >
+                Actions
+              </th>
+              <th v-else>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -285,7 +309,7 @@ function formatTime(timeStr: string | undefined): string {
                 }}
               </td>
               <td>
-                <div class="actions">
+                <div class="actions" v-if="appointmentStatus === 'SCHEDULED'">
                   <button @click="showInfoModal(appointment.appointmentId)">
                     <font-awesome-icon icon="eye" id="icon" />
                   </button>
@@ -294,6 +318,17 @@ function formatTime(timeStr: string | undefined): string {
                   </button>
                   <button @click="showDeleteModal(appointment.appointmentId)">
                     <font-awesome-icon icon="trash-can" id="icon" />
+                  </button>
+                </div>
+                <div class="actions" v-if="appointmentStatus === 'REQUESTED'">
+                  <button>
+                    <font-awesome-icon icon="check" id="icon" />
+                  </button>
+                  <button>
+                    <font-awesome-icon icon="pen" id="icon" />
+                  </button>
+                  <button>
+                    <font-awesome-icon icon="xmark" id="icon" />
                   </button>
                 </div>
               </td>
