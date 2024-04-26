@@ -19,6 +19,7 @@ public class Appointment {
     public enum AppointmentStatus {
         REQUESTED,
         SCHEDULED,
+        COMPLETED,
         CANCELLED
     }
     @Id

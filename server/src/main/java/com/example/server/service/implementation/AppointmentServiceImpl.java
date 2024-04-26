@@ -91,14 +91,24 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public AppointmentPageDTO getAllAppointmentsForAdmin(Pageable pageable, List<Long> doctorIds) {
+    public AppointmentPageDTO getAllAppointmentsForAdmin(Pageable pageable,
+                                                         List<Long> doctorIds,
+                                                         Appointment.AppointmentStatus status) {
         AppointmentPageDTO appointmentPageDTO = new AppointmentPageDTO();
         Page<Appointment> appointments;
 
         if(doctorIds == null || doctorIds.isEmpty()) {
-            appointments = appointmentRepository.findAll(pageable);
+            if(status == null) {
+                appointments = appointmentRepository.findAll(pageable);
+            } else {
+                appointments = appointmentRepository.findAllByStatus(status, pageable);
+            }
         } else {
-            appointments = appointmentRepository.findAllByDoctorIdIn(doctorIds, pageable);
+            if(status == null) {
+                appointments = appointmentRepository.findAllByDoctorIdIn(doctorIds, pageable);
+            } else {
+                appointments = appointmentRepository.findAllByDoctorIdInAndStatus(doctorIds, status, pageable);
+            }
         }
 
         List<AppointmentAdminDTO> result = appointments.getContent()

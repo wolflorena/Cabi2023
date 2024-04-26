@@ -1,6 +1,7 @@
 package com.example.server.service;
 
 import com.example.server.repository.DTOs.*;
+import com.example.server.repository.entity.Appointment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,6 +18,6 @@ public interface AppointmentService {
 
     List<AppointmentCalendarDTO> getAllAppointmentsForCalendar();
 
-    AppointmentPageDTO getAllAppointmentsForAdmin(Pageable pageable, List<Long> doctorIds);
+    AppointmentPageDTO getAllAppointmentsForAdmin(Pageable pageable, List<Long> doctorIds, Appointment.AppointmentStatus status);
     List<AppointmentResponseDTO> getAllAppointmentsByDateAndDoctor(LocalDate date, Long doctorId);
 }

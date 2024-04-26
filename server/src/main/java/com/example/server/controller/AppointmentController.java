@@ -55,14 +55,16 @@ public class AppointmentController {
     @GetMapping("/allPage")
     public ResponseEntity<AppointmentPageDTO> getAppointmentsForAdmin(@RequestParam(required = true) int pageSize,
                                                                       @RequestParam(required = true) int pageNumber,
-                                                                      @RequestParam(required = false) List<Long> doctorIds) {
+                                                                      @RequestParam(required = false) List<Long> doctorIds,
+                                                                      @RequestParam(required = false)Appointment.AppointmentStatus status) {
         return new ResponseEntity<>(
                 appointmentService.getAllAppointmentsForAdmin(
                         PageRequest.of(
                                 pageNumber,
                                 pageSize
                         ),
-                        doctorIds
+                        doctorIds,
+                        status
                 ),
                 HttpStatus.OK
         );
