@@ -1,15 +1,19 @@
 package com.example.server.controller;
 
+import com.example.server.repository.DTOs.CustomerPageDTO;
 import com.example.server.repository.DTOs.RegisterCustomerDTO;
 import com.example.server.repository.DTOs.ResponseCustomerDTO;
 import com.example.server.service.implementation.CustomerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
 
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/customers")
 public class CustomerController {
@@ -49,6 +53,20 @@ public class CustomerController {
     @DeleteMapping("/delete")
     public void deleteById(@RequestParam Long customerId){
         customerServiceImpl.deleteById(customerId);
+    }
+
+    @GetMapping("/allPage")
+    public ResponseEntity<CustomerPageDTO> getPatientsForAdmin(@RequestParam(required = true) int pageSize,
+                                                               @RequestParam(required = true) int pageNumber) {
+        return new ResponseEntity<>(
+                customerServiceImpl.getAllCustomersForAdmin(
+                        PageRequest.of(
+                                pageNumber,
+                                pageSize
+                        )
+                ),
+                HttpStatus.OK
+        );
     }
 
 }

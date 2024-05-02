@@ -47,3 +47,21 @@ export type AppointmentDetail = AppointmentBasic & {
   doctorLastName: string;
   serviceName: string;
 };
+
+export type PatientAdmin = {
+  customerId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNo: string;
+};
+
+export type Patient = {
+  customerId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNo: string;
+  occupation: string;
+  dateOfBirth: string;
+};

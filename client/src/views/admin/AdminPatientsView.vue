@@ -1,0 +1,178 @@
+<script setup lang="ts">
+import { ref, onMounted, watch } from "vue";
+
+import Sidebar from "../../components/Sidebar.vue";
+import Pagination from "../../components/Pagination.vue";
+import { AdminSidebarOptions } from "../../data/types/SidebarOptions";
+import { getAllPageable } from "../../services/customer_service";
+import { PatientAdmin } from "@/data/types/Entities";
+import { useRouter } from "vue-router";
+
+const currentPage = ref(1);
+const totalPages = ref(0);
+
+const patients = ref<PatientAdmin[]>([]);
+
+const router = useRouter();
+
+async function loadPatients() {
+  await getAllPageable(10, currentPage.value - 1).then((res: any) => {
+    patients.value = res.pagedCustomers.content;
+    totalPages.value = Math.ceil(res.total / 10);
+    console.log(patients.value);
+  });
+}
+
+async function changePage(pageNumber: number) {
+  currentPage.value = pageNumber;
+  await getAllPageable(10, currentPage.value - 1).then((res: any) => {
+    patients.value = res.pagedCustomers.content;
+    totalPages.value = Math.ceil(res.total / 10);
+  });
+}
+
+onMounted(() => {
+  loadPatients();
+});
+</script>
+
+<template>
+  <div class="container">
+    <Sidebar :options="AdminSidebarOptions" />
+
+    <div class="patients">
+      <div class="patients-container">
+        <table>
+          <thead>
+            <tr>
+              <th>No.#</th>
+              <th>Patient</th>
+              <th>Email</th>
+              <th>Phone Number</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tr style="height: 20px">
+            <td colspan="5"></td>
+          </tr>
+          <tbody>
+            <tr v-for="(patient, index) in patients">
+              <td>{{ 10 * (currentPage - 1) + index + 1 }}</td>
+              <td>
+                {{ patient.firstName + " " + patient.lastName }}
+              </td>
+              <td>
+                {{ patient.email }}
+              </td>
+              <td>
+                {{ patient.phoneNo }}
+              </td>
+              <td>
+                <div class="actions">
+                  <router-link :to="'patients/' + patient.customerId">
+                    <button>
+                      <font-awesome-icon icon="eye" id="icon" />
+                    </button>
+                  </router-link>
+
+                  <button>
+                    <font-awesome-icon icon="pen" id="icon" />
+                  </button>
+                  <button>
+                    <font-awesome-icon icon="trash-can" id="icon" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <Pagination
+          :total-pages="totalPages"
+          :current-page="currentPage"
+          @change-page="changePage"
+        />
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped lang="less">
+@import (reference) "@/assets/styles.less";
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .patients {
+    width: 83vw;
+    .patients-container {
+      width: 100%;
+      height: 100vh;
+      position: relative;
+
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        color: @gray;
+
+        thead tr {
+          height: 8vh;
+          background-color: @gray;
+          color: @white;
+          font-size: large;
+
+          th:first-child {
+            border-bottom-left-radius: 40px;
+          }
+        }
+
+        tbody {
+          margin-top: 20px;
+        }
+        tbody tr {
+          height: 8vh;
+          font-size: 20px;
+          td {
+            text-align: center;
+            .date {
+              display: flex;
+              flex-direction: column;
+
+              #time {
+                font-size: 20px;
+                font-weight: 500;
+              }
+
+              #date {
+                font-size: 12px;
+              }
+            }
+
+            .actions {
+              button {
+                border: none;
+                background-color: transparent;
+                cursor: pointer;
+              }
+            }
+
+            &:first-child {
+              border-top-left-radius: 20px;
+              border-bottom-left-radius: 20px;
+            }
+          }
+          &:hover {
+            background-color: @sugar;
+          }
+          &:nth-child(odd) {
+            background-color: @light-gray;
+          }
+        }
+      }
+    }
+  }
+}
+</style>

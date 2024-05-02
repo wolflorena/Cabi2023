@@ -1,13 +1,14 @@
 package com.example.server.service.implementation;
 
 import com.example.server.exception.types.EmailExistsException;
-import com.example.server.repository.DTOs.RegisterCustomerDTO;
-import com.example.server.repository.DTOs.ResponseCustomerDTO;
+import com.example.server.repository.DTOs.*;
 import com.example.server.repository.entity.Customer;
 import com.example.server.repository.CustomerRepository;
 import com.example.server.service.CustomerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -65,5 +66,17 @@ public class CustomerServiceImpl implements CustomerService {
     public boolean emailExists(String email) {
         String lowerCaseEmail = email.toLowerCase();
         return customerRepository.existsByEmail(lowerCaseEmail);
+    }
+
+    @Override
+    public CustomerPageDTO getAllCustomersForAdmin(Pageable pageable) {
+        CustomerPageDTO customerPageDTO = new CustomerPageDTO();
+        customerPageDTO.setTotal(customerRepository.findAll().size());
+        List<CustomerAdminDTO> result = customerRepository
+                .findAll()
+                .stream()
+                .map(customer -> modelMapper.map(customer, CustomerAdminDTO.class))
+                .toList();
+        return new CustomerPageDTO(customerPageDTO.getTotal(), new PageImpl<>(result, pageable, result.size()));
     }
 }

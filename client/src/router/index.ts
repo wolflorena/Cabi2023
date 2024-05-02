@@ -4,6 +4,8 @@ import LoginView from "../views/admin/LoginView.vue";
 import AdminDashboardView from "@/views/admin/AdminDashboardView.vue";
 import AdminAppointmentsView from "@/views/admin/AdminAppointmentsView.vue";
 import CustomerProfile from "@/views/customer/CustomerProfile.vue";
+import AdminPatientsView from "@/views/admin/AdminPatientsView.vue";
+import AdminPatientDetailsView from "@/views/admin/AdminPatientDetailsView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -25,6 +27,16 @@ const routes: Array<RouteRecordRaw> = [
     path: "/admin/appointments",
     name: "appointments",
     component: AdminAppointmentsView,
+  },
+  {
+    path: "/admin/patients",
+    name: "patients",
+    component: AdminPatientsView,
+  },
+  {
+    path: "/admin/patients/:id",
+    name: "patientsDetails",
+    component: AdminPatientDetailsView,
   },
   {
     path: "/profile",

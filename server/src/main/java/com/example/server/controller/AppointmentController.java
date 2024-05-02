@@ -3,15 +3,12 @@ package com.example.server.controller;
 import com.example.server.repository.DTOs.*;
 import com.example.server.repository.entity.Appointment;
 import com.example.server.service.AppointmentService;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 

@@ -30,7 +30,7 @@ const doctors = ref<SelectedDoctor[]>([]);
 const doctorIds = ref<number[]>([]);
 const appointments = ref<AppointmentAdmin[]>([]);
 
-const appointmentStatus = ref("COMPLETED");
+const appointmentStatus = ref("SCHEDULED");
 
 const currentPage = ref(1);
 const totalPages = ref(0);
