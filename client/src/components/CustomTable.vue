@@ -1,3 +1,6 @@
+//TODO: @wolflorena: Create a custom table compontent that can be used in
+multiple views
+
 <!-- <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
 

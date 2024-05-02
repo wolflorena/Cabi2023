@@ -5,6 +5,7 @@ import { AdminSidebarOptions } from "../../data/types/SidebarOptions";
 import { ref, onMounted, watch } from "vue";
 import { Patient } from "@/data/types/Entities";
 import { getById } from "@/services/customer_service";
+import router from "@/router";
 
 const route = useRoute();
 const patientId = ref(route.params.id);
@@ -19,14 +20,21 @@ async function getPatientDetails(patientId: number) {
 onMounted(() => {
   getPatientDetails(+patientId.value);
 });
+
+function goBack() {
+  router.back();
+}
 </script>
 
 <template>
   <div class="container">
     <Sidebar :options="AdminSidebarOptions" />
     <div class="header">
-      <span
-        ><button><font-awesome-icon icon="chevron-left" id="icon" /></button>
+      <span>
+        <button @click="goBack">
+          <font-awesome-icon icon="chevron-left" id="icon" />
+        </button>
+
         Table view</span
       >
       <span>View Patient Profile</span>
@@ -147,9 +155,9 @@ onMounted(() => {
           padding: 8px;
           height: 4vh;
           border: 0.5px solid @gray;
-          border-radius: 4px; /* Colțuri rotunjite */
-          background-color: transparent; /* Culoare de fundal */
-          color: @black; /* Culoare text */
+          border-radius: 4px;
+          background-color: transparent;
+          color: @black;
           font-size: 18px;
         }
 
