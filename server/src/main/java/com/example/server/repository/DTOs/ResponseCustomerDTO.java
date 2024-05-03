@@ -14,6 +14,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 public class ResponseCustomerDTO {
+    public Long customerId;
     public String firstName;
     public String lastName;
     public String email;

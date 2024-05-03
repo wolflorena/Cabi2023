@@ -4,14 +4,22 @@ import { ref, onMounted, watch } from "vue";
 import Sidebar from "../../components/Sidebar.vue";
 import Pagination from "../../components/Pagination.vue";
 import { AdminSidebarOptions } from "../../data/types/SidebarOptions";
-import { getAllPageable } from "../../services/customer_service";
+import {
+  editStatus,
+  getAllPageable,
+  getById,
+} from "../../services/customer_service";
 import { PatientAdmin } from "@/data/types/Entities";
 import { useRouter } from "vue-router";
+import CustomModal from "@/components/CustomModal.vue";
+
+const showDelete = ref(false);
 
 const currentPage = ref(1);
 const totalPages = ref(0);
 
 const patients = ref<PatientAdmin[]>([]);
+const patientDetails = ref<PatientAdmin>();
 
 const router = useRouter();
 
@@ -19,7 +27,6 @@ async function loadPatients() {
   await getAllPageable(10, currentPage.value - 1).then((res: any) => {
     patients.value = res.pagedCustomers.content;
     totalPages.value = Math.ceil(res.total / 10);
-    console.log(patients.value);
   });
 }
 
@@ -29,6 +36,23 @@ async function changePage(pageNumber: number) {
     patients.value = res.pagedCustomers.content;
     totalPages.value = Math.ceil(res.total / 10);
   });
+}
+
+async function showDeleteModal(patientId: number) {
+  showDelete.value = true;
+  await getById(patientId).then((res) => {
+    patientDetails.value = res;
+  });
+}
+
+async function deletePatient(patientId: number | undefined) {
+  if (patientId) {
+    await editStatus(patientId, "SUSPENDED").then((res) => {
+      console.log("Account successfull deleted");
+      showDelete.value = false;
+      loadPatients();
+    });
+  }
 }
 
 onMounted(() => {
@@ -75,10 +99,13 @@ onMounted(() => {
                     </button>
                   </router-link>
 
-                  <button>
-                    <font-awesome-icon icon="pen" id="icon" />
-                  </button>
-                  <button>
+                  <router-link :to="'patients/edit/' + patient.customerId">
+                    <button>
+                      <font-awesome-icon icon="pen" id="icon" />
+                    </button>
+                  </router-link>
+
+                  <button @click="showDeleteModal(patient.customerId)">
                     <font-awesome-icon icon="trash-can" id="icon" />
                   </button>
                 </div>
@@ -93,6 +120,19 @@ onMounted(() => {
           @change-page="changePage"
         />
       </div>
+      <CustomModal
+        :show="showDelete"
+        @button2="showDelete = false"
+        @button1="deletePatient(patientDetails?.customerId)"
+      >
+        <span class="delete-text">{{
+          "Are you sure you want to delete the account for " +
+          patientDetails?.firstName +
+          " " +
+          patientDetails?.lastName +
+          "?"
+        }}</span></CustomModal
+      >
     </div>
   </div>
 </template>
@@ -172,6 +212,9 @@ onMounted(() => {
           }
         }
       }
+    }
+    .delete-text {
+      color: @white;
     }
   }
 }

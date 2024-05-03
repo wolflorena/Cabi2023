@@ -7,22 +7,34 @@ const props = withDefaults(
     isMain?: boolean;
     height?: StyleValue;
     width?: StyleValue;
+    fontSize?: StyleValue;
+    color?: string;
   }>(),
   {
     text: "",
     isMain: true,
   }
 );
+
+const emits = defineEmits<{
+  (e: "actionTriggered"): void;
+}>();
+
+const handleClickEvent = () => {
+  emits("actionTriggered");
+};
 </script>
 
 <template>
   <button
     :style="{
-      backgroundColor: isMain ? '#ef4b4c' : '#43506c',
+      backgroundColor: isMain ? '#ef4b4c' : color ? color : '#43506c',
       height: height ? height + 'px' : '',
       width: width ? width + 'px' : '',
+      fontSize: fontSize ? fontSize + 'px' : '',
     }"
     :class="isMain"
+    @click="handleClickEvent"
   >
     {{ text }}
   </button>

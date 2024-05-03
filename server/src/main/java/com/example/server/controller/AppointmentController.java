@@ -68,13 +68,15 @@ public class AppointmentController {
     }
 
     @GetMapping("/getAllByDateAndDoctor")
-    public ResponseEntity<List<AppointmentResponseDTO>> getApoointmentsByDateAndDoctor(@RequestParam(name="date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date, @RequestParam(name="doctorId")Long doctorId){
+    public ResponseEntity<List<AppointmentResponseDTO>> getApoointmentsByDateAndDoctor(@RequestParam(name="date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                                                                       @RequestParam(name="doctorId")Long doctorId){
         List<AppointmentResponseDTO> appointments = appointmentService.getAllAppointmentsByDateAndDoctor(date, doctorId);
         return ResponseEntity.ok(appointments);
     }
 
     @PutMapping("/status")
-    public AppointmentResponseDTO updateAppointmentStatus(@RequestParam Long appointmentId, @RequestParam Appointment.AppointmentStatus status) {
+    public AppointmentResponseDTO updateAppointmentStatus(@RequestParam Long appointmentId,
+                                                          @RequestParam Appointment.AppointmentStatus status) {
         return appointmentService.updateAppointmentStatus(appointmentId, status);
     }
 }

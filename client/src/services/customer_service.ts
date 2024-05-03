@@ -15,4 +15,15 @@ async function getById(patientId: number) {
   return json;
 }
 
-export { getAllPageable, getById };
+async function editStatus(patientId: number, newStatusAccount: string) {
+  const response = await fetch(
+    `${API_URL}/accountStatus?customerId=${patientId}&status=${newStatusAccount}`,
+    {
+      method: "PUT",
+    }
+  );
+  const json = await response.json();
+  return json;
+}
+
+export { getAllPageable, getById, editStatus };

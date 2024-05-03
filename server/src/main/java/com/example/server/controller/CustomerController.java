@@ -3,6 +3,7 @@ package com.example.server.controller;
 import com.example.server.repository.DTOs.CustomerPageDTO;
 import com.example.server.repository.DTOs.RegisterCustomerDTO;
 import com.example.server.repository.DTOs.ResponseCustomerDTO;
+import com.example.server.repository.entity.Customer;
 import com.example.server.service.implementation.CustomerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -67,6 +68,11 @@ public class CustomerController {
                 ),
                 HttpStatus.OK
         );
+    }
+
+    @PutMapping("/accountStatus")
+    public ResponseCustomerDTO updateAccountStatus(@RequestParam Long customerId, @RequestParam Customer.AccountStatus status) {
+        return customerServiceImpl.editAccountStatus(customerId, status);
     }
 
 }

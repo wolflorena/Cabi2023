@@ -79,4 +79,12 @@ public class CustomerServiceImpl implements CustomerService {
                 .toList();
         return new CustomerPageDTO(customerPageDTO.getTotal(), new PageImpl<>(result, pageable, result.size()));
     }
+
+    @Override
+    public ResponseCustomerDTO editAccountStatus(Long customerId, Customer.AccountStatus status) {
+        Customer customer = customerRepository.findById(customerId).orElseThrow();
+        customer.setAccountStatus(status);
+        customerRepository.save(customer);
+        return modelMapper.map(customer, ResponseCustomerDTO.class);
+    }
 }
