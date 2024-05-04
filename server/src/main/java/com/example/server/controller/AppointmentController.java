@@ -23,8 +23,8 @@ public class AppointmentController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<AppointmentResponseDTO> addAppointment(@RequestBody AppointmentRequestDTO appointmentRequestDTO, @RequestParam Long customerId) {
-        return new ResponseEntity<>(appointmentService.addAppointment(appointmentRequestDTO, customerId), HttpStatus.OK);
+    public ResponseEntity<AppointmentResponseDTO> addAppointment(@RequestBody AppointmentRequestDTO appointmentRequestDTO) {
+        return new ResponseEntity<>(appointmentService.addAppointment(appointmentRequestDTO), HttpStatus.OK);
     }
 
     @GetMapping

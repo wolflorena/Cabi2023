@@ -65,3 +65,8 @@ export type Patient = {
   occupation: string;
   dateOfBirth: string;
 };
+
+export type Service = {
+  serviceId: number;
+  name: string;
+};

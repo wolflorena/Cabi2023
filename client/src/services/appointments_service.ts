@@ -1,11 +1,27 @@
 const API_URL = "http://localhost:9090/api/appointments";
 
-async function createAppointment(customerId: number) {
+async function createAppointment(
+  date: string,
+  time: string,
+  doctorId: number,
+  serviceId: number,
+  customerId?: number
+) {
   let response;
   let connectionError = false;
   try {
-    response = await fetch(`${API_URL}/create?customerId=${customerId}`, {
+    response = await fetch(`${API_URL}/create`, {
       method: "POST",
+      body: JSON.stringify({
+        date,
+        time,
+        doctorId,
+        serviceId,
+        customerId,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
     });
   } catch (error) {
     connectionError = true;

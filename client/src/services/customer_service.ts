@@ -1,5 +1,12 @@
 const API_URL = "http://localhost:9090/api/customers";
 
+async function getAllPatients() {
+  const response = await fetch(`${API_URL}/getAll`);
+
+  const json = await response.json();
+  return json;
+}
+
 async function getAllPageable(pageSize: number, pageNumber: number) {
   const response = await fetch(
     `${API_URL}/allPage?pageSize=${pageSize}&pageNumber=${pageNumber}`
@@ -26,4 +33,4 @@ async function editStatus(patientId: number, newStatusAccount: string) {
   return json;
 }
 
-export { getAllPageable, getById, editStatus };
+export { getAllPageable, getById, editStatus, getAllPatients };

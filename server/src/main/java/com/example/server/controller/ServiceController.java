@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/services")
 public class ServiceController {
@@ -26,5 +29,10 @@ public class ServiceController {
     @GetMapping("/getService")
     public ResponseEntity<Object> getService(@RequestParam Long serviceId){
         return new ResponseEntity<>(serviceService.getService(serviceId), HttpStatus.OK);
+    }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<List<Service>> getAll(){
+        return new ResponseEntity<>(serviceService.getAll(), HttpStatus.OK);
     }
 }

@@ -5,6 +5,8 @@ import com.example.server.repository.entity.Service;
 import com.example.server.service.ServiceService;
 import org.modelmapper.ModelMapper;
 
+import java.util.List;
+
 @org.springframework.stereotype.Service
 public class ServiceServiceImpl implements ServiceService {
     private final ServiceRepository serviceRepository;
@@ -24,5 +26,10 @@ public class ServiceServiceImpl implements ServiceService {
     public Service getService(Long serviceId){
         Service service = serviceRepository.findById(serviceId).orElseThrow();
         return service;
+    }
+
+    @Override
+    public List<Service> getAll() {
+        return serviceRepository.findAll();
     }
 }

@@ -16,6 +16,11 @@ public class AppointmentResponseDTO {
     private int finalDuration;
     private AppointmentStatus status;
     private Long customerId;
+    private String customerFirstName;
+    private String customerLastName;
     private Long doctorId;
+    private String doctorFirstName;
+    private String doctorLastName;
     private String serviceId;
+    private String serviceName;
 }

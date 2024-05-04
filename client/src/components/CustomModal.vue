@@ -16,9 +16,7 @@ const emits = defineEmits(["button1", "button2"]);
       <div class="modal-container">
         <div class="modal-header">
           <h1>{{ title }}</h1>
-          <div class="content">
-            <slot></slot>
-          </div>
+          <slot></slot>
         </div>
         <div class="modal-footer">
           <button class="modal-button1" @click="$emit('button1')">Save</button>
@@ -46,7 +44,7 @@ const emits = defineEmits(["button1", "button2"]);
   transition: opacity 0.3s ease;
 
   .modal-container {
-    width: 300px;
+    min-width: 300px;
     margin: auto;
     padding: 20px 30px;
     background-color: @gray;
@@ -66,9 +64,9 @@ const emits = defineEmits(["button1", "button2"]);
 
     .modal-header {
       h1 {
-        color: @light-gray;
+        color: @font-gray;
         font-weight: 300;
-        font-size: 20px;
+        font-size: 22px;
       }
     }
 

@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
+    private static final Long ID_CLIENT_DEFAULT = (long) 1; //used when the admin makes an appointment, but the patient doesn't have an account
     private final AppointmentRepository appointmentRepository;
     private final CustomerRepository customerRepository;
     private final DoctorRepository doctorRepository;
@@ -36,7 +37,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public AppointmentResponseDTO addAppointment(AppointmentRequestDTO appointmentRequestDTO, Long customerId){
+    public AppointmentResponseDTO addAppointment(AppointmentRequestDTO appointmentRequestDTO){
         if(appointmentRepository.existsByDateAndTimeAndDoctorId(
                 appointmentRequestDTO.getDate(),
                 appointmentRequestDTO.getTime(),
@@ -45,9 +46,14 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new AppointmentExistsException("An appointment already exists at this date and time for the selected doctor.");
         }
         Appointment appointment = new Appointment();
-        Customer customer = customerRepository.findById(customerId).orElseThrow();
+
+        if (appointmentRequestDTO.getCustomerId() == null) {
+            appointmentRequestDTO.setCustomerId(ID_CLIENT_DEFAULT);
+        }
+        Customer customer = customerRepository.findById(appointmentRequestDTO.getCustomerId()).orElseThrow();
         Doctor doctor = doctorRepository.findById(appointmentRequestDTO.getDoctorId()).orElseThrow();
         com.example.server.repository.entity.Service service = serviceRepository.findById(appointmentRequestDTO.getServiceId()).orElseThrow();
+
         appointment.setCustomer(customer);
         appointment.setDoctor(doctor);
         appointment.setService(service);

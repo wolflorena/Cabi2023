@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface AppointmentService {
-    AppointmentResponseDTO addAppointment(AppointmentRequestDTO appointmentRequestDTO, Long customerId);
+    AppointmentResponseDTO addAppointment(AppointmentRequestDTO appointmentRequestDTO);
     AppointmentDetailDTO getAppointmentById(Long appointmentId);
 
     Boolean deleteAppointment(Long appointmentId);

@@ -4,10 +4,13 @@ import com.example.server.repository.DTOs.DoctorRequestDTO;
 import com.example.server.repository.DTOs.DoctorResponseDTO;
 import com.example.server.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -36,5 +39,20 @@ public class DoctorController {
     public ResponseEntity<List<DoctorResponseDTO>> getDoctors() {
         List<DoctorResponseDTO> doctors = doctorService.getAll();
         return ResponseEntity.ok(doctors);
+    }
+
+    @GetMapping("/available-dates")
+    public ResponseEntity<List<LocalDate>> getAvailableDates(@RequestParam Long doctorId,
+                                                             @RequestParam Long serviceId) {
+        List<LocalDate> availableDates = doctorService.findAvailableDates(doctorId, serviceId);
+        return ResponseEntity.ok(availableDates);
+    }
+
+    @GetMapping("/available-hours")
+    public ResponseEntity<List<LocalTime>> getAvailableHours(@RequestParam Long doctorId,
+                                                             @RequestParam Long serviceId,
+                                                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<LocalTime> availableHours = doctorService.findAvailableHours(doctorId, serviceId, date);
+        return ResponseEntity.ok(availableHours);
     }
 }
