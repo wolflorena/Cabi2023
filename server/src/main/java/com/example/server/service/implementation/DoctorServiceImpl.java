@@ -89,19 +89,17 @@ public class DoctorServiceImpl implements DoctorService {
         for (Appointment appointment : bookedAppointments) {
             LocalTime appointmentStart = appointment.getTime();
             if (!currentTime.isBefore(appointmentStart)) {
-                continue; // Ignoră programările care nu afectează intervalul de timp curent
+                continue;
             }
 
             int availableMinutes = (int) ChronoUnit.MINUTES.between(currentTime, appointmentStart);
             if (availableMinutes >= appointmentDuration) {
-                return true; // Există un slot disponibil între două programări
+                return true;
             }
 
-            // Muta timpul curent la sfârșitul acestei programări
             currentTime = appointmentStart.plusMinutes(appointment.getFinalDuration());
         }
 
-        // Verifică disponibilitatea după ultima programare a zilei
         return ChronoUnit.MINUTES.between(currentTime, endOfWork) >= appointmentDuration;
     }
 
@@ -148,7 +146,6 @@ public class DoctorServiceImpl implements DoctorService {
         LocalTime endOfWork = LocalTime.of(17, 0);
         LocalTime currentTime = startOfWork;
 
-        // Dacă nu există programări, populează întreaga zi lucrătoare la fiecare 30 de minute
         if (bookedAppointments.isEmpty() && duration <= ChronoUnit.MINUTES.between(startOfWork, endOfWork)) {
             for (LocalTime time = startOfWork; time.plusMinutes(duration).isBefore(endOfWork.plusMinutes(1)); time = time.plusMinutes(30)) {
                 availableHours.add(time);
@@ -156,20 +153,18 @@ public class DoctorServiceImpl implements DoctorService {
             return availableHours;
         }
 
-        // Generarea sloturilor între programări existente la intervale de 30 de minute
         for (Appointment appointment : bookedAppointments) {
             while (currentTime.plusMinutes(duration).isBefore(appointment.getTime().plusMinutes(1)) && currentTime.plusMinutes(duration).isBefore(endOfWork.plusMinutes(1))) {
                 availableHours.add(currentTime);
                 currentTime = currentTime.plusMinutes(30); // Incrementăm la fiecare 30 de minute
             }
-            // Muta timpul curent la sfârșitul acestei programări
+
             currentTime = appointment.getTime().plusMinutes(appointment.getFinalDuration());
         }
 
-        // Verifică disponibilitatea după ultima programare până la sfârșitul programului de lucru
         while (currentTime.plusMinutes(duration).isBefore(endOfWork.plusMinutes(1))) {
             availableHours.add(currentTime);
-            currentTime = currentTime.plusMinutes(30); // Continuăm să incrementăm la fiecare 30 de minute
+            currentTime = currentTime.plusMinutes(30);
         }
 
         return availableHours;

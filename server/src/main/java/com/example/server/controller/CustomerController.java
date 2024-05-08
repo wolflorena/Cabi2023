@@ -18,8 +18,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/customers")
 public class CustomerController {
-
-
     private final CustomerServiceImpl customerServiceImpl;
 
     @Autowired

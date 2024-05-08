@@ -70,3 +70,9 @@ export type Service = {
   serviceId: number;
   name: string;
 };
+
+export type Product = {
+  inventoryId: number;
+  product: string;
+  quantity: number;
+};
