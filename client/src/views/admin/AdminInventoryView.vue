@@ -2,8 +2,8 @@
 import { ref, onMounted } from "vue";
 
 import Sidebar from "@/components/Sidebar.vue";
-import Pagination from "../../components/Pagination.vue";
-import CustomModal from "../../components/CustomModal.vue";
+import Pagination from "@/components/Pagination.vue";
+import CustomModal from "@/components/CustomModal.vue";
 import { Product } from "@/data/types/Entities";
 
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";

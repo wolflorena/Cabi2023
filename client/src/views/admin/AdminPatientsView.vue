@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
-import Sidebar from "../../components/Sidebar.vue";
-import Pagination from "../../components/Pagination.vue";
-import { AdminSidebarOptions } from "../../data/types/SidebarOptions";
+import Sidebar from "@/components/Sidebar.vue";
+import Pagination from "@/components/Pagination.vue";
+import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 import {
   editStatus,
   getAllPageable,
   getById,
-} from "../../services/customer_service";
+} from "@/services/customer_service";
 import { PatientAdmin } from "@/data/types/Entities";
 import { useRouter } from "vue-router";
 import CustomModal from "@/components/CustomModal.vue";

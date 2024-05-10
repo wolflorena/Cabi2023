@@ -20,6 +20,7 @@ import {
   deleteAppointment,
   updateStatus,
 } from "@/services/appointments_service";
+import { formatTime, formatDateForTable, formatDate } from "@/utils/helpers";
 
 const showModal = ref(false);
 const showInfo = ref(false);
@@ -126,106 +127,6 @@ async function updateAppointmentStatus(appointmentId: number, status: string) {
       }
     });
   } else return;
-}
-
-function formatDateForTable(dateStr: string): string {
-  const monthsOfYear = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sept",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  if (dateStr) {
-    const date = new Date(dateStr);
-    const dayOfMonth = date.getDate();
-    const year = date.getFullYear();
-    const month = monthsOfYear[date.getMonth()];
-
-    return `${dayOfMonth} ${month} ${year}`;
-  }
-  return "";
-}
-
-//the string format of the date from the server is: YYYY-MM-DD
-function formatDate(dateStr: string | undefined): string {
-  const daysOfWeek = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
-  const monthsOfYear = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  if (dateStr) {
-    const date = new Date(dateStr);
-    const dayOfWeek = daysOfWeek[date.getDay()];
-    const dayOfMonth = date.getDate();
-    const month = monthsOfYear[date.getMonth()];
-
-    const dayWithSuffix = getDayWithSuffix(dayOfMonth);
-
-    return `${dayOfWeek}, ${dayWithSuffix} of ${month}`;
-  }
-  return "";
-}
-
-function getDayWithSuffix(day: number): string {
-  if (day % 10 === 1 && day !== 11) {
-    return `${day}st`;
-  } else if (day % 10 === 2 && day !== 12) {
-    return `${day}nd`;
-  } else if (day % 10 === 3 && day !== 13) {
-    return `${day}rd`;
-  } else {
-    return `${day}th`;
-  }
-}
-
-function formatTime(timeStr: string | undefined): string {
-  if (timeStr) {
-    const timeParts = timeStr.split(":");
-    const date = new Date();
-    date.setHours(
-      parseInt(timeParts[0]),
-      parseInt(timeParts[1]),
-      parseInt(timeParts[2])
-    );
-
-    let hours = date.getHours();
-    const minutes = date.getMinutes();
-
-    const amPm = hours >= 12 ? "PM" : "AM";
-
-    hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
-
-    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-    return `${hours}:${formattedMinutes} ${amPm}`;
-  }
-  return "";
 }
 </script>
 

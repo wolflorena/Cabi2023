@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Data
@@ -18,5 +20,6 @@ public class Form {
     private String title;
     private String description;
     private Boolean visibility;
-
+    private LocalDate editedDate;
+    private LocalTime editedTime;
 }

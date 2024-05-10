@@ -76,3 +76,11 @@ export type Product = {
   product: string;
   quantity: number;
 };
+
+export type Form = {
+  formId: number;
+  title: string;
+  description: string;
+  editedTime: string;
+  editedDate: string;
+};

@@ -1,13 +1,9 @@
 package com.example.server.controller;
 
-import com.example.server.repository.DTOs.CustomerPageDTO;
 import com.example.server.repository.DTOs.InventoryPageDTO;
 import com.example.server.repository.DTOs.InventoryUpdateDTO;
 import com.example.server.repository.entity.Inventory;
-import com.example.server.repository.entity.Service;
 import com.example.server.service.InventoryService;
-import com.example.server.service.implementation.CustomerServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

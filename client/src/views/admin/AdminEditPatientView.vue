@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-import Sidebar from "../../components/Sidebar.vue";
-import { AdminSidebarOptions } from "../../data/types/SidebarOptions";
-import { ref, onMounted, watch } from "vue";
+import Sidebar from "@/components/Sidebar.vue";
+import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
+import { ref, onMounted } from "vue";
 import { Patient } from "@/data/types/Entities";
 import { getById, editStatus } from "@/services/customer_service";
 import router from "@/router";

@@ -1,20 +1,15 @@
 package com.example.server.service.implementation;
 
-import com.example.server.repository.CustomerRepository;
-import com.example.server.repository.DTOs.CustomerAdminDTO;
-import com.example.server.repository.DTOs.CustomerPageDTO;
 import com.example.server.repository.DTOs.InventoryPageDTO;
 import com.example.server.repository.DTOs.InventoryUpdateDTO;
 import com.example.server.repository.InventoryRepository;
 import com.example.server.repository.entity.Inventory;
 import com.example.server.service.InventoryService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
