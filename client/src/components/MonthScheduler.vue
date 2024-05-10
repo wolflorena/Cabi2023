@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
-import { getAll, getAllForCalendar } from "@/services/appointments_service";
+import { getAllForCalendar } from "@/services/appointments_service";
 import type {
   SelectedDoctor,
   AppointmentCalendar,
@@ -9,6 +9,7 @@ import type {
 const props = withDefaults(
   defineProps<{
     selectedCalendars: SelectedDoctor[];
+    appointmentsUpdate: boolean;
   }>(),
   {}
 );
@@ -136,6 +137,13 @@ function toggleCalendar() {
 
 // Emitter for communication with the parent of the component
 const emit = defineEmits(["toggle-calendar"]);
+
+watch(
+  () => props.appointmentsUpdate,
+  () => {
+    if (props.appointmentsUpdate) loadAppointments();
+  }
+);
 </script>
 
 <template>
