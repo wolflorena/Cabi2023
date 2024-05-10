@@ -12,15 +12,24 @@ import {
   AppointmentDetail,
   AppointmentAdmin,
   type SelectedDoctor,
+  Patient,
+  Service,
 } from "@/data/types/Entities";
-import { getAllDoctors } from "@/services/doctor_service";
+import {
+  getAllDoctors,
+  getAvailableDates,
+  getAvailableHours,
+} from "@/services/doctor_service";
 import {
   getById,
   getAllPageable,
   deleteAppointment,
   updateStatus,
+  createAppointment,
 } from "@/services/appointments_service";
 import { formatTime, formatDateForTable, formatDate } from "@/utils/helpers";
+import { getAllServices } from "@/services/service_service";
+import { getAllPatients } from "@/services/customer_service";
 
 const showModal = ref(false);
 const showInfo = ref(false);
@@ -30,6 +39,17 @@ const appointmentDetails = ref<AppointmentDetail>();
 const doctors = ref<SelectedDoctor[]>([]);
 const doctorIds = ref<number[]>([]);
 const appointments = ref<AppointmentAdmin[]>([]);
+
+const patients = ref<Patient[]>([]);
+const services = ref<Service[]>([]);
+
+const selectedDoctor = ref();
+const selectedService = ref();
+const availableDates = ref<string[]>([]);
+const selectedDate = ref();
+const selectedHour = ref();
+const selectedPatient = ref();
+const availableHours = ref<string[]>([]);
 
 const appointmentStatus = ref("SCHEDULED");
 
@@ -128,13 +148,77 @@ async function updateAppointmentStatus(appointmentId: number, status: string) {
     });
   } else return;
 }
+
+function prepareAddAppointmentModal() {
+  showModal.value = true;
+  loadServices();
+  fetchPatients();
+}
+
+async function loadServices() {
+  await getAllServices().then((res: any) => {
+    services.value = res;
+  });
+}
+
+async function fetchPatients() {
+  await getAllPatients().then((res) => (patients.value = res));
+}
+
+function closeModal() {
+  showModal.value = false;
+  selectedDate.value = "";
+  selectedHour.value = "";
+  selectedDoctor.value = "";
+  selectedService.value = "";
+  selectedPatient.value = "";
+}
+
+async function addAppointment() {
+  if (
+    selectedDate.value &&
+    selectedHour.value &&
+    selectedDoctor.value &&
+    selectedService.value
+  ) {
+    await createAppointment(
+      selectedDate.value,
+      selectedHour.value,
+      selectedDoctor.value,
+      selectedService.value,
+      selectedPatient.value
+    ).then((res) => console.log(res));
+    showModal.value = false;
+  }
+}
+
+//TODO: @wolflorena create a modal date picker for selectig the date for appointment
+async function fetchAvailableDates() {
+  await getAvailableDates(selectedDoctor.value, selectedService.value).then(
+    (res: any) => {
+      availableDates.value = res;
+    }
+  );
+  console.log(availableDates.value);
+}
+
+async function fetchAvailableHours() {
+  await getAvailableHours(
+    selectedDoctor.value,
+    selectedService.value,
+    selectedDate.value
+  ).then((res: any) => {
+    availableHours.value = res;
+  });
+  console.log(availableHours.value);
+}
 </script>
 
 <template>
   <div class="container">
     <Sidebar :options="AdminSidebarOptions" />
     <div class="settings">
-      <AddButton @click="showModal = true" />
+      <AddButton @click="prepareAddAppointmentModal" />
 
       <div class="doctors">
         <div class="title">
@@ -320,9 +404,69 @@ async function updateAppointmentStatus(appointmentId: number, status: string) {
 
   <CustomModal
     :show="showModal"
-    @button2="showModal = false"
-    title="New appointment2"
+    @button2="closeModal"
+    @button1="addAppointment"
+    title="New appointment"
   >
+    <div class="selection">
+      <div class="option">
+        <label>Select doctor *</label>
+        <select v-model="selectedDoctor">
+          <option disabled value="">Select doctor</option>
+          <option v-for="doctor in doctors" :key="doctor.id" :value="doctor.id">
+            Dr. {{ doctor.firstName }} {{ doctor.lastName }}
+          </option>
+        </select>
+      </div>
+
+      <div class="option">
+        <label>Select type of treatment *</label>
+        <select v-model="selectedService" @change="fetchAvailableDates">
+          <option disabled value="">Select type of treatment</option>
+          <option
+            v-for="service in services"
+            :key="service.serviceId"
+            :value="service.serviceId"
+          >
+            {{ service.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="option">
+        <label>Select date *</label>
+        <select v-model="selectedDate" @change="fetchAvailableHours">
+          <option disabled value="">Select date</option>
+          <option v-for="date in availableDates" :key="date" :value="date">
+            {{ date }}
+          </option>
+        </select>
+      </div>
+
+      <div class="option">
+        <label>Select hour *</label>
+        <select v-model="selectedHour">
+          <option disabled value="">Select hour</option>
+          <option v-for="hour in availableHours" :key="hour" :value="hour">
+            {{ hour }}
+          </option>
+        </select>
+      </div>
+
+      <div class="option">
+        <label>Select patient name</label>
+        <select v-model="selectedPatient">
+          <option disabled value="">Select patient</option>
+          <option
+            v-for="patient in patients"
+            :key="patient.customerId"
+            :value="patient.customerId"
+          >
+            {{ patient.firstName }} {{ patient.lastName }}
+          </option>
+        </select>
+      </div>
+    </div>
   </CustomModal>
 </template>
 
@@ -463,6 +607,40 @@ async function updateAppointmentStatus(appointmentId: number, status: string) {
 
     .delete-text {
       color: @white;
+    }
+  }
+}
+
+.selection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .option {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+
+    label {
+      color: @sugar;
+      font-size: 18px;
+    }
+
+    select {
+      width: 160px;
+      background-color: @font-gray;
+      border-radius: 10px;
+      outline: none;
+      color: @font-darker-gray;
+      font-size: 15px;
+      padding: 2px;
+
+      &:focus {
+        background-color: @sugar;
+      }
     }
   }
 }
