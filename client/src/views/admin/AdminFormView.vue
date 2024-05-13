@@ -5,15 +5,19 @@ import router from "@/router";
 import { useRoute } from "vue-router";
 import { MdEditor } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
-import { ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 import CustomButton from "@/components/CustomButton.vue";
 import ToggleButton from "@/components/ToggleButton.vue";
-import { addForm } from "@/services/form_service";
+import { addForm, getForm } from "@/services/form_service";
+import { Form } from "@/data/types/Entities";
 
 const route = useRoute();
 const title = ref("");
 const description = ref("");
 const visibility = ref(false);
+
+const formId = ref(route.params.id);
+const form = ref<Form>();
 
 function goBack() {
   router.back();
@@ -22,6 +26,26 @@ function goBack() {
 async function createForm() {
   await addForm(title.value, description.value, visibility.value);
   alert("Form submitted successfully");
+}
+
+async function getFormDetails(formId: number) {
+  await getForm(formId).then((res) => {
+    form.value = res;
+    title.value = res.title;
+    description.value = res.description;
+    visibility.value = res.visibility;
+  });
+}
+
+onMounted(() => {
+  if (formId) getFormDetails(+formId.value);
+});
+
+async function submitChanges() {
+  if (!formId) {
+    createForm();
+  }
+  //TODO: @wolflorena add PATCH method
 }
 </script>
 
@@ -37,7 +61,7 @@ async function createForm() {
 
         Table view</span
       >
-      <span>Create new form</span>
+      <span>{{ formId ? "Edit form" : "Create new form" }}</span>
     </div>
 
     <div class="details">
@@ -64,7 +88,7 @@ async function createForm() {
       <CustomButton
         text="Submit"
         :is-main="false"
-        @click="createForm"
+        @click="submitChanges"
         id="submitButton"
         height="30"
         width="150"

@@ -23,7 +23,12 @@ function onCheckedChange(event: Event) {
   <div class="custom-checkbox">
     <span>{{ text }}</span>
     <div class="toggle-wrapper">
-      <input type="checkbox" id="toggle-input" @change="onCheckedChange" />
+      <input
+        type="checkbox"
+        id="toggle-input"
+        @change="onCheckedChange"
+        :checked="modelValue"
+      />
       <label for="toggle-input" class="toggle-switch"><span></span></label>
     </div>
   </div>

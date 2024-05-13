@@ -55,9 +55,11 @@ onMounted(() => {
                     <font-awesome-icon icon="eye" id="icon" />
                   </button>
 
-                  <button>
-                    <font-awesome-icon icon="pen" id="icon" />
-                  </button>
+                  <router-link :to="'forms/edit/' + form.formId">
+                    <button>
+                      <font-awesome-icon icon="pen" id="icon" />
+                    </button>
+                  </router-link>
 
                   <button>
                     <font-awesome-icon icon="trash-can" id="icon" />

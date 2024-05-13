@@ -83,4 +83,5 @@ export type Form = {
   description: string;
   editedTime: string;
   editedDate: string;
+  visibility: boolean;
 };

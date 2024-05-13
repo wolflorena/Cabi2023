@@ -42,4 +42,11 @@ async function getAllForms() {
   return json;
 }
 
-export { getAllForms, addForm };
+async function getForm(formId: number) {
+  const response = await fetch(`${API_URL}?formId=${formId}`);
+
+  const json = await response.json();
+  return json;
+}
+
+export { getAllForms, addForm, getForm };
