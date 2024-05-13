@@ -32,4 +32,9 @@ public class FormController {
     public ResponseEntity<Form> addForm(@RequestBody FormRequestDTO formRequestDTO) {
         return new ResponseEntity<>(formService.createForm(formRequestDTO), HttpStatus.OK);
     }
+
+    @GetMapping
+    public ResponseEntity<Form> getForm(@RequestParam Long formId) {
+        return new ResponseEntity<>(formService.getFormById(formId), HttpStatus.OK);
+    }
 }

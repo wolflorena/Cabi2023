@@ -67,6 +67,15 @@ onMounted(() => {
             </tr>
           </tbody>
         </table>
+
+        <div class="add-button-container">
+          <router-link to="forms/create">
+            <button id="add">
+              <font-awesome-icon icon="circle-plus" id="icon" />
+              Create new form
+            </button>
+          </router-link>
+        </div>
       </div>
     </div>
   </div>
@@ -92,6 +101,7 @@ onMounted(() => {
         border-collapse: separate;
         border-spacing: 0;
         color: @gray;
+        position: relative;
 
         thead tr {
           height: 8vh;
@@ -150,6 +160,22 @@ onMounted(() => {
     }
     .delete-text {
       color: @white;
+    }
+
+    .add-button-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 100px;
+
+      #add {
+        cursor: pointer;
+
+        background-color: transparent;
+        border: none;
+        color: @gray;
+
+        font-size: 20px;
+      }
     }
   }
 }

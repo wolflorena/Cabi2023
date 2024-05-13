@@ -44,4 +44,9 @@ public class FormServiceImpl implements FormService {
         formRepository.save(form);
         return form;
     }
+
+    @Override
+    public Form getFormById(Long formId) {
+        return formRepository.findById(formId).orElseThrow();
+    }
 }

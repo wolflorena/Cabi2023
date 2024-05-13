@@ -9,6 +9,7 @@ import AdminPatientDetailsView from "@/views/admin/AdminPatientDetailsView.vue";
 import AdminEditPatientView from "@/views/admin/AdminEditPatientView.vue";
 import AdminInventoryView from "@/views/admin/AdminInventoryView.vue";
 import AdminFormsView from "@/views/admin/AdminFormsView.vue";
+import AdminAddFormView from "@/views/admin/AdminAddFormView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -55,6 +56,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/admin/forms",
     name: "forms",
     component: AdminFormsView,
+  },
+  {
+    path: "/admin/forms/create",
+    name: "formsAddition",
+    component: AdminAddFormView,
   },
   {
     path: "/profile",

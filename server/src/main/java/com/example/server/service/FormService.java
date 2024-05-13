@@ -10,5 +10,6 @@ public interface FormService {
 
     List<FormAdminListDTO> getForms();
     Form createForm(FormRequestDTO formRequestDTO);
+    Form getFormById(Long formId);
 
 }

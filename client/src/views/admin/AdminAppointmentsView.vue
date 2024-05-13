@@ -13,14 +13,8 @@ import {
   AppointmentDetail,
   AppointmentAdmin,
   type SelectedDoctor,
-  Patient,
-  Service,
 } from "@/data/types/Entities";
-import {
-  getAllDoctors,
-  getAvailableDates,
-  getAvailableHours,
-} from "@/services/doctor_service";
+import { getAllDoctors } from "@/services/doctor_service";
 import {
   getById,
   getAllPageable,
@@ -29,8 +23,6 @@ import {
   createAppointment,
 } from "@/services/appointments_service";
 import { formatTime, formatDateForTable, formatDate } from "@/utils/helpers";
-import { getAllServices } from "@/services/service_service";
-import { getAllPatients } from "@/services/customer_service";
 
 const showModal = ref(false);
 const showInfo = ref(false);

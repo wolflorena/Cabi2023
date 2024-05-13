@@ -24,7 +24,6 @@ import {
   faCheck,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
