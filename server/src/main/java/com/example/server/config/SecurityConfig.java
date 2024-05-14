@@ -36,7 +36,10 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()  // Manage authorization requests
                 .antMatchers("/api/auth/login").permitAll()  // Allow unauthenticated access to login
-                .antMatchers("/api/**").permitAll()  // Open public APIs to unauthenticated access
+                .antMatchers("/api/customers/**").hasRole("CUSTOMER")
+//                .antMatchers("/api/admin/**").hasRole("ADMIN")
+//                .antMatchers("/api/doctor/**").hasRole("DOCTOR")
+//                .antMatchers("/api/**").permitAll()
                 .anyRequest().authenticated()  // Require authentication for any other request
                 .and()
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);  // Add JWT filter

@@ -35,7 +35,7 @@ public class MyUserDetailsService implements UserDetailsService {
         if (customerOpt.isPresent()) {
             Customer customer = customerOpt.get();
             return new User(customer.getEmail(), customer.getPassword(),
-                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_CUSTOMER")));
         }
 
         // Check if the user is an admin
