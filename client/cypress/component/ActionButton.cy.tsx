@@ -1,12 +1,12 @@
-import ActionTableButton from "../../src/components/ActionTableButton.vue";
+import ActionButton from "../../src/components/ActionButton.vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faCoffee } from "@fortawesome/free-solid-svg-icons";
 
 library.add(faCoffee);
 
-describe("<ActionTableButton />", () => {
+describe("<ActionButton />", () => {
   it("mounts", () => {
-    cy.mount(ActionTableButton, {
+    cy.mount(ActionButton, {
       props: {
         iconToken: "coffee",
       },
@@ -15,7 +15,7 @@ describe("<ActionTableButton />", () => {
   });
 
   it('emits "actionTriggered" when clicked', () => {
-    cy.mount(ActionTableButton, {
+    cy.mount(ActionButton, {
       props: {
         iconToken: "coffee",
       },

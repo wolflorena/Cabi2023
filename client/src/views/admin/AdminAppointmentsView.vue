@@ -2,7 +2,6 @@
 import { ref, onMounted, watch } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import TableHeaderButton from "@/components/TableHeaderButton.vue";
-import AddButton from "@/components/AddButton.vue";
 import CustomCheckbox from "@/components/CustomCheckbox.vue";
 import Pagination from "@/components/Pagination.vue";
 import CustomModal from "@/components/CustomModal.vue";
@@ -24,7 +23,7 @@ import {
   createAppointment,
 } from "@/services/appointments_service";
 import { formatTime, formatDate } from "@/utils/helpers";
-import ActionTableButton from "@/components/ActionTableButton.vue";
+import ActionButton from "@/components/ActionButton.vue";
 
 const showModal = ref(false);
 const showInfo = ref(false);
@@ -161,8 +160,11 @@ async function addAppointment(
   <div class="container">
     <Sidebar :options="AdminSidebarOptions" />
     <div class="settings">
-      <AddButton @click="prepareAddAppointmentModal" />
-
+      <ActionButton
+        button-style="full"
+        icon-token="circle-plus"
+        @action-triggered="prepareAddAppointmentModal"
+      />
       <div class="doctors">
         <div class="title">
           <h4>Select doctors</h4>
@@ -237,14 +239,14 @@ async function addAppointment(
               </td>
               <td>
                 <div class="actions" v-if="appointmentStatus === 'SCHEDULED'">
-                  <ActionTableButton
+                  <ActionButton
                     iconToken="eye"
                     @action-triggered="showInfoModal(appointment.appointmentId)"
                   />
 
-                  <ActionTableButton iconToken="pen" />
+                  <ActionButton iconToken="pen" />
 
-                  <ActionTableButton
+                  <ActionButton
                     iconToken="trash-can"
                     @action-triggered="
                       showDeleteModal(appointment.appointmentId)
@@ -252,7 +254,7 @@ async function addAppointment(
                   />
                 </div>
                 <div class="actions" v-if="appointmentStatus === 'REQUESTED'">
-                  <ActionTableButton
+                  <ActionButton
                     iconToken="check"
                     @action-triggered="
                       updateAppointmentStatus(
@@ -262,9 +264,9 @@ async function addAppointment(
                     "
                   />
 
-                  <ActionTableButton iconToken="pen" />
+                  <ActionButton iconToken="pen" />
 
-                  <ActionTableButton
+                  <ActionButton
                     iconToken="xmark"
                     @action-triggered="
                       updateAppointmentStatus(

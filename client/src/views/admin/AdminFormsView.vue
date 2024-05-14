@@ -6,7 +6,7 @@ import { onMounted, ref } from "vue";
 import { deleteForm, getAllForms, getForm } from "@/services/form_service";
 import CustomModal from "@/components/CustomModal.vue";
 import DateAndTimeSpan from "@/components/DateAndTimeSpan.vue";
-import ActionTableButton from "@/components/ActionTableButton.vue";
+import ActionButton from "@/components/ActionButton.vue";
 
 const forms = ref<Form[]>();
 const showDelete = ref(false);
@@ -77,14 +77,14 @@ async function deleteFormById(formId: number | undefined) {
               <td>
                 <div class="actions">
                   <router-link :to="'forms/' + form.formId">
-                    <ActionTableButton iconToken="eye" />
+                    <ActionButton iconToken="eye" />
                   </router-link>
 
                   <router-link :to="'forms/edit/' + form.formId">
-                    <ActionTableButton iconToken="pen" />
+                    <ActionButton iconToken="pen" />
                   </router-link>
 
-                  <ActionTableButton
+                  <ActionButton
                     iconToken="trash-can"
                     @action-triggered="showDeleteModal(form.formId)"
                   />

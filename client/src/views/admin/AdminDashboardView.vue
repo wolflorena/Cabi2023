@@ -4,7 +4,6 @@ import Sidebar from "@/components/Sidebar.vue";
 import MonthScheduler from "@/components/MonthScheduler.vue";
 import DayScheduler from "@/components/DayScheduler.vue";
 import CustomCheckbox from "@/components/CustomCheckbox.vue";
-import AddButton from "@/components/AddButton.vue";
 import CustomDropdown from "@/components/CustomDropdown.vue";
 import AddAppointmentModal from "@/components/AddAppointmentModal.vue";
 import DatePicker from "@/components/DatePicker.vue";
@@ -13,6 +12,7 @@ import { getAllDoctors } from "@/services/doctor_service";
 
 import type { Doctor, SelectedDoctor } from "@/data/types/Entities";
 import { createAppointment } from "@/services/appointments_service";
+import ActionButton from "@/components/ActionButton.vue";
 
 const doctors = ref<Doctor[]>([]);
 const selectedDoctors = ref<SelectedDoctor[]>([]);
@@ -138,7 +138,11 @@ onMounted(() => {
     />
     <span> {{ selectedContent }}</span>
     <div class="settings">
-      <AddButton @click="prepareAddAppointmentModal" />
+      <ActionButton
+        button-style="full"
+        icon-token="circle-plus"
+        @click="prepareAddAppointmentModal"
+      />
       <DatePicker @select-day="openDailyCalendar" />
 
       <CustomDropdown

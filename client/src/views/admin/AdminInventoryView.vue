@@ -14,7 +14,7 @@ import {
   deleteProduct,
   updateProduct,
 } from "@/services/inventory_service";
-import ActionTableButton from "@/components/ActionTableButton.vue";
+import ActionButton from "@/components/ActionButton.vue";
 
 const showDelete = ref(false);
 const showAddModal = ref(false);
@@ -127,11 +127,11 @@ async function deleteProductFromInventory() {
               </td>
               <td>
                 <div class="actions">
-                  <ActionTableButton
+                  <ActionButton
                     icon-token="pen"
                     @action-triggered="showEditModal(product.inventoryId)"
                   />
-                  <ActionTableButton
+                  <ActionButton
                     icon-token="trash-can"
                     @action-triggered="showDeleteModal(product.inventoryId)"
                   />
