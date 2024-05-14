@@ -91,4 +91,3 @@ const handleContentChange = (newValue: string, newPath: string): void => {
   }
 }
 </style>
-@/data/types/SidebarOptions@/data/types/SidebarOptions

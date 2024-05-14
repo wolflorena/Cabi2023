@@ -4,9 +4,12 @@ import { Form } from "@/data/types/Entities";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 import { onMounted, ref } from "vue";
 import { formatTime, formatDateForTable } from "@/utils/helpers";
-import { getAllForms } from "@/services/form_service";
+import { deleteForm, getAllForms, getForm } from "@/services/form_service";
+import CustomModal from "@/components/CustomModal.vue";
 
 const forms = ref<Form[]>();
+const showDelete = ref(false);
+const formDetails = ref<Form>();
 
 async function loadForms() {
   await getAllForms().then((res) => (forms.value = res));
@@ -15,6 +18,29 @@ async function loadForms() {
 onMounted(() => {
   loadForms();
 });
+
+async function showDeleteModal(formId: number) {
+  showDelete.value = true;
+  await getForm(formId).then((res) => {
+    formDetails.value = res;
+  });
+}
+
+async function deleteFormById(formId: number | undefined) {
+  if (formId) {
+    await deleteForm(formId)
+      .then((res) => {
+        if (res.ok) {
+          console.log("Appointment successfull deleted!");
+          showDelete.value = false;
+          loadForms();
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  } else return;
+}
 </script>
 
 <template>
@@ -51,9 +77,11 @@ onMounted(() => {
               </td>
               <td>
                 <div class="actions">
-                  <button>
-                    <font-awesome-icon icon="eye" id="icon" />
-                  </button>
+                  <router-link :to="'forms/' + form.formId">
+                    <button>
+                      <font-awesome-icon icon="eye" id="icon" />
+                    </button>
+                  </router-link>
 
                   <router-link :to="'forms/edit/' + form.formId">
                     <button>
@@ -61,7 +89,7 @@ onMounted(() => {
                     </button>
                   </router-link>
 
-                  <button>
+                  <button @click="showDeleteModal(form.formId)">
                     <font-awesome-icon icon="trash-can" id="icon" />
                   </button>
                 </div>
@@ -80,6 +108,15 @@ onMounted(() => {
         </div>
       </div>
     </div>
+    <CustomModal
+      :show="showDelete"
+      @button2="showDelete = false"
+      @button1="deleteFormById(formDetails?.formId)"
+    >
+      <span class="delete-text">{{
+        "Are you sure you want to delete the " + formDetails?.title + " form?"
+      }}</span></CustomModal
+    >
   </div>
 </template>
 

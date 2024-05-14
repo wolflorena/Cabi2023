@@ -8,7 +8,7 @@ import "md-editor-v3/lib/style.css";
 import { onMounted, ref } from "vue";
 import CustomButton from "@/components/CustomButton.vue";
 import ToggleButton from "@/components/ToggleButton.vue";
-import { addForm, getForm } from "@/services/form_service";
+import { addForm, getForm, updateForm } from "@/services/form_service";
 import { Form } from "@/data/types/Entities";
 
 const route = useRoute();
@@ -44,8 +44,15 @@ onMounted(() => {
 async function submitChanges() {
   if (!formId) {
     createForm();
+  } else {
+    await updateForm(
+      +formId.value,
+      title.value,
+      description.value,
+      visibility.value
+    );
+    alert("Form edited successfully");
   }
-  //TODO: @wolflorena add PATCH method
 }
 </script>
 

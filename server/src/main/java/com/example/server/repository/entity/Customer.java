@@ -36,12 +36,6 @@ public class Customer extends User {
     @JsonManagedReference(value = "customer-appointments")
     private Set<Appointment> appointments;
 
-    @OneToMany(mappedBy = "customer")
-    private Set<FormSignedByCustomer> formsSigned;
-
-    @OneToMany(mappedBy = "customer")
-    private Set<FormSeenByCustomer> formsSeen;
-
     public Customer(RegisterCustomerDTO registerCustomerDTO){
         super.setFirstName(registerCustomerDTO.getFirstName());
         super.setLastName(registerCustomerDTO.getLastName());
