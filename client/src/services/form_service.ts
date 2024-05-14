@@ -49,4 +49,34 @@ async function getForm(formId: number) {
   return json;
 }
 
-export { getAllForms, addForm, getForm };
+async function deleteForm(formId: number) {
+  const response = fetch(API_URL + "?formId=" + formId, {
+    method: "DELETE",
+  });
+  return response;
+}
+
+async function getFormEvents(formId: number) {
+  const response = await fetch(API_URL + "/" + formId + "/customers");
+
+  const json = await response.json();
+  return json;
+}
+
+async function updateForm(
+  formId: number,
+  title: string,
+  description: string,
+  visibility: boolean
+) {
+  const response = await fetch(`${API_URL}/update-form?formId=${formId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title,
+      description,
+      visibility,
+    }),
+  });
+}
+export { getAllForms, addForm, getForm, deleteForm, getFormEvents, updateForm };

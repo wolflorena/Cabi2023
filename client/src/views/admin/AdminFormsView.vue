@@ -3,10 +3,14 @@ import Sidebar from "@/components/Sidebar.vue";
 import { Form } from "@/data/types/Entities";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 import { onMounted, ref } from "vue";
-import { formatTime, formatDateForTable } from "@/utils/helpers";
-import { getAllForms } from "@/services/form_service";
+import { deleteForm, getAllForms, getForm } from "@/services/form_service";
+import CustomModal from "@/components/CustomModal.vue";
+import DateAndTimeSpan from "@/components/DateAndTimeSpan.vue";
+import ActionButton from "@/components/ActionButton.vue";
 
 const forms = ref<Form[]>();
+const showDelete = ref(false);
+const formDetails = ref<Form>();
 
 async function loadForms() {
   await getAllForms().then((res) => (forms.value = res));
@@ -15,6 +19,29 @@ async function loadForms() {
 onMounted(() => {
   loadForms();
 });
+
+async function showDeleteModal(formId: number) {
+  showDelete.value = true;
+  await getForm(formId).then((res) => {
+    formDetails.value = res;
+  });
+}
+
+async function deleteFormById(formId: number | undefined) {
+  if (formId) {
+    await deleteForm(formId)
+      .then((res) => {
+        if (res.ok) {
+          console.log("Appointment successfull deleted!");
+          showDelete.value = false;
+          loadForms();
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  } else return;
+}
 </script>
 
 <template>
@@ -42,28 +69,25 @@ onMounted(() => {
                 {{ form.title }}
               </td>
               <td>
-                <div class="date">
-                  <span id="time">{{ formatTime(form.editedTime) }} </span>
-                  <span id="date">
-                    {{ formatDateForTable(form.editedDate) }}
-                  </span>
-                </div>
+                <DateAndTimeSpan
+                  :date="form.editedDate"
+                  :time="form.editedTime"
+                />
               </td>
               <td>
                 <div class="actions">
-                  <button>
-                    <font-awesome-icon icon="eye" id="icon" />
-                  </button>
-
-                  <router-link :to="'forms/edit/' + form.formId">
-                    <button>
-                      <font-awesome-icon icon="pen" id="icon" />
-                    </button>
+                  <router-link :to="'forms/' + form.formId">
+                    <ActionButton iconToken="eye" />
                   </router-link>
 
-                  <button>
-                    <font-awesome-icon icon="trash-can" id="icon" />
-                  </button>
+                  <router-link :to="'forms/edit/' + form.formId">
+                    <ActionButton iconToken="pen" />
+                  </router-link>
+
+                  <ActionButton
+                    iconToken="trash-can"
+                    @action-triggered="showDeleteModal(form.formId)"
+                  />
                 </div>
               </td>
             </tr>
@@ -80,6 +104,15 @@ onMounted(() => {
         </div>
       </div>
     </div>
+    <CustomModal
+      :show="showDelete"
+      @button2="showDelete = false"
+      @button1="deleteFormById(formDetails?.formId)"
+    >
+      <span class="delete-text">{{
+        "Are you sure you want to delete the " + formDetails?.title + " form?"
+      }}</span></CustomModal
+    >
   </div>
 </template>
 
@@ -124,27 +157,6 @@ onMounted(() => {
           font-size: 20px;
           td {
             text-align: center;
-            .date {
-              display: flex;
-              flex-direction: column;
-
-              #time {
-                font-size: 20px;
-                font-weight: 500;
-              }
-
-              #date {
-                font-size: 12px;
-              }
-            }
-
-            .actions {
-              button {
-                border: none;
-                background-color: transparent;
-                cursor: pointer;
-              }
-            }
 
             &:first-child {
               border-top-left-radius: 20px;

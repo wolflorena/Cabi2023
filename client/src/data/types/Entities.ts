@@ -85,3 +85,9 @@ export type Form = {
   editedDate: string;
   visibility: boolean;
 };
+
+export type FormEvent = {
+  customerFirstName: string;
+  customerLastName: string;
+  timestamp: string;
+};

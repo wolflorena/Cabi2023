@@ -2,11 +2,11 @@
 import { ref, onMounted, watch } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import TableHeaderButton from "@/components/TableHeaderButton.vue";
-import AddButton from "@/components/AddButton.vue";
 import CustomCheckbox from "@/components/CustomCheckbox.vue";
 import Pagination from "@/components/Pagination.vue";
 import CustomModal from "@/components/CustomModal.vue";
 import AddAppointmentModal from "@/components/AddAppointmentModal.vue";
+import DateAndTimeSpan from "@/components/DateAndTimeSpan.vue";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 
 import {
@@ -22,7 +22,8 @@ import {
   updateStatus,
   createAppointment,
 } from "@/services/appointments_service";
-import { formatTime, formatDateForTable, formatDate } from "@/utils/helpers";
+import { formatTime, formatDate } from "@/utils/helpers";
+import ActionButton from "@/components/ActionButton.vue";
 
 const showModal = ref(false);
 const showInfo = ref(false);
@@ -159,8 +160,11 @@ async function addAppointment(
   <div class="container">
     <Sidebar :options="AdminSidebarOptions" />
     <div class="settings">
-      <AddButton @click="prepareAddAppointmentModal" />
-
+      <ActionButton
+        button-style="full"
+        icon-token="circle-plus"
+        @action-triggered="prepareAddAppointmentModal"
+      />
       <div class="doctors">
         <div class="title">
           <h4>Select doctors</h4>
@@ -220,12 +224,10 @@ async function addAppointment(
                 }}
               </td>
               <td>
-                <div class="date">
-                  <span id="time">{{ formatTime(appointment.time) }} </span>
-                  <span id="date">
-                    {{ formatDateForTable(appointment.date) }}
-                  </span>
-                </div>
+                <DateAndTimeSpan
+                  :date="appointment.date"
+                  :time="appointment.time"
+                />
               </td>
               <td>
                 {{
@@ -237,40 +239,42 @@ async function addAppointment(
               </td>
               <td>
                 <div class="actions" v-if="appointmentStatus === 'SCHEDULED'">
-                  <button @click="showInfoModal(appointment.appointmentId)">
-                    <font-awesome-icon icon="eye" id="icon" />
-                  </button>
-                  <button>
-                    <font-awesome-icon icon="pen" id="icon" />
-                  </button>
-                  <button @click="showDeleteModal(appointment.appointmentId)">
-                    <font-awesome-icon icon="trash-can" id="icon" />
-                  </button>
+                  <ActionButton
+                    iconToken="eye"
+                    @action-triggered="showInfoModal(appointment.appointmentId)"
+                  />
+
+                  <ActionButton iconToken="pen" />
+
+                  <ActionButton
+                    iconToken="trash-can"
+                    @action-triggered="
+                      showDeleteModal(appointment.appointmentId)
+                    "
+                  />
                 </div>
                 <div class="actions" v-if="appointmentStatus === 'REQUESTED'">
-                  <button
-                    @click="
+                  <ActionButton
+                    iconToken="check"
+                    @action-triggered="
                       updateAppointmentStatus(
                         appointment.appointmentId,
                         'SCHEDULED'
                       )
                     "
-                  >
-                    <font-awesome-icon icon="check" id="icon" />
-                  </button>
-                  <button>
-                    <font-awesome-icon icon="pen" id="icon" />
-                  </button>
-                  <button
-                    @click="
+                  />
+
+                  <ActionButton iconToken="pen" />
+
+                  <ActionButton
+                    iconToken="xmark"
+                    @action-triggered="
                       updateAppointmentStatus(
                         appointment.appointmentId,
                         'CANCELLED'
                       )
                     "
-                  >
-                    <font-awesome-icon icon="xmark" id="icon" />
-                  </button>
+                  />
                 </div>
                 <span
                   class="status"
@@ -424,27 +428,6 @@ async function addAppointment(
           font-size: 20px;
           td {
             text-align: center;
-            .date {
-              display: flex;
-              flex-direction: column;
-
-              #time {
-                font-size: 20px;
-                font-weight: 500;
-              }
-
-              #date {
-                font-size: 12px;
-              }
-            }
-
-            .actions {
-              button {
-                border: none;
-                background-color: transparent;
-                cursor: pointer;
-              }
-            }
 
             .status {
               background-color: @green;

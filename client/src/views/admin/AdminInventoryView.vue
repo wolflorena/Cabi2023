@@ -14,6 +14,7 @@ import {
   deleteProduct,
   updateProduct,
 } from "@/services/inventory_service";
+import ActionButton from "@/components/ActionButton.vue";
 
 const showDelete = ref(false);
 const showAddModal = ref(false);
@@ -126,13 +127,14 @@ async function deleteProductFromInventory() {
               </td>
               <td>
                 <div class="actions">
-                  <button @click="showEditModal(product.inventoryId)">
-                    <font-awesome-icon icon="pen" id="icon" />
-                  </button>
-
-                  <button @click="showDeleteModal(product.inventoryId)">
-                    <font-awesome-icon icon="trash-can" id="icon" />
-                  </button>
+                  <ActionButton
+                    icon-token="pen"
+                    @action-triggered="showEditModal(product.inventoryId)"
+                  />
+                  <ActionButton
+                    icon-token="trash-can"
+                    @action-triggered="showDeleteModal(product.inventoryId)"
+                  />
                 </div>
               </td>
               <td class="empty-column"></td>
@@ -278,14 +280,6 @@ async function deleteProductFromInventory() {
 
               #date {
                 font-size: 12px;
-              }
-            }
-
-            .actions {
-              button {
-                border: none;
-                background-color: transparent;
-                cursor: pointer;
               }
             }
 
