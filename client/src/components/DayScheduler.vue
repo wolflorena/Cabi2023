@@ -294,8 +294,8 @@ onMounted(() => {
 
 .calendar-container {
   padding: 0px 10px;
-  overflow: scroll;
-  max-height: 97vh;
+  overflow-y: scroll;
+  max-height: 95vh;
 
   .calendar {
     border-collapse: collapse;

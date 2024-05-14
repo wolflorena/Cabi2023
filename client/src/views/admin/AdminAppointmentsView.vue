@@ -7,6 +7,7 @@ import CustomCheckbox from "@/components/CustomCheckbox.vue";
 import Pagination from "@/components/Pagination.vue";
 import CustomModal from "@/components/CustomModal.vue";
 import AddAppointmentModal from "@/components/AddAppointmentModal.vue";
+import DateAndTimeSpan from "@/components/DateAndTimeSpan.vue";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 
 import {
@@ -22,7 +23,8 @@ import {
   updateStatus,
   createAppointment,
 } from "@/services/appointments_service";
-import { formatTime, formatDateForTable, formatDate } from "@/utils/helpers";
+import { formatTime, formatDate } from "@/utils/helpers";
+import ActionTableButton from "@/components/ActionTableButton.vue";
 
 const showModal = ref(false);
 const showInfo = ref(false);
@@ -220,12 +222,10 @@ async function addAppointment(
                 }}
               </td>
               <td>
-                <div class="date">
-                  <span id="time">{{ formatTime(appointment.time) }} </span>
-                  <span id="date">
-                    {{ formatDateForTable(appointment.date) }}
-                  </span>
-                </div>
+                <DateAndTimeSpan
+                  :date="appointment.date"
+                  :time="appointment.time"
+                />
               </td>
               <td>
                 {{
@@ -237,40 +237,42 @@ async function addAppointment(
               </td>
               <td>
                 <div class="actions" v-if="appointmentStatus === 'SCHEDULED'">
-                  <button @click="showInfoModal(appointment.appointmentId)">
-                    <font-awesome-icon icon="eye" id="icon" />
-                  </button>
-                  <button>
-                    <font-awesome-icon icon="pen" id="icon" />
-                  </button>
-                  <button @click="showDeleteModal(appointment.appointmentId)">
-                    <font-awesome-icon icon="trash-can" id="icon" />
-                  </button>
+                  <ActionTableButton
+                    iconToken="eye"
+                    @action-triggered="showInfoModal(appointment.appointmentId)"
+                  />
+
+                  <ActionTableButton iconToken="pen" />
+
+                  <ActionTableButton
+                    iconToken="trash-can"
+                    @action-triggered="
+                      showDeleteModal(appointment.appointmentId)
+                    "
+                  />
                 </div>
                 <div class="actions" v-if="appointmentStatus === 'REQUESTED'">
-                  <button
-                    @click="
+                  <ActionTableButton
+                    iconToken="check"
+                    @action-triggered="
                       updateAppointmentStatus(
                         appointment.appointmentId,
                         'SCHEDULED'
                       )
                     "
-                  >
-                    <font-awesome-icon icon="check" id="icon" />
-                  </button>
-                  <button>
-                    <font-awesome-icon icon="pen" id="icon" />
-                  </button>
-                  <button
-                    @click="
+                  />
+
+                  <ActionTableButton iconToken="pen" />
+
+                  <ActionTableButton
+                    iconToken="xmark"
+                    @action-triggered="
                       updateAppointmentStatus(
                         appointment.appointmentId,
                         'CANCELLED'
                       )
                     "
-                  >
-                    <font-awesome-icon icon="xmark" id="icon" />
-                  </button>
+                  />
                 </div>
                 <span
                   class="status"
@@ -424,27 +426,6 @@ async function addAppointment(
           font-size: 20px;
           td {
             text-align: center;
-            .date {
-              display: flex;
-              flex-direction: column;
-
-              #time {
-                font-size: 20px;
-                font-weight: 500;
-              }
-
-              #date {
-                font-size: 12px;
-              }
-            }
-
-            .actions {
-              button {
-                border: none;
-                background-color: transparent;
-                cursor: pointer;
-              }
-            }
 
             .status {
               background-color: @green;

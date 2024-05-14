@@ -201,6 +201,7 @@ onMounted(() => {
 .container {
   display: flex;
   align-items: center;
+  height: 100vh;
 
   .settings {
     height: 100vh;

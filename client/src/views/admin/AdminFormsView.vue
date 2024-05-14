@@ -3,9 +3,10 @@ import Sidebar from "@/components/Sidebar.vue";
 import { Form } from "@/data/types/Entities";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 import { onMounted, ref } from "vue";
-import { formatTime, formatDateForTable } from "@/utils/helpers";
 import { deleteForm, getAllForms, getForm } from "@/services/form_service";
 import CustomModal from "@/components/CustomModal.vue";
+import DateAndTimeSpan from "@/components/DateAndTimeSpan.vue";
+import ActionTableButton from "@/components/ActionTableButton.vue";
 
 const forms = ref<Form[]>();
 const showDelete = ref(false);
@@ -68,30 +69,25 @@ async function deleteFormById(formId: number | undefined) {
                 {{ form.title }}
               </td>
               <td>
-                <div class="date">
-                  <span id="time">{{ formatTime(form.editedTime) }} </span>
-                  <span id="date">
-                    {{ formatDateForTable(form.editedDate) }}
-                  </span>
-                </div>
+                <DateAndTimeSpan
+                  :date="form.editedDate"
+                  :time="form.editedTime"
+                />
               </td>
               <td>
                 <div class="actions">
                   <router-link :to="'forms/' + form.formId">
-                    <button>
-                      <font-awesome-icon icon="eye" id="icon" />
-                    </button>
+                    <ActionTableButton iconToken="eye" />
                   </router-link>
 
                   <router-link :to="'forms/edit/' + form.formId">
-                    <button>
-                      <font-awesome-icon icon="pen" id="icon" />
-                    </button>
+                    <ActionTableButton iconToken="pen" />
                   </router-link>
 
-                  <button @click="showDeleteModal(form.formId)">
-                    <font-awesome-icon icon="trash-can" id="icon" />
-                  </button>
+                  <ActionTableButton
+                    iconToken="trash-can"
+                    @action-triggered="showDeleteModal(form.formId)"
+                  />
                 </div>
               </td>
             </tr>
@@ -161,27 +157,6 @@ async function deleteFormById(formId: number | undefined) {
           font-size: 20px;
           td {
             text-align: center;
-            .date {
-              display: flex;
-              flex-direction: column;
-
-              #time {
-                font-size: 20px;
-                font-weight: 500;
-              }
-
-              #date {
-                font-size: 12px;
-              }
-            }
-
-            .actions {
-              button {
-                border: none;
-                background-color: transparent;
-                cursor: pointer;
-              }
-            }
 
             &:first-child {
               border-top-left-radius: 20px;

@@ -12,6 +12,7 @@ import {
 import { PatientAdmin } from "@/data/types/Entities";
 import { useRouter } from "vue-router";
 import CustomModal from "@/components/CustomModal.vue";
+import ActionTableButton from "@/components/ActionTableButton.vue";
 
 const showDelete = ref(false);
 
@@ -94,20 +95,17 @@ onMounted(() => {
               <td>
                 <div class="actions">
                   <router-link :to="'patients/' + patient.customerId">
-                    <button>
-                      <font-awesome-icon icon="eye" id="icon" />
-                    </button>
+                    <ActionTableButton icon-token="eye" />
                   </router-link>
 
                   <router-link :to="'patients/edit/' + patient.customerId">
-                    <button>
-                      <font-awesome-icon icon="pen" id="icon" />
-                    </button>
+                    <ActionTableButton icon-token="pen" />
                   </router-link>
 
-                  <button @click="showDeleteModal(patient.customerId)">
-                    <font-awesome-icon icon="trash-can" id="icon" />
-                  </button>
+                  <ActionTableButton
+                    icon-token="trash-can"
+                    @action-triggered="showDeleteModal(patient.customerId)"
+                  />
                 </div>
               </td>
             </tr>
@@ -188,14 +186,6 @@ onMounted(() => {
 
               #date {
                 font-size: 12px;
-              }
-            }
-
-            .actions {
-              button {
-                border: none;
-                background-color: transparent;
-                cursor: pointer;
               }
             }
 
