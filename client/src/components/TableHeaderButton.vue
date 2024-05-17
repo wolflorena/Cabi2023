@@ -2,9 +2,11 @@
 const props = withDefaults(
   defineProps<{
     label: string;
-    active: boolean;
+    active?: boolean;
   }>(),
-  {}
+  {
+    active: false,
+  }
 );
 </script>
 

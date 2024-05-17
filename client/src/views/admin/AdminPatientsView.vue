@@ -13,6 +13,7 @@ import { PatientAdmin } from "@/data/types/Entities";
 import { useRouter } from "vue-router";
 import CustomModal from "@/components/CustomModal.vue";
 import ActionButton from "@/components/ActionButton.vue";
+import TableHeader from "@/components/TableHeader.vue";
 
 const showDelete = ref(false);
 
@@ -68,18 +69,10 @@ onMounted(() => {
     <div class="patients">
       <div class="patients-container">
         <table>
-          <thead>
-            <tr>
-              <th>No.#</th>
-              <th>Patient</th>
-              <th>Email</th>
-              <th>Phone Number</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tr style="height: 20px">
-            <td colspan="5"></td>
-          </tr>
+          <TableHeader
+            :columns="['Patient', 'Email', 'Phone Number', 'Actions']"
+          />
+
           <tbody>
             <tr v-for="(patient, index) in patients">
               <td>{{ 10 * (currentPage - 1) + index + 1 }}</td>
@@ -156,17 +149,6 @@ onMounted(() => {
         border-spacing: 0;
         color: @gray;
 
-        thead tr {
-          height: 8vh;
-          background-color: @gray;
-          color: @white;
-          font-size: large;
-
-          th:first-child {
-            border-bottom-left-radius: 40px;
-          }
-        }
-
         tbody {
           margin-top: 20px;
         }
@@ -175,19 +157,6 @@ onMounted(() => {
           font-size: 20px;
           td {
             text-align: center;
-            .date {
-              display: flex;
-              flex-direction: column;
-
-              #time {
-                font-size: 20px;
-                font-weight: 500;
-              }
-
-              #date {
-                font-size: 12px;
-              }
-            }
 
             &:first-child {
               border-top-left-radius: 20px;

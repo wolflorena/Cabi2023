@@ -111,35 +111,6 @@ public class DoctorServiceImpl implements DoctorService {
         return calculateAvailableHours(appointments, serviceDuration);
     }
 
-    private List<LocalTime> calculateAvailableHours1(List<Appointment> bookedAppointments, int duration) {
-        List<LocalTime> availableHours = new ArrayList<>();
-        LocalTime startOfWork = LocalTime.of(9, 0);
-        LocalTime endOfWork = LocalTime.of(17, 0);
-        LocalTime currentTime = startOfWork;
-
-        if (bookedAppointments.isEmpty() && duration <= ChronoUnit.MINUTES.between(startOfWork, endOfWork)) {
-            for (LocalTime time = startOfWork; time.plusMinutes(duration).isBefore(endOfWork.plusMinutes(1)); time = time.plusMinutes(duration)) {
-                availableHours.add(time);
-            }
-            return availableHours;
-        }
-
-        for (Appointment appointment : bookedAppointments) {
-            while (currentTime.plusMinutes(duration).isBefore(appointment.getTime()) && currentTime.plusMinutes(duration).isBefore(endOfWork.plusMinutes(1))) {
-                availableHours.add(currentTime);
-                currentTime = currentTime.plusMinutes(duration);
-            }
-            currentTime = appointment.getTime().plusMinutes(appointment.getFinalDuration());
-        }
-
-        while (currentTime.plusMinutes(duration).isBefore(endOfWork.plusMinutes(1))) {
-            availableHours.add(currentTime);
-            currentTime = currentTime.plusMinutes(duration);
-        }
-
-        return availableHours;
-    }
-
     private List<LocalTime> calculateAvailableHours(List<Appointment> bookedAppointments, int duration) {
         List<LocalTime> availableHours = new ArrayList<>();
         LocalTime startOfWork = LocalTime.of(9, 0);

@@ -15,6 +15,7 @@ import {
   updateProduct,
 } from "@/services/inventory_service";
 import ActionButton from "@/components/ActionButton.vue";
+import TableHeader from "@/components/TableHeader.vue";
 
 const showDelete = ref(false);
 const showAddModal = ref(false);
@@ -100,22 +101,11 @@ async function deleteProductFromInventory() {
     <div class="products">
       <div class="products-container">
         <table>
-          <thead>
-            <tr>
-              <th>No.#</th>
-              <th>Product Name</th>
-              <th>Quantity</th>
-              <th>Actions</th>
-              <th>
-                <button @click="showAddModal = true" class="add-button">
-                  Add new product
-                </button>
-              </th>
-            </tr>
-          </thead>
-          <tr style="height: 20px">
-            <td colspan="5"></td>
-          </tr>
+          <TableHeader
+            :columns="['Product Name', 'Quantity', 'Actions']"
+            :has-action-button="true"
+            @action-triggered="showAddModal = true"
+          />
           <tbody>
             <tr v-for="(product, index) in inventory">
               <td>{{ 10 * (currentPage - 1) + index + 1 }}</td>
@@ -241,26 +231,6 @@ async function deleteProductFromInventory() {
         border-spacing: 0;
         color: @gray;
 
-        thead tr {
-          height: 8vh;
-          background-color: @gray;
-          color: @white;
-          font-size: large;
-
-          th:first-child {
-            border-bottom-left-radius: 40px;
-          }
-        }
-
-        .add-button {
-          background-color: transparent;
-          border: 1px solid @white;
-          color: @white;
-          font-size: large;
-          padding: 7px;
-          cursor: pointer;
-        }
-
         tbody {
           margin-top: 20px;
         }
@@ -269,19 +239,6 @@ async function deleteProductFromInventory() {
           font-size: 20px;
           td {
             text-align: center;
-            .date {
-              display: flex;
-              flex-direction: column;
-
-              #time {
-                font-size: 20px;
-                font-weight: 500;
-              }
-
-              #date {
-                font-size: 12px;
-              }
-            }
 
             &:first-child {
               border-top-left-radius: 20px;

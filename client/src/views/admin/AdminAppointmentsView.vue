@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import TableHeaderButton from "@/components/TableHeaderButton.vue";
+import TableHeader from "@/components/TableHeader.vue";
 import CustomCheckbox from "@/components/CustomCheckbox.vue";
 import Pagination from "@/components/Pagination.vue";
 import CustomModal from "@/components/CustomModal.vue";
@@ -203,16 +204,15 @@ async function addAppointment(
         :class="{ empty: appointments.length === 0 }"
       >
         <table v-if="appointments.length > 0">
-          <thead>
-            <tr>
-              <th>No.#</th>
-              <th>Patient</th>
-              <th>Date</th>
-              <th>Doctor</th>
-              <th v-if="appointmentStatus == 'COMPLETED'">Status</th>
-              <th v-else>Actions</th>
-            </tr>
-          </thead>
+          <TableHeader
+            :columns="
+              appointmentStatus == 'COMPLETED'
+                ? ['Patient', 'Date', 'Doctor', 'Status']
+                : ['Patient', 'Date', 'Doctor', 'Actions']
+            "
+            :is-main="false"
+            :has-empty-row="false"
+          />
           <tbody>
             <tr v-for="(appointment, index) in appointments">
               <td>{{ 10 * (currentPage - 1) + index + 1 }}</td>
@@ -356,6 +356,7 @@ async function addAppointment(
 
 <style scoped lang="less">
 @import (reference) "@/assets/styles.less";
+
 .container {
   display: flex;
   align-items: center;
@@ -416,12 +417,6 @@ async function addAppointment(
         width: 100%;
         border-collapse: collapse;
         color: @gray;
-
-        thead tr {
-          height: 8vh;
-          background-color: @light-gray;
-          font-size: large;
-        }
 
         tbody tr {
           height: 8vh;

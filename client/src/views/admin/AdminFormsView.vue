@@ -7,6 +7,7 @@ import { deleteForm, getAllForms, getForm } from "@/services/form_service";
 import CustomModal from "@/components/CustomModal.vue";
 import DateAndTimeSpan from "@/components/DateAndTimeSpan.vue";
 import ActionButton from "@/components/ActionButton.vue";
+import TableHeader from "@/components/TableHeader.vue";
 
 const forms = ref<Form[]>();
 const showDelete = ref(false);
@@ -51,17 +52,7 @@ async function deleteFormById(formId: number | undefined) {
     <div class="forms">
       <div class="forms-container">
         <table>
-          <thead>
-            <tr>
-              <th>No.#</th>
-              <th>Title</th>
-              <th>Last updated</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tr style="height: 20px">
-            <td colspan="5"></td>
-          </tr>
+          <TableHeader :columns="['Title', 'Last updated', 'Actions']" />
           <tbody>
             <tr v-for="(form, index) in forms">
               <td>{{ index + 1 }}</td>
@@ -137,17 +128,6 @@ async function deleteFormById(formId: number | undefined) {
         border-spacing: 0;
         color: @gray;
         position: relative;
-
-        thead tr {
-          height: 8vh;
-          background-color: @gray;
-          color: @white;
-          font-size: large;
-
-          th:first-child {
-            border-bottom-left-radius: 40px;
-          }
-        }
 
         tbody {
           margin-top: 20px;
