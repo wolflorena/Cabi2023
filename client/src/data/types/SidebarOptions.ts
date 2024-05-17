@@ -35,6 +35,11 @@ export const AdminSidebarOptions: SidebarOptionsWithRole = {
 export const DoctorSidebarOptions: SidebarOptionsWithRole = {
   options: [
     {
+      path: "/profile",
+      text: "My Profile",
+      icon: "user",
+    },
+    {
       path: "/dashboard",
       text: "Dashboard",
       icon: "table-columns",

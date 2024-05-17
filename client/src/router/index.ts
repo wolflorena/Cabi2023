@@ -11,6 +11,7 @@ import AdminInventoryView from "@/views/admin/AdminInventoryView.vue";
 import AdminFormsView from "@/views/admin/AdminFormsView.vue";
 import AdminFormView from "@/views/admin/AdminFormView.vue";
 import AdminFormEventsView from "@/views/admin/AdminFormEventsView.vue";
+import DoctorProfileView from "@/views/doctor/DoctorProfileView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -72,6 +73,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/admin/forms/:id",
     name: "viewForm",
     component: AdminFormEventsView,
+  },
+  {
+    path: "/doctor/profile",
+    name: "doctorProfile",
+    component: DoctorProfileView,
   },
   {
     path: "/profile",

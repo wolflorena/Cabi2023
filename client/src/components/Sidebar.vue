@@ -14,7 +14,6 @@ const hideSidebar = ref(false);
 
 const handleContentChange = (role: string, newPath: string): void => {
   router.push("/" + role + newPath);
-  console.log(router.currentRoute.value.name);
 };
 </script>
 
@@ -34,9 +33,7 @@ const handleContentChange = (role: string, newPath: string): void => {
       <SidebarButton
         v-for="(option, index) in options.options"
         :key="index"
-        :selected="
-          ('/' + String(router.currentRoute.value.name)).includes(option.path)
-        "
+        :selected="String(router.currentRoute.value.path).includes(option.path)"
         :text="option.text"
         :icon="option.icon"
         @selection-changed="handleContentChange(options.role, option.path)"

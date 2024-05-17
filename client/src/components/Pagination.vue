@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { faPeopleArrows } from "@fortawesome/free-solid-svg-icons";
-import { defineProps, computed } from "vue";
+import { computed } from "vue";
 
 const props = withDefaults(
   defineProps<{
