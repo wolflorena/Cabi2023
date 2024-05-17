@@ -5,7 +5,7 @@ export type Doctor = {
   email: string;
   phoneNo: string;
   address: string;
-  dateOfEmployment: Date;
+  dateOfEmployment: string;
   appointments: Appointment[];
 };
 

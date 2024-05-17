@@ -6,6 +6,12 @@ async function getAllDoctors() {
   return json;
 }
 
+async function getDoctorById(doctorId: number) {
+  const response = await fetch(`${API_URL}/get?doctorId=${doctorId}`);
+  const json = await response.json();
+  return json;
+}
+
 async function getAvailableDates(doctorId: number, serviceId: number) {
   const response = await fetch(
     `${API_URL}/available-dates?doctorId=${doctorId}&serviceId=${serviceId}`
@@ -26,4 +32,4 @@ async function getAvailableHours(
   return json;
 }
 
-export { getAllDoctors, getAvailableDates, getAvailableHours };
+export { getAllDoctors, getDoctorById, getAvailableDates, getAvailableHours };
