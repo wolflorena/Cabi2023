@@ -3,7 +3,6 @@ import SignupView from "../views/SignupView.vue";
 import LoginView from "../views/admin/LoginView.vue";
 import AdminDashboardView from "@/views/admin/AdminDashboardView.vue";
 import AdminAppointmentsView from "@/views/admin/AdminAppointmentsView.vue";
-import CustomerProfile from "@/views/customer/CustomerProfile.vue";
 import AdminPatientsView from "@/views/admin/AdminPatientsView.vue";
 import AdminPatientDetailsView from "@/views/admin/AdminPatientDetailsView.vue";
 import AdminEditPatientView from "@/views/admin/AdminEditPatientView.vue";
@@ -11,6 +10,7 @@ import AdminInventoryView from "@/views/admin/AdminInventoryView.vue";
 import AdminFormsView from "@/views/admin/AdminFormsView.vue";
 import AdminFormView from "@/views/admin/AdminFormView.vue";
 import AdminFormEventsView from "@/views/admin/AdminFormEventsView.vue";
+import CustomerProfileView from "@/views/customer/CustomerProfileView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -75,8 +75,23 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/profile",
-    name: "CustomerProfile",
-    component: CustomerProfile,
+    name: "profile",
+    component: CustomerProfileView,
+  },
+  {
+    path: "/appointment",
+    name: "appointment",
+    component: CustomerProfileView,
+  },
+  {
+    path: "/history",
+    name: "history",
+    component: CustomerProfileView,
+  },
+  {
+    path: "/forms",
+    name: "forms",
+    component: CustomerProfileView,
   },
 ];
 

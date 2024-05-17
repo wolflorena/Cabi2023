@@ -62,26 +62,25 @@ export const DoctorSidebarOptions: SidebarOptionsWithRole = {
 export const CustomerSidebarOptions: SidebarOptionsWithRole = {
   options: [
     {
-      path: "/dashboard",
-      text: "Dashboard",
+      path: "/profile",
+      text: "Profile",
       icon: "table-columns",
     },
     {
-      path: "/appointments",
-      text: "Appointments",
+      path: "/appointment",
+      text: "Appointment",
       icon: "calendar-check",
     },
     {
-      path: "/patients",
-      text: "Patients",
+      path: "/history",
+      text: "History",
       icon: "hospital-user",
     },
     {
-      path: "/inventory",
-      text: "Inventory",
+      path: "/forms",
+      text: "Forms",
       icon: "cart-flatbed",
     },
-    { path: "/forms", text: "Forms", icon: "highlighter" },
   ],
   role: "customer",
 };

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import SidebarButton from "./SidebarButton.vue";
 import type { SidebarOptionsWithRole } from "@/data/types/SidebarOptions";
 import { useRouter } from "vue-router";
@@ -10,23 +9,18 @@ defineProps<{
 
 const router = useRouter();
 
-const hideSidebar = ref(false);
-
 const handleContentChange = (role: string, newPath: string): void => {
-  router.push("/" + role + newPath);
+  if (role === "customer") {
+    router.push(newPath);
+  } else {
+    router.push("/" + role + newPath);
+  }
   console.log(router.currentRoute.value.name);
 };
 </script>
 
 <template>
-  <button
-    @click="hideSidebar = !hideSidebar"
-    class="hideSidebar"
-    :class="{ hided: hideSidebar }"
-  >
-    <font-awesome-icon id="icon" icon="bars" />
-  </button>
-  <div class="sidebar" :class="{ hided: hideSidebar }">
+  <div class="sidebar">
     <div class="logo-container">
       <img src="@/assets/logo.png" alt="" />
     </div>

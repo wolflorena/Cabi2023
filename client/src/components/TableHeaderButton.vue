@@ -19,15 +19,22 @@ const props = withDefaults(
 
 button {
   background-color: transparent;
-  border: none;
+  box-sizing: border-box;
+  /*adding border created the flickering upwards of the text. solved it here.*/
+  border-top: 5px solid transparent;
+  border-left: none;
+  border-right: none;
+  border-bottom: 5px solid transparent;
   color: @white;
   font-size: 20px;
   font-weight: 100;
   cursor: pointer;
   height: 5vh;
-  padding: 20px;
+  padding: 15px 40px;
+  display: flex;
+  align-items: center;
   &.selected {
-    border-bottom: 5px solid @red;
+    border-bottom-color: @red;
   }
 }
 </style>
