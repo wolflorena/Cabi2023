@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import SidebarButton from "./SidebarButton.vue";
-import type { SidebarOption } from "@/data/types/SidebarOptions";
-import { useRoute, useRouter } from "vue-router";
+import type { SidebarOptionsWithRole } from "@/data/types/SidebarOptions";
+import { useRouter } from "vue-router";
 
 defineProps<{
-  options: SidebarOption[];
+  options: SidebarOptionsWithRole;
 }>();
 
 const router = useRouter();
 
 const hideSidebar = ref(false);
 
-const handleContentChange = (newValue: string, newPath: string): void => {
-  router.push(`/admin${newPath}`);
+const handleContentChange = (role: string, newPath: string): void => {
+  router.push("/" + role + newPath);
   console.log(router.currentRoute.value.name);
 };
 </script>
@@ -32,14 +32,14 @@ const handleContentChange = (newValue: string, newPath: string): void => {
     </div>
     <div class="selections">
       <SidebarButton
-        v-for="(option, index) in options"
+        v-for="(option, index) in options.options"
         :key="index"
         :selected="
           ('/' + String(router.currentRoute.value.name)).includes(option.path)
         "
         :text="option.text"
         :icon="option.icon"
-        @selection-changed="handleContentChange(option.text, option.path)"
+        @selection-changed="handleContentChange(options.role, option.path)"
       />
     </div>
   </div>
