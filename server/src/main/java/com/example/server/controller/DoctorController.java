@@ -2,6 +2,7 @@ package com.example.server.controller;
 
 import com.example.server.repository.DTOs.DoctorRequestDTO;
 import com.example.server.repository.DTOs.DoctorResponseDTO;
+import com.example.server.repository.DTOs.DoctorUpdateDTO;
 import com.example.server.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -54,5 +55,10 @@ public class DoctorController {
                                                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<LocalTime> availableHours = doctorService.findAvailableHours(doctorId, serviceId, date);
         return ResponseEntity.ok(availableHours);
+    }
+
+    @PatchMapping("/update-doctor")
+    public DoctorUpdateDTO updateDoctor(@RequestParam Long doctorId, @RequestBody DoctorUpdateDTO doctorUpdateDTO) {
+        return doctorService.updateDoctor(doctorId, doctorUpdateDTO);
     }
 }

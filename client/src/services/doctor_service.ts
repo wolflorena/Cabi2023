@@ -32,4 +32,36 @@ async function getAvailableHours(
   return json;
 }
 
-export { getAllDoctors, getDoctorById, getAvailableDates, getAvailableHours };
+async function updateDoctor(
+  doctorId: number,
+  firstName: string,
+  lastName: string,
+  email: string,
+  phoneNumber: string,
+  address: string,
+  dateOfEmployment: string
+) {
+  const response = await fetch(
+    `${API_URL}/update-doctor?doctorId=${doctorId}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        phoneNo: phoneNumber,
+        address,
+        dateOfEmployment,
+      }),
+    }
+  );
+}
+
+export {
+  getAllDoctors,
+  getDoctorById,
+  getAvailableDates,
+  getAvailableHours,
+  updateDoctor,
+};

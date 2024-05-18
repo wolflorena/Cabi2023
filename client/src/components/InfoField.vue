@@ -12,12 +12,24 @@ withDefaults(
     type: "text",
   }
 );
+
+const emit = defineEmits(["update:inputValue"]);
+
+const inputChange = (event: any) => {
+  emit("update:inputValue", event.target.value);
+};
 </script>
 
 <template>
   <div class="info-field">
     <label :for="uuid">{{ label }}</label>
-    <input :type="type" :id="uuid" :value="inputValue" :readonly="isReadonly" />
+    <input
+      :type="type"
+      :id="uuid"
+      :value="inputValue"
+      :readonly="isReadonly"
+      @input="inputChange"
+    />
   </div>
 </template>
 
