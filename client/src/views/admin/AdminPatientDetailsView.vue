@@ -6,6 +6,7 @@ import { ref, onMounted, watch } from "vue";
 import { Patient } from "@/data/types/Entities";
 import { getById } from "@/services/customer_service";
 import router from "@/router";
+import InfoField from "@/components/InfoField.vue";
 
 const route = useRoute();
 const patientId = ref(route.params.id);
@@ -43,45 +44,32 @@ function goBack() {
     <div class="details">
       <img src="../../assets/default-avatar.png" alt="" />
       <div class="patient-info">
-        <div class="info-field">
-          <label for="first-name">First Name</label>
-          <input
-            type="text"
-            id="first-name"
-            :value="patient?.firstName"
-            readonly
-          />
-        </div>
-        <div class="info-field">
-          <label for="last-name">Last Name</label>
-          <input
-            type="text"
-            id="last-name"
-            :value="patient?.lastName"
-            readonly
-          />
-        </div>
-        <div class="info-field">
-          <label for="email">Email</label>
-          <input type="email" id="email" :value="patient?.email" readonly />
-        </div>
-        <div class="info-field">
-          <label for="phone">Phone Number</label>
-          <input type="tel" id="phone" :value="patient?.phoneNo" readonly />
-        </div>
-        <div class="info-field">
-          <label for="dob">Date of Birth</label>
-          <input type="text" id="dob" :value="patient?.dateOfBirth" readonly />
-        </div>
-        <div class="info-field">
-          <label for="occupation">Occupation</label>
-          <input
-            type="text"
-            id="occupation"
-            :value="patient?.occupation"
-            readonly
-          />
-        </div>
+        <InfoField
+          uuid="first-name"
+          label="First Name"
+          :input-value="patient?.firstName"
+        />
+        <InfoField
+          uuid="last-name"
+          label="Last Name"
+          :input-value="patient?.lastName"
+        />
+        <InfoField uuid="email" label="Email" :input-value="patient?.email" />
+        <InfoField
+          uuid="phone"
+          label="Phone Number"
+          :input-value="patient?.phoneNo"
+        />
+        <InfoField
+          uuid="dob"
+          label="Date of Birth"
+          :input-value="patient?.dateOfBirth"
+        />
+        <InfoField
+          uuid="occupation"
+          label="Occupation"
+          :input-value="patient?.occupation"
+        />
       </div>
     </div>
   </div>
@@ -139,33 +127,6 @@ function goBack() {
       width: 90%;
       column-gap: 2vw;
       row-gap: 5vh;
-
-      .info-field {
-        display: flex;
-        flex-direction: column;
-
-        label {
-          color: @blue;
-          margin-bottom: 5px;
-          font-weight: bold;
-          font-size: larger;
-        }
-
-        input {
-          padding: 8px;
-          height: 4vh;
-          border: 0.5px solid @gray;
-          border-radius: 4px;
-          background-color: transparent;
-          color: @black;
-          font-size: 18px;
-        }
-
-        input[readonly] {
-          cursor: not-allowed;
-          opacity: 0.8;
-        }
-      }
     }
   }
 }

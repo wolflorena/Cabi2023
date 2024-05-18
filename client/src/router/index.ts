@@ -96,7 +96,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/forms",
-    name: "forms",
+    name: "formsCustomer",
     component: CustomerProfileView,
   },
 ];

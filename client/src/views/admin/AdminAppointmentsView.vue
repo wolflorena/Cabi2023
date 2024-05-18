@@ -9,6 +9,7 @@ import CustomModal from "@/components/CustomModal.vue";
 import AddAppointmentModal from "@/components/AddAppointmentModal.vue";
 import DateAndTimeSpan from "@/components/DateAndTimeSpan.vue";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
+import TableRow from "@/components/TableRow.vue";
 
 import {
   AppointmentDetail,
@@ -214,77 +215,67 @@ async function addAppointment(
             :has-empty-row="false"
           />
           <tbody>
-            <tr v-for="(appointment, index) in appointments">
-              <td>{{ 10 * (currentPage - 1) + index + 1 }}</td>
-              <td>
-                {{
-                  appointment.customerFirstName +
-                  " " +
-                  appointment.customerLastName
-                }}
-              </td>
-              <td>
-                <DateAndTimeSpan
-                  :date="appointment.date"
-                  :time="appointment.time"
-                />
-              </td>
-              <td>
-                {{
-                  "Dr. " +
+            <TableRow
+              v-for="(appointment, index) in appointments"
+              :columns="[
+                10 * (currentPage - 1) + index + 1,
+                appointment.customerFirstName +
+                  ' ' +
+                  appointment.customerLastName,
+                'Dr. ' +
                   appointment.doctorFirstName +
-                  " " +
-                  appointment.doctorLastName
-                }}
-              </td>
-              <td>
-                <div class="actions" v-if="appointmentStatus === 'SCHEDULED'">
-                  <ActionButton
-                    iconToken="eye"
-                    @action-triggered="showInfoModal(appointment.appointmentId)"
-                  />
+                  ' ' +
+                  appointment.doctorLastName,
+              ]"
+              :date="appointment.date"
+              :time="appointment.time"
+              :index="index"
+              highlight="odd"
+            >
+              <div class="actions" v-if="appointmentStatus === 'SCHEDULED'">
+                <ActionButton
+                  iconToken="eye"
+                  @action-triggered="showInfoModal(appointment.appointmentId)"
+                />
 
-                  <ActionButton iconToken="pen" />
+                <ActionButton iconToken="pen" />
 
-                  <ActionButton
-                    iconToken="trash-can"
-                    @action-triggered="
-                      showDeleteModal(appointment.appointmentId)
-                    "
-                  />
-                </div>
-                <div class="actions" v-if="appointmentStatus === 'REQUESTED'">
-                  <ActionButton
-                    iconToken="check"
-                    @action-triggered="
-                      updateAppointmentStatus(
-                        appointment.appointmentId,
-                        'SCHEDULED'
-                      )
-                    "
-                  />
+                <ActionButton
+                  iconToken="trash-can"
+                  @action-triggered="showDeleteModal(appointment.appointmentId)"
+                />
+              </div>
+              <div class="actions" v-if="appointmentStatus === 'REQUESTED'">
+                <ActionButton
+                  iconToken="check"
+                  @action-triggered="
+                    updateAppointmentStatus(
+                      appointment.appointmentId,
+                      'SCHEDULED'
+                    )
+                  "
+                />
 
-                  <ActionButton iconToken="pen" />
+                <ActionButton iconToken="pen" />
 
-                  <ActionButton
-                    iconToken="xmark"
-                    @action-triggered="
-                      updateAppointmentStatus(
-                        appointment.appointmentId,
-                        'CANCELLED'
-                      )
-                    "
-                  />
-                </div>
-                <span
-                  class="status"
-                  v-if="appointmentStatus === 'COMPLETED'"
-                  :class="{ canceled: appointment.status === 'CANCELLED' }"
-                >
-                  {{ appointment.status }}
-                </span>
-              </td>
-            </tr>
+                <ActionButton
+                  iconToken="xmark"
+                  @action-triggered="
+                    updateAppointmentStatus(
+                      appointment.appointmentId,
+                      'CANCELLED'
+                    )
+                  "
+                />
+              </div>
+              <span
+                class="status"
+                v-if="appointmentStatus === 'COMPLETED'"
+                :class="{ canceled: appointment.status === 'CANCELLED' }"
+              >
+                {{ appointment.status }}
+              </span>
+            </TableRow>
           </tbody>
         </table>
         <img src="../../assets/nodata.svg" alt="" v-else />
@@ -418,27 +409,13 @@ async function addAppointment(
         border-collapse: collapse;
         color: @gray;
 
-        tbody tr {
-          height: 8vh;
-          font-size: 20px;
-          td {
-            text-align: center;
+        .status {
+          background-color: @green;
+          padding: 5px;
 
-            .status {
-              background-color: @green;
-              padding: 5px;
-
-              &.canceled {
-                background-color: @red;
-              }
-            }
+          &.canceled {
+            background-color: @red;
           }
-          &:hover {
-            background-color: @sugar;
-          }
-        }
-        tr:nth-child(even) {
-          background-color: @light-gray;
         }
       }
 

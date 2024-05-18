@@ -14,6 +14,7 @@ import { useRouter } from "vue-router";
 import CustomModal from "@/components/CustomModal.vue";
 import ActionButton from "@/components/ActionButton.vue";
 import TableHeader from "@/components/TableHeader.vue";
+import TableRow from "@/components/TableRow.vue";
 
 const showDelete = ref(false);
 
@@ -74,34 +75,31 @@ onMounted(() => {
           />
 
           <tbody>
-            <tr v-for="(patient, index) in patients">
-              <td>{{ 10 * (currentPage - 1) + index + 1 }}</td>
-              <td>
-                {{ patient.firstName + " " + patient.lastName }}
-              </td>
-              <td>
-                {{ patient.email }}
-              </td>
-              <td>
-                {{ patient.phoneNo }}
-              </td>
-              <td>
-                <div class="actions">
-                  <router-link :to="'patients/' + patient.customerId">
-                    <ActionButton icon-token="eye" />
-                  </router-link>
+            <TableRow
+              v-for="(patient, index) in patients"
+              :columns="[
+                10 * (currentPage - 1) + index + 1,
+                patient.firstName + ' ' + patient.lastName,
+                patient.email,
+                patient.phoneNo,
+              ]"
+              :index="index"
+            >
+              <div class="actions">
+                <router-link :to="'patients/' + patient.customerId">
+                  <ActionButton icon-token="eye" />
+                </router-link>
 
-                  <router-link :to="'patients/edit/' + patient.customerId">
-                    <ActionButton icon-token="pen" />
-                  </router-link>
+                <router-link :to="'patients/edit/' + patient.customerId">
+                  <ActionButton icon-token="pen" />
+                </router-link>
 
-                  <ActionButton
-                    icon-token="trash-can"
-                    @action-triggered="showDeleteModal(patient.customerId)"
-                  />
-                </div>
-              </td>
-            </tr>
+                <ActionButton
+                  icon-token="trash-can"
+                  @action-triggered="showDeleteModal(patient.customerId)"
+                />
+              </div>
+            </TableRow>
           </tbody>
         </table>
 
@@ -151,24 +149,6 @@ onMounted(() => {
 
         tbody {
           margin-top: 20px;
-        }
-        tbody tr {
-          height: 8vh;
-          font-size: 20px;
-          td {
-            text-align: center;
-
-            &:first-child {
-              border-top-left-radius: 20px;
-              border-bottom-left-radius: 20px;
-            }
-          }
-          &:hover {
-            background-color: @sugar;
-          }
-          &:nth-child(odd) {
-            background-color: @light-gray;
-          }
         }
       }
     }
