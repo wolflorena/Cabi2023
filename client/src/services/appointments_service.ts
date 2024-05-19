@@ -99,6 +99,12 @@ async function updateStatus(appointmentId: number, status: string) {
   return response;
 }
 
+async function getUpcomingAppointments(doctorId: number) {
+  const response = await fetch(API_URL + "/nextByDoctor?doctorId=" + doctorId);
+
+  const json = await response.json();
+  return json;
+}
 export {
   getAppointmentsByDateAndDoctor,
   getAll,
@@ -108,4 +114,5 @@ export {
   getById,
   deleteAppointment,
   updateStatus,
+  getUpcomingAppointments,
 };

@@ -91,3 +91,8 @@ export type FormEvent = {
   customerLastName: string;
   timestamp: string;
 };
+
+export type TreatmentType = {
+  serviceName: string;
+  count: number;
+};

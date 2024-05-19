@@ -58,10 +58,19 @@ async function updateDoctor(
   );
 }
 
+async function getServicesInCurrentMonth(doctorId: number) {
+  const response = await fetch(
+    `${API_URL}/services/current-month?doctorId=${doctorId}`
+  );
+  const json = await response.json();
+  return json;
+}
+
 export {
   getAllDoctors,
   getDoctorById,
   getAvailableDates,
   getAvailableHours,
   updateDoctor,
+  getServicesInCurrentMonth,
 };

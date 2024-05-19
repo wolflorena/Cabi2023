@@ -15,6 +15,8 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -147,5 +149,19 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(status);
         appointmentRepository.save(appointment);
         return modelMapper.map(appointment, AppointmentResponseDTO.class);
+    }
+
+    @Override
+    public List<AppointmentDoctorDashboardDTO> getNextAppointments(Long doctorId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate today = now.toLocalDate();
+        LocalTime currentTime = now.toLocalTime();
+
+        List<Appointment> appointments = appointmentRepository.findNextAppointmentsByDoctorId(doctorId,today, currentTime).orElseThrow();
+
+        return appointments.stream()
+                .map(appointment -> modelMapper.map(appointment, AppointmentDoctorDashboardDTO.class))
+                .limit(2)
+                .collect(Collectors.toList());
     }
 }

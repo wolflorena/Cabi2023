@@ -157,7 +157,7 @@ async function updateProfile() {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 12vh;
+    gap: 9vh;
 
     img {
       height: 200px;

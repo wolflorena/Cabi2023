@@ -79,4 +79,10 @@ public class AppointmentController {
                                                           @RequestParam Appointment.AppointmentStatus status) {
         return appointmentService.updateAppointmentStatus(appointmentId, status);
     }
+
+    @GetMapping("/nextByDoctor")
+    public ResponseEntity<List<AppointmentDoctorDashboardDTO>> getNextApoointmentsByDoctor(@RequestParam(name="doctorId")Long doctorId){
+        List<AppointmentDoctorDashboardDTO> appointments = appointmentService.getNextAppointments(doctorId);
+        return ResponseEntity.ok(appointments);
+    }
 }

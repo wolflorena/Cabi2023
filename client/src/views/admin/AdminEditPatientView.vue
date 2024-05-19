@@ -86,29 +86,28 @@ async function deleteAccount() {
           />
         </div>
       </div>
-    </div>
-
-    <div class="actions">
-      <h1>Account Actions</h1>
-      <div class="patient-info">
-        <div class="info-field">
-          <CustomButton
-            text="Deactivate Account"
-            :is-main="false"
-            height="70"
-            width="300"
-            font-size="20"
-            @action-triggered="deactivateAccount()"
-          />
-        </div>
-        <div class="info-field">
-          <CustomButton
-            text="Delete Account"
-            height="70"
-            width="300"
-            font-size="20"
-            @action-triggered="deleteAccount()"
-          />
+      <div class="actions">
+        <h1>Account Actions</h1>
+        <div class="patient-info">
+          <div class="info-field">
+            <CustomButton
+              text="Deactivate Account"
+              :is-main="false"
+              height="70"
+              width="300"
+              font-size="20"
+              @action-triggered="deactivateAccount()"
+            />
+          </div>
+          <div class="info-field">
+            <CustomButton
+              text="Delete Account"
+              height="70"
+              width="300"
+              font-size="20"
+              @action-triggered="deleteAccount()"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -161,7 +160,6 @@ async function deleteAccount() {
     padding-left: 50px;
 
     .details {
-      width: 85vw;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -174,36 +172,9 @@ async function deleteAccount() {
       .patient-info {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        width: 90%;
+        width: 100%;
         column-gap: 2vw;
         row-gap: 5vh;
-
-        .info-field {
-          display: flex;
-          flex-direction: column;
-
-          label {
-            color: @blue;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: larger;
-          }
-
-          input {
-            padding: 8px;
-            height: 4vh;
-            border: 0.5px solid @gray;
-            border-radius: 4px;
-            background-color: transparent;
-            color: @black;
-            font-size: 18px;
-          }
-
-          input[readonly] {
-            cursor: not-allowed;
-            opacity: 0.8;
-          }
-        }
       }
     }
 

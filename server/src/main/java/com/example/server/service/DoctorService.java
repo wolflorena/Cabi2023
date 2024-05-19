@@ -1,8 +1,6 @@
 package com.example.server.service;
 
-import com.example.server.repository.DTOs.DoctorRequestDTO;
-import com.example.server.repository.DTOs.DoctorResponseDTO;
-import com.example.server.repository.DTOs.DoctorUpdateDTO;
+import com.example.server.repository.DTOs.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -14,6 +12,6 @@ public interface DoctorService {
     List<DoctorResponseDTO> getAll();
     List<LocalDate> findAvailableDates(Long doctorId, Long serviceId);
     List<LocalTime> findAvailableHours(Long doctorId, Long serviceId, LocalDate date);
-
     DoctorUpdateDTO updateDoctor(Long doctorId, DoctorUpdateDTO doctorUpdateDTO);
+    List<TreatmentTypesDTO> getDoctorServicesInCurrentMonth(Long doctorId);
 }
