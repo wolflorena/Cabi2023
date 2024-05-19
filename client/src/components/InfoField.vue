@@ -3,6 +3,7 @@ withDefaults(
   defineProps<{
     uuid: string;
     label: string;
+    variant?: string;
     inputValue?: string;
     isReadonly?: boolean;
     type?: string;
@@ -10,12 +11,18 @@ withDefaults(
   {
     isReadonly: true,
     type: "text",
+    variant: "DEFAULT",
   }
 );
 </script>
 
 <template>
-  <div class="info-field">
+  <div
+    class="info-field-default"
+    :class="{
+      account_info: variant === 'ACCOUNT_INFORMATION',
+    }"
+  >
     <label :for="uuid">{{ label }}</label>
     <input :type="type" :id="uuid" :value="inputValue" :readonly="isReadonly" />
   </div>
@@ -24,10 +31,18 @@ withDefaults(
 <style scoped lang="less">
 @import (reference) "@/assets/styles.less";
 
-.info-field {
+.info-field-default {
   display: flex;
   flex-direction: column;
 
+  &.account_info {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    input {
+      width: 22vw;
+    }
+  }
   label {
     color: @blue;
     margin-bottom: 5px;
@@ -42,7 +57,6 @@ withDefaults(
     border-radius: 4px;
     background-color: transparent;
     color: @black;
-    font-size: 18px;
   }
 
   input[readonly] {

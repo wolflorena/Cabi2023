@@ -4,9 +4,10 @@ import TableHeaderButton from "@/components/TableHeaderButton.vue";
 import { CustomerSidebarOptions } from "@/data/types/SidebarOptions";
 import { ref } from "vue";
 import ViewProfile from "./profile-content/ViewProfile.vue";
-import AvatarImage from "@/components/AvatarImage.vue";
+import EditProfile from "./profile-content/EditProfile.vue";
+import SecuritySettings from "./profile-content/SecuritySettings.vue";
 
-const profilePage = ref("viewProfile");
+const profilePage = ref("securitySettings");
 </script>
 
 <template>
@@ -35,17 +36,11 @@ const profilePage = ref("viewProfile");
         </div>
       </div>
       <div class="profile-content">
-        <div v-if="profilePage === 'viewProfile'">
-          <ViewProfile />
-        </div>
+        <ViewProfile v-if="profilePage === 'viewProfile'" />
 
-        <div v-if="profilePage === 'editProfile'">
-          {{ profilePage }}
-        </div>
+        <EditProfile v-if="profilePage === 'editProfile'" />
 
-        <div v-if="profilePage === 'securitySettings'">
-          {{ profilePage }}
-        </div>
+        <SecuritySettings v-if="profilePage === 'securitySettings'" />
       </div>
     </div>
   </div>
@@ -60,7 +55,8 @@ const profilePage = ref("viewProfile");
   .profile-container {
     display: flex;
     flex-direction: column;
-    width: 80vw;
+    width: 90vw;
+    height: 100vh;
     .header {
       align-self: flex-end;
       background-color: @gray;
@@ -80,6 +76,12 @@ const profilePage = ref("viewProfile");
         justify-content: space-around;
       }
     }
+  }
+
+  .profile-content {
+    height: 100%;
+    display: flex;
+    justify-content: center;
   }
 }
 </style>

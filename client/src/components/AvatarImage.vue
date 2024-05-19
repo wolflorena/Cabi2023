@@ -18,9 +18,10 @@ console.log(props.src);
 
 <style scoped lang="less">
 .avatar {
-  width: 100px;
-  height: 100px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
+  margin-bottom: 15px;
   overflow: hidden;
   display: flex;
   align-items: center;
