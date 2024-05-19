@@ -15,7 +15,7 @@ const handleContentChange = (role: string, newPath: string): void => {
   } else {
     router.push("/" + role + newPath);
   }
-  console.log(router.currentRoute.value.name);
+  console.log("/" + role + newPath);
 };
 </script>
 

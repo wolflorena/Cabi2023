@@ -1,6 +1,7 @@
 package com.example.server.repository;
 
 import com.example.server.repository.DTOs.AppointmentTimeDTO;
+import com.example.server.repository.entity.Appointment;
 import com.example.server.repository.entity.Doctor;
 import org.springframework.data.jpa.repository.JpaRepository;
 

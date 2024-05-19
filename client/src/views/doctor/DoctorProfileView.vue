@@ -3,13 +3,19 @@ import Sidebar from "@/components/Sidebar.vue";
 import TableHeaderButton from "@/components/TableHeaderButton.vue";
 import { Doctor } from "@/data/types/Entities";
 import { DoctorSidebarOptions } from "@/data/types/SidebarOptions";
-import { getDoctorById } from "@/services/doctor_service";
-import { onMounted, ref } from "vue";
+import { getDoctorById, updateDoctor } from "@/services/doctor_service";
+import { onMounted, ref, watch } from "vue";
 import InfoField from "@/components/InfoField.vue";
 import CustomButton from "@/components/CustomButton.vue";
 
 const viewOnly = ref(true);
 const doctor = ref<Doctor>();
+const firstName = ref();
+const lastName = ref();
+const email = ref();
+const phoneno = ref();
+const address = ref();
+const dateOfEmployment = ref();
 
 async function getDoctorDetails() {
   await getDoctorById(1).then((res) => {
@@ -17,9 +23,32 @@ async function getDoctorDetails() {
   });
 }
 
+watch(doctor, (newDoctor) => {
+  if (newDoctor) {
+    firstName.value = newDoctor.firstName;
+    lastName.value = newDoctor.lastName;
+    email.value = newDoctor.email;
+    phoneno.value = newDoctor.phoneNo;
+    address.value = newDoctor.address;
+    dateOfEmployment.value = newDoctor.dateOfEmployment;
+  }
+});
+
 onMounted(() => {
   getDoctorDetails();
 });
+
+async function updateProfile() {
+  await updateDoctor(
+    1,
+    firstName.value,
+    lastName.value,
+    email.value,
+    phoneno.value,
+    address.value,
+    dateOfEmployment.value
+  );
+}
 </script>
 
 <template>
@@ -45,37 +74,37 @@ onMounted(() => {
         <InfoField
           uuid="first-name"
           label="First Name"
-          :input-value="doctor?.firstName"
+          v-model:input-value="firstName"
           :is-readonly="viewOnly"
         />
         <InfoField
           uuid="last-name"
           label="Last Name"
-          :input-value="doctor?.lastName"
+          v-model:input-value="lastName"
           :is-readonly="viewOnly"
         />
         <InfoField
           uuid="email"
           label="Email"
-          :input-value="doctor?.email"
+          v-model:input-value="email"
           :is-readonly="viewOnly"
         />
         <InfoField
           uuid="phone"
           label="Phone Number"
-          :input-value="doctor?.phoneNo"
+          v-model:input-value="phoneno"
           :is-readonly="viewOnly"
         />
         <InfoField
           uuid="address"
           label="Address"
-          :input-value="doctor?.address"
+          v-model:input-value="address"
           :is-readonly="viewOnly"
         />
         <InfoField
           uuid="doe"
           label="Date of Employment"
-          :input-value="doctor?.dateOfEmployment"
+          v-model:input-value="dateOfEmployment"
           :is-readonly="viewOnly"
         />
       </div>
@@ -87,6 +116,7 @@ onMounted(() => {
           height="50"
           width="100"
           font-size="20"
+          @action-triggered="updateProfile"
         />
       </div>
     </div>
@@ -127,7 +157,7 @@ onMounted(() => {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 12vh;
+    gap: 9vh;
 
     img {
       height: 200px;

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
@@ -27,4 +28,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findPastDueAppointments(LocalDate today, LocalTime now);
     @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.date = :date AND a.status != 'CANCELLED'")
     List<Appointment> findBookedTimesAndDurationsByDoctorIdAndDate(Long doctorId, LocalDate date);
+    List<Appointment> findByDoctorIdAndDateBetween(Long doctorId, LocalDate startOfMonth, LocalDate endOfMonth);
+    @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.date = :date AND a.time > :time AND a.status = 'SCHEDULED'")
+    Optional<List<Appointment>> findNextAppointmentsByDoctorId(Long doctorId, LocalDate date, LocalTime time);
 }

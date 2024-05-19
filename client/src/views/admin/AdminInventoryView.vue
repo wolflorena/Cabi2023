@@ -16,6 +16,7 @@ import {
 } from "@/services/inventory_service";
 import ActionButton from "@/components/ActionButton.vue";
 import TableHeader from "@/components/TableHeader.vue";
+import TableRow from "@/components/TableRow.vue";
 
 const showDelete = ref(false);
 const showAddModal = ref(false);
@@ -107,28 +108,27 @@ async function deleteProductFromInventory() {
             @action-triggered="showAddModal = true"
           />
           <tbody>
-            <tr v-for="(product, index) in inventory">
-              <td>{{ 10 * (currentPage - 1) + index + 1 }}</td>
-              <td>
-                {{ product.product }}
-              </td>
-              <td>
-                {{ product.quantity }}
-              </td>
-              <td>
-                <div class="actions">
-                  <ActionButton
-                    icon-token="pen"
-                    @action-triggered="showEditModal(product.inventoryId)"
-                  />
-                  <ActionButton
-                    icon-token="trash-can"
-                    @action-triggered="showDeleteModal(product.inventoryId)"
-                  />
-                </div>
-              </td>
-              <td class="empty-column"></td>
-            </tr>
+            <TableRow
+              v-for="(product, index) in inventory"
+              :columns="[
+                10 * (currentPage - 1) + index + 1,
+                product.product,
+                product.quantity,
+              ]"
+              :index="index"
+              :has-empty-column="true"
+            >
+              <div class="actions">
+                <ActionButton
+                  icon-token="pen"
+                  @action-triggered="showEditModal(product.inventoryId)"
+                />
+                <ActionButton
+                  icon-token="trash-can"
+                  @action-triggered="showDeleteModal(product.inventoryId)"
+                />
+              </div>
+            </TableRow>
           </tbody>
         </table>
 
@@ -233,24 +233,6 @@ async function deleteProductFromInventory() {
 
         tbody {
           margin-top: 20px;
-        }
-        tbody tr {
-          height: 8vh;
-          font-size: 20px;
-          td {
-            text-align: center;
-
-            &:first-child {
-              border-top-left-radius: 20px;
-              border-bottom-left-radius: 20px;
-            }
-          }
-          &:hover {
-            background-color: @sugar;
-          }
-          &:nth-child(odd) {
-            background-color: @light-gray;
-          }
         }
       }
     }

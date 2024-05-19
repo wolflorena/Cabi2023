@@ -12,6 +12,7 @@ import AdminFormView from "@/views/admin/AdminFormView.vue";
 import AdminFormEventsView from "@/views/admin/AdminFormEventsView.vue";
 import CustomerProfileView from "@/views/customer/CustomerProfileView.vue";
 import DoctorProfileView from "@/views/doctor/DoctorProfileView.vue";
+import DoctorDashboardView from "@/views/doctor/DoctorDashboardView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -80,6 +81,11 @@ const routes: Array<RouteRecordRaw> = [
     component: DoctorProfileView,
   },
   {
+    path: "/doctor/dashboard",
+    name: "doctorDashboard",
+    component: DoctorDashboardView,
+  },
+  {
     path: "/profile",
     name: "profile",
     component: CustomerProfileView,
@@ -96,7 +102,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/forms",
-    name: "forms",
+    name: "formsCustomer",
     component: CustomerProfileView,
   },
 ];

@@ -100,3 +100,8 @@ export type UserDetails = {
   dateOfBirth: string;
   occupation: string;
 };
+
+export type TreatmentType = {
+  serviceName: string;
+  count: number;
+};

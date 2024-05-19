@@ -1,9 +1,8 @@
 package com.example.server.service.implementation;
 
+import com.example.server.exception.types.EmailExistsException;
 import com.example.server.repository.AppointmentRepository;
-import com.example.server.repository.DTOs.AppointmentTimeDTO;
-import com.example.server.repository.DTOs.DoctorRequestDTO;
-import com.example.server.repository.DTOs.DoctorResponseDTO;
+import com.example.server.repository.DTOs.*;
 import com.example.server.repository.DoctorRepository;
 import com.example.server.repository.ServiceRepository;
 import com.example.server.repository.entity.Appointment;
@@ -13,10 +12,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -141,4 +143,61 @@ public class DoctorServiceImpl implements DoctorService {
         return availableHours;
     }
 
+    @Override
+    public DoctorUpdateDTO updateDoctor(Long doctorId, DoctorUpdateDTO doctorUpdateDTO) {
+        Doctor doctor = doctorRepository.findById(doctorId).orElseThrow();
+
+        if (doctorUpdateDTO.getFirstName() != null) {
+            doctor.setFirstName(doctorUpdateDTO.getFirstName());
+        }
+
+        if (doctorUpdateDTO.getLastName() != null) {
+            doctor.setLastName(doctorUpdateDTO.getLastName());
+        }
+
+        if (doctorUpdateDTO.getEmail() != null) {
+            if (doctorRepository.findByEmail(doctorUpdateDTO.getEmail()).isEmpty()) {
+                doctor.setEmail(doctorUpdateDTO.getEmail());
+            }
+            else {
+                throw new EmailExistsException("Email is already in use");
+            }
+        }
+
+        if (doctorUpdateDTO.getPhoneNo() != null) {
+            doctor.setPhoneNo(doctorUpdateDTO.getPhoneNo());
+        }
+
+        if (doctorUpdateDTO.getAddress() != null) {
+            doctor.setAddress(doctorUpdateDTO.getAddress());
+        }
+
+        if (doctorUpdateDTO.getDateOfEmployment() != null) {
+            doctor.setDateOfEmployment(doctorUpdateDTO.getDateOfEmployment());
+        }
+
+        doctorRepository.save(doctor);
+        return modelMapper.map(doctor, DoctorUpdateDTO.class);
+    }
+
+    @Override
+    public List<TreatmentTypesDTO> getDoctorServicesInCurrentMonth(Long doctorId) {
+        YearMonth currentMonth = YearMonth.now();
+        LocalDate startOfMonth = currentMonth.atDay(1);
+        LocalDate endOfMonth = currentMonth.atEndOfMonth();
+
+        List<Appointment> appointments = appointmentRepository
+                .findByDoctorIdAndDateBetween(doctorId, startOfMonth, endOfMonth);
+
+        Map<String, Long> serviceCountMap = appointments.stream()
+                .collect(Collectors.groupingBy(
+                        appointment -> appointment.getService().getName(),
+                        Collectors.counting()
+                ));
+
+        return serviceCountMap.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .map(entry -> new TreatmentTypesDTO(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+    }
 }

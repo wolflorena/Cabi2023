@@ -8,6 +8,7 @@ import CustomModal from "@/components/CustomModal.vue";
 import DateAndTimeSpan from "@/components/DateAndTimeSpan.vue";
 import ActionButton from "@/components/ActionButton.vue";
 import TableHeader from "@/components/TableHeader.vue";
+import TableRow from "@/components/TableRow.vue";
 
 const forms = ref<Form[]>();
 const showDelete = ref(false);
@@ -54,34 +55,28 @@ async function deleteFormById(formId: number | undefined) {
         <table>
           <TableHeader :columns="['Title', 'Last updated', 'Actions']" />
           <tbody>
-            <tr v-for="(form, index) in forms">
-              <td>{{ index + 1 }}</td>
-              <td>
-                {{ form.title }}
-              </td>
-              <td>
-                <DateAndTimeSpan
-                  :date="form.editedDate"
-                  :time="form.editedTime"
+            <TableRow
+              v-for="(form, index) in forms"
+              :columns="[index + 1, form.title]"
+              :date="form.editedDate"
+              :time="form.editedTime"
+              :index="index"
+            >
+              <div class="actions">
+                <router-link :to="'forms/' + form.formId">
+                  <ActionButton iconToken="eye" />
+                </router-link>
+
+                <router-link :to="'forms/edit/' + form.formId">
+                  <ActionButton iconToken="pen" />
+                </router-link>
+
+                <ActionButton
+                  iconToken="trash-can"
+                  @action-triggered="showDeleteModal(form.formId)"
                 />
-              </td>
-              <td>
-                <div class="actions">
-                  <router-link :to="'forms/' + form.formId">
-                    <ActionButton iconToken="eye" />
-                  </router-link>
-
-                  <router-link :to="'forms/edit/' + form.formId">
-                    <ActionButton iconToken="pen" />
-                  </router-link>
-
-                  <ActionButton
-                    iconToken="trash-can"
-                    @action-triggered="showDeleteModal(form.formId)"
-                  />
-                </div>
-              </td>
-            </tr>
+              </div>
+            </TableRow>
           </tbody>
         </table>
 
@@ -131,24 +126,6 @@ async function deleteFormById(formId: number | undefined) {
 
         tbody {
           margin-top: 20px;
-        }
-        tbody tr {
-          height: 8vh;
-          font-size: 20px;
-          td {
-            text-align: center;
-
-            &:first-child {
-              border-top-left-radius: 20px;
-              border-bottom-left-radius: 20px;
-            }
-          }
-          &:hover {
-            background-color: @sugar;
-          }
-          &:nth-child(odd) {
-            background-color: @light-gray;
-          }
         }
       }
     }

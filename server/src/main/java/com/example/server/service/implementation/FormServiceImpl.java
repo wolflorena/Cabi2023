@@ -74,7 +74,7 @@ public class FormServiceImpl implements FormService {
             form.setDescription(formRequestDTO.getDescription());
         }
 
-        if(formRequestDTO.getVisibility() != null) {
+        if (formRequestDTO.getVisibility() != null) {
             form.setVisibility(formRequestDTO.getVisibility());
         }
 
