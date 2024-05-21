@@ -45,8 +45,8 @@ export const DoctorSidebarOptions: SidebarOptionsWithRole = {
       icon: "table-columns",
     },
     {
-      path: "/appointments",
-      text: "Appointments",
+      path: "/calendar",
+      text: "Calendar",
       icon: "calendar-check",
     },
     {
@@ -59,7 +59,6 @@ export const DoctorSidebarOptions: SidebarOptionsWithRole = {
       text: "Inventory",
       icon: "cart-flatbed",
     },
-    { path: "/forms", text: "Forms", icon: "highlighter" },
   ],
   role: "doctor",
 };

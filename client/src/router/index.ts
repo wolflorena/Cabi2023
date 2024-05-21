@@ -14,6 +14,7 @@ import CustomerProfileView from "@/views/customer/CustomerProfileView.vue";
 import DoctorProfileView from "@/views/doctor/DoctorProfileView.vue";
 import DoctorDashboardView from "@/views/doctor/DoctorDashboardView.vue";
 import DoctorAppointmentsView from "@/views/doctor/DoctorAppointmentsView.vue";
+import DoctorCalendarView from "@/views/doctor/DoctorCalendarView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -87,9 +88,9 @@ const routes: Array<RouteRecordRaw> = [
     component: DoctorDashboardView,
   },
   {
-    path: "/doctor/appointments",
-    name: "doctorAppointments",
-    component: DoctorAppointmentsView,
+    path: "/doctor/calendar",
+    name: "doctorCalendar",
+    component: DoctorCalendarView,
   },
   {
     path: "/profile",
