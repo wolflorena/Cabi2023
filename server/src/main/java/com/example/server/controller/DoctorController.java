@@ -1,9 +1,6 @@
 package com.example.server.controller;
 
-import com.example.server.repository.DTOs.DoctorRequestDTO;
-import com.example.server.repository.DTOs.DoctorResponseDTO;
-import com.example.server.repository.DTOs.DoctorUpdateDTO;
-import com.example.server.repository.DTOs.TreatmentTypesDTO;
+import com.example.server.repository.DTOs.*;
 import com.example.server.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,7 +24,7 @@ public class DoctorController {
     }
 
     @PostMapping("/addDoctor")
-    public ResponseEntity<Object> addDoctor(@RequestBody DoctorRequestDTO doctorRequestDTO){
+    public ResponseEntity<Object> addDoctor(@RequestBody DoctorAdminRequestDTO doctorRequestDTO){
         return new ResponseEntity<>(doctorService.addDoctor(doctorRequestDTO), HttpStatus.OK);
     }
 

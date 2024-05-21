@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -31,4 +32,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByDoctorIdAndDateBetween(Long doctorId, LocalDate startOfMonth, LocalDate endOfMonth);
     @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.date = :date AND a.time > :time AND a.status = 'SCHEDULED'")
     Optional<List<Appointment>> findNextAppointmentsByDoctorId(Long doctorId, LocalDate date, LocalTime time);
+    @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.status = :status " +
+            "AND a.date >= :startOfMonth AND a.date <= :endOfMonth")
+    List<Appointment> findAllByDoctorIdAndStatusAndDateBetween(@Param("doctorId") Long doctorId,
+                                                               @Param("status") Appointment.AppointmentStatus status,
+                                                               @Param("startOfMonth") LocalDate startOfMonth,
+                                                               @Param("endOfMonth") LocalDate endOfMonth);
 }

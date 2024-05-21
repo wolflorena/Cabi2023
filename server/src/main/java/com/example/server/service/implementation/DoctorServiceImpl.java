@@ -8,11 +8,11 @@ import com.example.server.repository.ServiceRepository;
 import com.example.server.repository.entity.Appointment;
 import com.example.server.repository.entity.Doctor;
 import com.example.server.service.DoctorService;
+import com.example.server.service.SendEmailService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -26,30 +26,30 @@ public class DoctorServiceImpl implements DoctorService {
     private final DoctorRepository doctorRepository;
     private final AppointmentRepository appointmentRepository;
     private final ServiceRepository serviceRepository;
+    private final SendEmailService sendEmailService;
     private final ModelMapper modelMapper;
 
     public DoctorServiceImpl(DoctorRepository doctorRepository,
                              AppointmentRepository appointmentRepository,
                              ServiceRepository serviceRepository,
+                             SendEmailService sendEmailService,
                              ModelMapper modelMapper){
         this.doctorRepository = doctorRepository;
         this.appointmentRepository = appointmentRepository;
         this.serviceRepository = serviceRepository;
+        this.sendEmailService = sendEmailService;
         this.modelMapper = modelMapper;
     }
 
     @Override
-    public DoctorResponseDTO addDoctor(DoctorRequestDTO doctorRequestDTO){
+    public DoctorResponseDTO addDoctor(DoctorAdminRequestDTO doctorAdminRequestDTO){
         Doctor doctor = new Doctor();
-        doctor.setFirstName(doctorRequestDTO.getFirstName());
-        doctor.setLastName(doctorRequestDTO.getLastName());
-        doctor.setEmail(doctorRequestDTO.getEmail());
-        doctor.setPassword(doctorRequestDTO.getPassword());
-        doctor.setPhoneNo(doctorRequestDTO.getPhoneNo());
-        doctor.setAvatar(doctorRequestDTO.getAvatar());
-        doctor.setAddress(doctorRequestDTO.getAddress());
-        doctor.setDateOfEmployment(doctorRequestDTO.getDateOfEmployment());
+        doctor.setFirstName(doctorAdminRequestDTO.getFirstName());
+        doctor.setLastName(doctorAdminRequestDTO.getLastName());
+        doctor.setEmail(doctorAdminRequestDTO.getEmail());
+
         doctorRepository.save(doctor);
+        //sendEmailService.sendPasswordToDoctor(doctor.getId());
         return modelMapper.map(doctor, DoctorResponseDTO.class);
     }
 

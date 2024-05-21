@@ -5,15 +5,26 @@ import { DoctorSidebarOptions } from "@/data/types/SidebarOptions";
 import { AppointmentDetail, TreatmentType } from "@/data/types/Entities";
 import { computed, onMounted, ref } from "vue";
 import { getServicesInCurrentMonth } from "@/services/doctor_service";
-import { getUpcomingAppointments } from "@/services/appointments_service";
+import {
+  getTotalAppointments,
+  getUpcomingAppointments,
+} from "@/services/appointments_service";
 import { formatDate, formatTime } from "@/utils/helpers";
 
 const treatments = ref<TreatmentType[]>();
 const appointments = ref<AppointmentDetail[]>();
+const types = ref<string[]>([
+  "SCHEDULED",
+  "REQUESTED",
+  "COMPLETED",
+  "CANCELLED",
+]);
+const appointmentsCount = ref<Record<string, number>>({});
 
 onMounted(() => {
   getTreatmentTypes();
   loadUpcomingAppointments();
+  loadScheduledAppointments();
 });
 
 async function getTreatmentTypes() {
@@ -24,6 +35,18 @@ async function loadUpcomingAppointments() {
   await getUpcomingAppointments(2)
     .then((res) => (appointments.value = res))
     .catch((e) => console.log(e));
+}
+
+async function loadScheduledAppointments() {
+  for (const type of types.value) {
+    const count = await getScheduledAppointmentsNumber(type);
+    appointmentsCount.value[type] = count;
+  }
+}
+
+async function getScheduledAppointmentsNumber(status: string): Promise<number> {
+  const res = await getTotalAppointments(2, status);
+  return res;
 }
 
 const formattedDate = computed(() => {
@@ -67,7 +90,7 @@ const formattedDate = computed(() => {
           <div class="upcoming">
             <h1>Upcoming appointments for today, {{ formatDate(Date()) }}</h1>
 
-            <div v-if="appointments?.length === 0">
+            <div v-if="appointments?.length === 0" class="message">
               <p>No upcoming appointments for today.</p>
             </div>
             <div class="details" v-else>
@@ -86,6 +109,17 @@ const formattedDate = computed(() => {
                 </h3>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="down">
+        <div class="cards">
+          <div class="card" v-for="type in types">
+            <h1>{{ type }}</h1>
+            <h1>
+              {{ appointmentsCount[type] }}
+            </h1>
           </div>
         </div>
       </div>
@@ -121,29 +155,41 @@ const formattedDate = computed(() => {
   }
   .dashboard {
     margin: 100px 0 0 30px;
+    display: flex;
+    flex-direction: column;
 
     .upper {
       display: flex;
+      flex-wrap: wrap;
+
       gap: 3vw;
-    }
 
-    .right-side {
-      width: 53vw;
-    }
+      .right-side {
+        width: 53vw;
 
-    .upcoming {
-      border: 1px solid @gray;
-      border-radius: 20px;
-      padding: 30px;
+        .upcoming {
+          border: 1px solid @gray;
+          border-radius: 20px;
+          padding: 30px;
+          height: calc(50% - 60px);
 
-      .details {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        .appointment-detail {
-          h3 {
-            margin: 0;
-            font-weight: 100;
+          .details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            .appointment-detail {
+              h3 {
+                margin: 0;
+                font-weight: 100;
+              }
+            }
+          }
+
+          .message {
+            height: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
         }
       }
@@ -152,6 +198,30 @@ const formattedDate = computed(() => {
     h1 {
       text-align: center;
       color: @gray;
+      user-select: none;
+    }
+
+    .down {
+      height: 30vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5vw;
+
+        .card {
+          background-color: @gray;
+          border-radius: 20px;
+          padding: 10px;
+
+          h1 {
+            color: @white;
+          }
+        }
+      }
     }
   }
 }

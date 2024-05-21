@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -163,5 +164,15 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .map(appointment -> modelMapper.map(appointment, AppointmentDoctorDashboardDTO.class))
                 .limit(2)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public int getAppointmentsNumberByStatusAndDoctor(Long doctorId, Appointment.AppointmentStatus appointmentStatus) {
+        YearMonth currentMonth = YearMonth.now();
+        LocalDate startOfMonth = currentMonth.atDay(1);
+        LocalDate endOfMonth = currentMonth.atEndOfMonth();
+
+        List<Appointment> appointments = appointmentRepository.findAllByDoctorIdAndStatusAndDateBetween(doctorId, appointmentStatus, startOfMonth, endOfMonth);
+        return appointments.size();
     }
 }
