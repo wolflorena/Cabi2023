@@ -2,6 +2,7 @@
 import SidebarButton from "./SidebarButton.vue";
 import type { SidebarOptionsWithRole } from "@/data/types/SidebarOptions";
 import { useRouter } from "vue-router";
+import CustomButton from "./CustomButton.vue";
 
 defineProps<{
   options: SidebarOptionsWithRole;
@@ -17,6 +18,11 @@ const handleContentChange = (role: string, newPath: string): void => {
   }
   console.log("/" + role + newPath);
 };
+
+function handleLogOut() {
+  localStorage.removeItem("jwtToken");
+  router.push("/admin/login");
+}
 </script>
 
 <template>
@@ -32,6 +38,15 @@ const handleContentChange = (role: string, newPath: string): void => {
         :text="option.text"
         :icon="option.icon"
         @selection-changed="handleContentChange(options.role, option.path)"
+      />
+      <CustomButton
+        uuid="logout-button"
+        class="logout-button"
+        text="Log out"
+        :isMain="false"
+        height="60"
+        width="160"
+        @click="handleLogOut"
       />
     </div>
   </div>
@@ -61,7 +76,14 @@ const handleContentChange = (role: string, newPath: string): void => {
     display: flex;
     align-items: flex-end;
     flex-direction: column;
+    height: 100%;
     gap: 15px;
+    .logout-button {
+      align-self: center;
+
+      position: absolute;
+      bottom: 45px;
+    }
   }
 
   &.hided {
