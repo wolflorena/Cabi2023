@@ -2,12 +2,20 @@
 import Sidebar from "@/components/Sidebar.vue";
 import TableHeaderButton from "@/components/TableHeaderButton.vue";
 import { CustomerSidebarOptions } from "@/data/types/SidebarOptions";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import ViewProfile from "./profile-content/ViewProfile.vue";
 import EditProfile from "./profile-content/EditProfile.vue";
 import SecuritySettings from "./profile-content/SecuritySettings.vue";
 
-const profilePage = ref("securitySettings");
+const profilePage = ref("viewProfile");
+
+const isActivePage = (page: string) =>
+  computed(() => profilePage.value === page);
+
+const handleClick = (page: string) => {
+  profilePage.value = page;
+  console.log(isActivePage("viewProfile").value);
+};
 </script>
 
 <template>
@@ -18,29 +26,29 @@ const profilePage = ref("securitySettings");
         <div class="controls">
           <TableHeaderButton
             label="View Profile"
-            :active="profilePage === 'viewProfile'"
-            @click="profilePage = 'viewProfile'"
+            :active="isActivePage('viewProfile').value"
+            @click="handleClick('viewProfile')"
           />
 
           <TableHeaderButton
             label="Edit Profile"
-            :active="profilePage === 'editProfile'"
-            @click="profilePage = 'editProfile'"
+            :active="isActivePage('editProfile').value"
+            @click="handleClick('editProfile')"
           />
 
           <TableHeaderButton
             label="Security settings"
-            :active="profilePage === 'securitySettings'"
-            @click="profilePage = 'securitySettings'"
+            :active="isActivePage('securitySettings').value"
+            @click="handleClick('securitySettings')"
           />
         </div>
       </div>
       <div class="profile-content">
-        <ViewProfile v-if="profilePage === 'viewProfile'" />
+        <ViewProfile v-if="isActivePage('viewProfile').value" />
 
-        <EditProfile v-if="profilePage === 'editProfile'" />
+        <EditProfile v-if="isActivePage('editProfile').value" />
 
-        <SecuritySettings v-if="profilePage === 'securitySettings'" />
+        <SecuritySettings v-if="isActivePage('securitySettings').value" />
       </div>
     </div>
   </div>

@@ -25,6 +25,7 @@ button {
   border-left: none;
   border-right: none;
   border-bottom: 5px solid transparent;
+
   color: @white;
   font-size: 20px;
   font-weight: 100;

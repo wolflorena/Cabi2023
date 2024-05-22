@@ -19,6 +19,7 @@ const emit = defineEmits(["update:inputValue"]);
 
 const inputChange = (event: any) => {
   emit("update:inputValue", event.target.value);
+  console.log(event.target.value);
 };
 </script>
 

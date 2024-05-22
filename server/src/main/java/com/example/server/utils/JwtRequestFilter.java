@@ -31,6 +31,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         final String authorizationHeader = request.getHeader("Authorization");
 
+        //username is the way jwt is understanding the field with which you log-in. in the application is the email.
         String username = null;
         String jwt = null;
 

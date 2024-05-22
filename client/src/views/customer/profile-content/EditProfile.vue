@@ -14,6 +14,10 @@ const userProfile: Ref<UserDetails> = ref<UserDetails>({
   dateOfBirth: "12.05.2001",
   occupation: "Student",
 });
+
+function handleSaveChanges() {
+  console.log(userProfile.value);
+}
 </script>
 
 <template>
@@ -47,6 +51,7 @@ const userProfile: Ref<UserDetails> = ref<UserDetails>({
             :style="{
               width: '100%',
             }"
+            @click="handleSaveChanges"
           />
         </div>
       </div>
@@ -66,7 +71,7 @@ const userProfile: Ref<UserDetails> = ref<UserDetails>({
         <InfoField
           uuid="Last Name"
           label="Last Name"
-          :input-value="userProfile.firstName"
+          v-model:inputValue="userProfile.firstName"
           :isReadonly="false"
           type="text"
           variant="ACCOUNT_INFORMATION"
@@ -74,7 +79,7 @@ const userProfile: Ref<UserDetails> = ref<UserDetails>({
         <InfoField
           uuid="Second Name"
           label="Second Name"
-          :input-value="userProfile.secondName"
+          v-model:inputValue="userProfile.secondName"
           :isReadonly="false"
           type="text"
           variant="ACCOUNT_INFORMATION"
@@ -82,7 +87,7 @@ const userProfile: Ref<UserDetails> = ref<UserDetails>({
         <InfoField
           uuid="Email"
           label="Email"
-          :input-value="userProfile.email"
+          v-model:input-value="userProfile.email"
           :isReadonly="false"
           type="text"
           variant="ACCOUNT_INFORMATION"
@@ -90,7 +95,7 @@ const userProfile: Ref<UserDetails> = ref<UserDetails>({
         <InfoField
           uuid="PhoneNumber"
           label="Phone Number"
-          :input-value="userProfile.phoneNo"
+          v-model:input-value="userProfile.phoneNo"
           :isReadonly="false"
           type="text"
           variant="ACCOUNT_INFORMATION"
@@ -98,7 +103,7 @@ const userProfile: Ref<UserDetails> = ref<UserDetails>({
         <InfoField
           uuid="DateOfBirth"
           label="Date of Birth"
-          :input-value="userProfile.dateOfBirth"
+          v-model:input-value="userProfile.dateOfBirth"
           :isReadonly="false"
           type="text"
           variant="ACCOUNT_INFORMATION"
@@ -106,7 +111,7 @@ const userProfile: Ref<UserDetails> = ref<UserDetails>({
         <InfoField
           uuid="Occupation"
           label="Occupation"
-          :input-value="userProfile.occupation"
+          v-model:input-value="userProfile.occupation"
           :isReadonly="false"
           type="text"
           variant="ACCOUNT_INFORMATION"

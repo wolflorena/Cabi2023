@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import AvatarImage from "@/components/AvatarImage.vue";
 import InfoField from "@/components/InfoField.vue";
+import { UserDetails } from "@/data/types/Entities";
+
+const userDetails: UserDetails = {
+  firstName: "Iulian",
+  secondName: "Alex",
+  email: "iulian.alex@yahoo.com",
+  dateOfBirth: "12",
+  phoneNo: "070000000",
+  occupation: "Student",
+};
 </script>
 
 <template>
@@ -12,28 +22,28 @@ import InfoField from "@/components/InfoField.vue";
       <InfoField
         uuid="FirstName"
         label="First Name"
-        inputValue="ValueOfLoggedInUserFirstName"
+        :inputValue="userDetails.firstName"
         :isReadonly="true"
         type="text"
       />
       <InfoField
-        uuid="Last Name"
-        label="Last Name"
-        inputValue="ValueOfLoggedInUserLastName"
+        uuid="SecondName"
+        label="Second Name"
+        :inputValue="userDetails.secondName"
         :isReadonly="true"
         type="text"
       />
       <InfoField
         uuid="Email"
         label="Email"
-        inputValue="ValueOfLoggedInUserEmail"
+        :inputValue="userDetails.email"
         :isReadonly="true"
         type="text"
       />
       <InfoField
         uuid="PhoneNo"
         label="Phone Number"
-        inputValue="ValueOfLoggedInUserphonenumber"
+        :inputValue="userDetails.phoneNo"
         :isReadonly="true"
         type="text"
       />
@@ -42,14 +52,14 @@ import InfoField from "@/components/InfoField.vue";
       <InfoField
         uuid="DateOfBirth"
         label="Date of Birth"
-        inputValue="ValueOfLoggedInUserBirthName"
+        :inputValue="userDetails.dateOfBirth"
         :isReadonly="true"
         type="text"
       />
       <InfoField
         uuid="Occupation"
         label="Occupation"
-        inputValue="ValueOfLoggedInUserOccupation"
+        :inputValue="userDetails.occupation"
         :isReadonly="true"
         type="text"
       />

@@ -42,7 +42,7 @@ import InfoField from "@/components/InfoField.vue";
       <CustomButton
         :isMain="false"
         text="Save Changes"
-        width="220"
+        width="240"
         height="60"
         fontSize="18"
         :style="{

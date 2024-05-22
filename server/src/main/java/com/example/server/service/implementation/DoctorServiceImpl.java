@@ -9,6 +9,7 @@ import com.example.server.repository.entity.Appointment;
 import com.example.server.repository.entity.Doctor;
 import com.example.server.service.DoctorService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -28,14 +29,18 @@ public class DoctorServiceImpl implements DoctorService {
     private final ServiceRepository serviceRepository;
     private final ModelMapper modelMapper;
 
+    private final PasswordEncoder passwordEncoder;
+
     public DoctorServiceImpl(DoctorRepository doctorRepository,
                              AppointmentRepository appointmentRepository,
                              ServiceRepository serviceRepository,
-                             ModelMapper modelMapper){
+                             ModelMapper modelMapper,
+                             PasswordEncoder passwordEncoder){
         this.doctorRepository = doctorRepository;
         this.appointmentRepository = appointmentRepository;
         this.serviceRepository = serviceRepository;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -44,6 +49,8 @@ public class DoctorServiceImpl implements DoctorService {
         doctor.setFirstName(doctorRequestDTO.getFirstName());
         doctor.setLastName(doctorRequestDTO.getLastName());
         doctor.setEmail(doctorRequestDTO.getEmail());
+        String encodedPassword = passwordEncoder.encode(doctorRequestDTO.getPassword());
+        doctorRequestDTO.setPassword(encodedPassword);
         doctor.setPassword(doctorRequestDTO.getPassword());
         doctor.setPhoneNo(doctorRequestDTO.getPhoneNo());
         doctor.setAvatar(doctorRequestDTO.getAvatar());
