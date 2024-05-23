@@ -3,6 +3,7 @@ withDefaults(
   defineProps<{
     uuid: string;
     label: string;
+    variant?: string;
     inputValue?: string;
     isReadonly?: boolean;
     type?: string;
@@ -10,6 +11,7 @@ withDefaults(
   {
     isReadonly: true,
     type: "text",
+    variant: "DEFAULT",
   }
 );
 
@@ -17,11 +19,17 @@ const emit = defineEmits(["update:inputValue"]);
 
 const inputChange = (event: any) => {
   emit("update:inputValue", event.target.value);
+  console.log(event.target.value);
 };
 </script>
 
 <template>
-  <div class="info-field">
+  <div
+    class="info-field-default"
+    :class="{
+      account_info: variant === 'ACCOUNT_INFORMATION',
+    }"
+  >
     <label :for="uuid">{{ label }}</label>
     <input
       :type="type"
@@ -36,10 +44,18 @@ const inputChange = (event: any) => {
 <style scoped lang="less">
 @import (reference) "@/assets/styles.less";
 
-.info-field {
+.info-field-default {
   display: flex;
   flex-direction: column;
 
+  &.account_info {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    input {
+      width: 22vw;
+    }
+  }
   label {
     color: @blue;
     margin-bottom: 5px;
@@ -54,7 +70,6 @@ const inputChange = (event: any) => {
     border-radius: 4px;
     background-color: transparent;
     color: @black;
-    font-size: 18px;
   }
 
   input[readonly] {

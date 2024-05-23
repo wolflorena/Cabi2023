@@ -15,9 +15,10 @@ import java.util.function.Function;
 public class JwtUtil {
     private String secretKey = "Lorena&Iulian@Cabi2023";
 
-    public String generateToken(String username, String role) {
+    public String generateToken(String username, String role, Long user_id) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
+        claims.put("user_id", user_id);
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
@@ -42,6 +43,10 @@ public class JwtUtil {
 
     private Claims extractAllClaims(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+    }
+
+    public Long extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("user_id", Long.class));
     }
 
     public Boolean isTokenExpired(String token) {

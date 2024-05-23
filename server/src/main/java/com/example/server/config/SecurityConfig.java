@@ -38,7 +38,6 @@ public class SecurityConfig {
                 .antMatchers("/api/auth/login").permitAll()  // Allow unauthenticated access to login
                 .antMatchers("/api/**").permitAll()
 //                .antMatchers("/api/customers/**").hasRole("CUSTOMER")
-//              .antMatchers("/api/admin/**").hasRole("CUSTOMER")
 //                .antMatchers("/api/admin/**").hasRole("ADMIN")
 //                .antMatchers("/api/doctor/**").hasRole("DOCTOR")
 //                .antMatchers("/api/**").permitAll()

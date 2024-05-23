@@ -1,5 +1,16 @@
 <script setup lang="ts">
 import AvatarImage from "@/components/AvatarImage.vue";
+import InfoField from "@/components/InfoField.vue";
+import { UserDetails } from "@/data/types/Entities";
+
+const userDetails: UserDetails = {
+  firstName: "Iulian",
+  secondName: "Alex",
+  email: "iulian.alex@yahoo.com",
+  dateOfBirth: "12",
+  phoneNo: "070000000",
+  occupation: "Student",
+};
 </script>
 
 <template>
@@ -7,10 +18,52 @@ import AvatarImage from "@/components/AvatarImage.vue";
     <div class="avatar-container">
       <AvatarImage src="../../../assets/default-avatar.png" alt="" />
     </div>
-    <div class="inputs">Input1</div>
-    <div class="inputs">Input2</div>
-    <div class="inputs">Input3</div>
-    <div class="inputs">Input4</div>
+    <div class="fields">
+      <InfoField
+        uuid="FirstName"
+        label="First Name"
+        :inputValue="userDetails.firstName"
+        :isReadonly="true"
+        type="text"
+      />
+      <InfoField
+        uuid="SecondName"
+        label="Second Name"
+        :inputValue="userDetails.secondName"
+        :isReadonly="true"
+        type="text"
+      />
+      <InfoField
+        uuid="Email"
+        label="Email"
+        :inputValue="userDetails.email"
+        :isReadonly="true"
+        type="text"
+      />
+      <InfoField
+        uuid="PhoneNo"
+        label="Phone Number"
+        :inputValue="userDetails.phoneNo"
+        :isReadonly="true"
+        type="text"
+      />
+    </div>
+    <div class="bottom-fields">
+      <InfoField
+        uuid="DateOfBirth"
+        label="Date of Birth"
+        :inputValue="userDetails.dateOfBirth"
+        :isReadonly="true"
+        type="text"
+      />
+      <InfoField
+        uuid="Occupation"
+        label="Occupation"
+        :inputValue="userDetails.occupation"
+        :isReadonly="true"
+        type="text"
+      />
+    </div>
   </div>
 </template>
 
@@ -18,7 +71,7 @@ import AvatarImage from "@/components/AvatarImage.vue";
 .view-profile-container {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 70vw;
   height: auto;
   .avatar-container {
     display: flex;
@@ -26,6 +79,19 @@ import AvatarImage from "@/components/AvatarImage.vue";
     justify-content: center;
     height: 25vh;
     width: 100%;
+  }
+
+  .fields {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 40px;
+    margin: 20px;
+  }
+  .bottom-fields {
+    display: grid;
+    grid-template-columns: auto;
+    gap: 40px;
+    margin: 20px;
   }
 }
 </style>

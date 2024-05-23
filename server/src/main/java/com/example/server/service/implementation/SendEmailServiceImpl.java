@@ -8,6 +8,7 @@ import freemarker.template.TemplateException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import freemarker.template.Template;
@@ -30,16 +31,17 @@ public class SendEmailServiceImpl implements SendEmailService {
     private final JavaMailSender emailSender;
 
     private final Configuration configuration;
+    private final PasswordEncoder passwordEncoder;
 
-    public SendEmailServiceImpl(DoctorRepository doctorRepository, JavaMailSender emailSender, Configuration configuration) {
+    public SendEmailServiceImpl(DoctorRepository doctorRepository, JavaMailSender emailSender, Configuration configuration, PasswordEncoder passwordEncoder) {
         this.doctorRepository = doctorRepository;
         this.emailSender = emailSender;
         this.configuration = configuration;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    private String adminEmail = "cabiadmin@gmail.com";
+    private String adminEmail = "dentify2023@gmail.com";
     private final String companyName = "Cabi 2023";
-    private String bcryptSalt = "$2a$10$QkRidA35ea0Fzm/ObrOEgO";
 
     @Override
     public void sendPasswordToDoctor(Long doctorId) {
@@ -48,8 +50,9 @@ public class SendEmailServiceImpl implements SendEmailService {
         String password = PasswordGenerator.generatePassayPassword(15);
         String subject = "Account Activation for "  + companyName + " app";
         sendEmailUtils("welcome-template.ftl", doctorId, password, subject);
-
-        doctor.setPassword(BCrypt.hashpw(password, bcryptSalt));
+        
+        String encodedPassword = passwordEncoder.encode(password);
+        doctor.setPassword(encodedPassword);
         doctorRepository.save(doctor);
     }
 

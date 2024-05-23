@@ -34,6 +34,7 @@ public class DoctorServiceImpl implements DoctorService {
                              ServiceRepository serviceRepository,
                              SendEmailService sendEmailService,
                              ModelMapper modelMapper){
+
         this.doctorRepository = doctorRepository;
         this.appointmentRepository = appointmentRepository;
         this.serviceRepository = serviceRepository;
@@ -49,7 +50,7 @@ public class DoctorServiceImpl implements DoctorService {
         doctor.setEmail(doctorAdminRequestDTO.getEmail());
 
         doctorRepository.save(doctor);
-        //sendEmailService.sendPasswordToDoctor(doctor.getId());
+        sendEmailService.sendPasswordToDoctor(doctor.getId());
         return modelMapper.map(doctor, DoctorResponseDTO.class);
     }
 

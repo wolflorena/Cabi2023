@@ -92,6 +92,15 @@ export type FormEvent = {
   timestamp: string;
 };
 
+export type UserDetails = {
+  firstName: string;
+  secondName: string;
+  email: string;
+  phoneNo: string;
+  dateOfBirth: string;
+  occupation: string;
+};
+
 export type TreatmentType = {
   serviceName: string;
   count: number;

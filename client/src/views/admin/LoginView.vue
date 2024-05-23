@@ -1,17 +1,72 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import router from "../../router";
 import CustomButton from "@/components/CustomButton.vue";
+import bcrypt from "bcryptjs";
 import CustomInput from "@/components/CustomInput.vue";
 import PasswordInput from "@/components/PasswordInput.vue";
+import { useRouter } from "vue-router";
+import { loginService } from "@/services/authentication_service";
+import { jwtDecode } from "jwt-decode";
 
 const emailText = ref("");
 const passwordText = ref("");
+const error = ref("");
+
+const router = useRouter();
 
 function handlePasswordTextChanged(password: string) {
   passwordText.value = password;
 }
 
+async function login() {
+  try {
+    if (emailText.value && passwordText.value) {
+      console.log("Starting login process...");
+      const response = await loginService(emailText.value, passwordText.value);
+      console.log("Received response from loginService:", response);
+
+      const data = await response.json();
+      console.log("Parsed response JSON:", data);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      // Store the JWT token in localStorage
+      console.log("Storing JWT token...");
+      localStorage.setItem("jwtToken", data.jwtToken);
+
+      // Decode the token to extract role information
+      console.log("Decoding JWT token...");
+      const decodedToken: any = jwtDecode(data.jwtToken);
+      console.log("Decoded JWT token:", decodedToken);
+
+      const role = decodedToken.role;
+      console.log("User role:", role);
+
+      // Redirect based on the role
+      if (role === "ROLE_CUSTOMER") {
+        console.log("Redirecting to /profile...");
+        router.push("/profile");
+      } else if (role === "ROLE_ADMIN") {
+        console.log("Redirecting to /admin/dashboard...");
+        router.push("/admin/dashboard");
+      } else if (role === "ROLE_DOCTOR") {
+        console.log("Redirecting to /doctor/dashboard...");
+        router.push("/doctor/dashboard");
+      } else {
+        throw new Error("Unknown role");
+      }
+    } else {
+      error.value = "Please enter your email and password.";
+    }
+  } catch (err) {
+    console.error("Error during login process:", err);
+    error.value = "" + err;
+    emailText.value = "";
+    passwordText.value = "";
+  }
+}
 // async function login() {
 //   const hashPassword = await bcrypt.hash(
 //     passwordText.value,
@@ -39,7 +94,7 @@ function handlePasswordTextChanged(password: string) {
     </div>
     <div class="login-container">
       <img src="@/assets/logo.png" alt="" />
-      <div class="form">
+      <form class="form" @submit.prevent="login">
         <div class="inputs">
           <CustomInput
             label-text="Email"
@@ -59,7 +114,7 @@ function handlePasswordTextChanged(password: string) {
           </div>
         </div>
         <CustomButton text="Login" width="200" height="30" />
-      </div>
+      </form>
     </div>
   </div>
 </template>
@@ -126,4 +181,3 @@ function handlePasswordTextChanged(password: string) {
   }
 }
 </style>
-@/services/admins_service

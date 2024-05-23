@@ -46,8 +46,9 @@ const handleClickEvent = () => {
 button {
   cursor: pointer;
   border: none;
-  border-radius: 15px;
+  border-radius: 12px;
   font-size: 15px;
+  font-weight: bold;
   color: @sugar;
 }
 </style>
