@@ -76,7 +76,6 @@ function handleLogOut() {
     display: flex;
     align-items: flex-end;
     flex-direction: column;
-    height: 100%;
     gap: 15px;
     .logout-button {
       align-self: center;

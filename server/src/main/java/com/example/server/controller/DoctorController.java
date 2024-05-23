@@ -64,4 +64,9 @@ public class DoctorController {
     public List<TreatmentTypesDTO> getDoctorServicesInCurrentMonth(@RequestParam Long doctorId) {
         return doctorService.getDoctorServicesInCurrentMonth(doctorId);
     }
+
+    @DeleteMapping
+    public boolean deleteById(@RequestParam Long doctorId) {
+        return doctorService.deleteDoctorById(doctorId);
+    }
 }

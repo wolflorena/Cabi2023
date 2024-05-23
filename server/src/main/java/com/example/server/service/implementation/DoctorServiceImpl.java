@@ -33,7 +33,7 @@ public class DoctorServiceImpl implements DoctorService {
                              AppointmentRepository appointmentRepository,
                              ServiceRepository serviceRepository,
                              SendEmailService sendEmailService,
-                             ModelMapper modelMapper){
+                             ModelMapper modelMapper) {
 
         this.doctorRepository = doctorRepository;
         this.appointmentRepository = appointmentRepository;
@@ -43,15 +43,20 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    public DoctorResponseDTO addDoctor(DoctorAdminRequestDTO doctorAdminRequestDTO){
+    public DoctorResponseDTO addDoctor(DoctorAdminRequestDTO doctorAdminRequestDTO) {
         Doctor doctor = new Doctor();
-        doctor.setFirstName(doctorAdminRequestDTO.getFirstName());
-        doctor.setLastName(doctorAdminRequestDTO.getLastName());
-        doctor.setEmail(doctorAdminRequestDTO.getEmail());
+        if(doctorRepository.findByEmail(doctorAdminRequestDTO.getEmail()).isEmpty()) {
+            doctor.setFirstName(doctorAdminRequestDTO.getFirstName());
+            doctor.setLastName(doctorAdminRequestDTO.getLastName());
+            doctor.setEmail(doctorAdminRequestDTO.getEmail());
+            doctor.setFirstLogin(true);
 
-        doctorRepository.save(doctor);
-        sendEmailService.sendPasswordToDoctor(doctor.getId());
-        return modelMapper.map(doctor, DoctorResponseDTO.class);
+            doctorRepository.save(doctor);
+            sendEmailService.sendPasswordToDoctor(doctor.getId());
+            return modelMapper.map(doctor, DoctorResponseDTO.class);
+        } else {
+            throw new EmailExistsException("Email already exists");
+        }
     }
 
     @Override
@@ -200,5 +205,11 @@ public class DoctorServiceImpl implements DoctorService {
                 .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                 .map(entry -> new TreatmentTypesDTO(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean deleteDoctorById(Long doctorId) {
+        doctorRepository.deleteById(doctorId);
+        return true;
     }
 }

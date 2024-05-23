@@ -50,7 +50,6 @@ public class SendEmailServiceImpl implements SendEmailService {
         String password = PasswordGenerator.generatePassayPassword(15);
         String subject = "Account Activation for "  + companyName + " app";
         sendEmailUtils("welcome-template.ftl", doctorId, password, subject);
-        
         String encodedPassword = passwordEncoder.encode(password);
         doctor.setPassword(encodedPassword);
         doctorRepository.save(doctor);

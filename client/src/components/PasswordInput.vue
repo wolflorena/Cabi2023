@@ -19,6 +19,11 @@ const showPassword = ref(false);
 function sendPassword(text: string) {
   emits("password-changed", text);
 }
+
+function toggleShowPassword(event: Event) {
+  event.preventDefault();
+  showPassword.value = !showPassword.value;
+}
 </script>
 
 <template>
@@ -31,7 +36,7 @@ function sendPassword(text: string) {
       id="password-input"
       @update:model-value="sendPassword"
     />
-    <button @click="showPassword = !showPassword">
+    <button @click="toggleShowPassword">
       <font-awesome-icon v-if="!showPassword" icon="eye" id="icon" />
       <font-awesome-icon v-else icon="eye-slash" id="icon" />
     </button>

@@ -14,4 +14,5 @@ public interface DoctorService {
     List<LocalTime> findAvailableHours(Long doctorId, Long serviceId, LocalDate date);
     DoctorUpdateDTO updateDoctor(Long doctorId, DoctorUpdateDTO doctorUpdateDTO);
     List<TreatmentTypesDTO> getDoctorServicesInCurrentMonth(Long doctorId);
+    boolean deleteDoctorById(Long doctorId);
 }

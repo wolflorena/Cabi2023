@@ -363,6 +363,8 @@ async function addAppointment(
 
     .doctors {
       width: 90%;
+      max-height: 30vh;
+      overflow-y: scroll;
 
       .title {
         color: @gray;
