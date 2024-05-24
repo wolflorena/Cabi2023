@@ -15,16 +15,17 @@ import java.util.Set;
 @Getter
 @Setter
 public class Doctor extends User{
-
     private String address;
     private String phoneNo;
     @Lob
     private byte[] avatar;
     private LocalDate dateOfEmployment;
-    @OneToMany(mappedBy = "doctor")
+    @Column(name = "is_first_login", nullable = false, columnDefinition = "BIT DEFAULT 0")
+    private boolean isFirstLogin;
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value="doctor-appointments")
     private Set<Appointment> appointments;
-    @OneToMany(mappedBy = "doctor")
+    @OneToMany(mappedBy = "doctor",cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value="doctor-unavailabilities")
     private Set<DoctorUnavailability> unavailabilities;
 }

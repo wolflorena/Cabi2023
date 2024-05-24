@@ -9,9 +9,11 @@ const props = withDefaults(
   defineProps<{
     iconToken: string;
     buttonStyle: "full" | "transparent";
+    text?: string;
   }>(),
   {
     buttonStyle: "transparent",
+    text: "Add appointment",
   }
 );
 
@@ -27,7 +29,7 @@ const handleClickEvent = () => {
 <template>
   <button :class="buttonStyle" @click="handleClickEvent">
     <font-awesome-icon :icon="iconToken" id="icon" />
-    <span v-if="buttonStyle === 'full'">Add appointment</span>
+    <span v-if="buttonStyle === 'full'">{{ text }}</span>
   </button>
 </template>
 

@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { AppointmentCalendar, SelectedDoctor } from "@/data/types/Entities";
 import { ref, computed, watch, onMounted } from "vue";
-import { getAll, getAllForCalendar } from "@/services/appointments_service";
+import { getAllForCalendar } from "@/services/appointments_service";
 
 const props = withDefaults(
   defineProps<{
     selectedCalendars: SelectedDoctor[];
     daySelected: Date;
+    fullWidth?: boolean;
   }>(),
-  {}
+  {
+    fullWidth: false,
+  }
 );
 
 type DayCalendarAppointment = AppointmentCalendar & { endTime: string };
@@ -16,8 +19,7 @@ type DayCalendarAppointment = AppointmentCalendar & { endTime: string };
 const currentDate = ref(props.daySelected);
 
 const timeSlots: string[] = createTimeSlots(9, 18);
-const calendars = ref(["Ana", "Doctor 1"]);
-const calendarsNumber = computed(() => calendars.value.length);
+const calendarsNumber = computed(() => props.selectedCalendars.length);
 const currentDateKey = computed(() => currentDate.value.toISOString());
 const appointments = ref<DayCalendarAppointment[]>([]);
 
@@ -115,7 +117,6 @@ function getAppointmentsForCalendar(calendar: number) {
       appointment.doctorId === calendar;
     return condition;
   });
-
   return filteredAppointments;
 }
 
@@ -184,10 +185,15 @@ async function loadAppointments() {
 onMounted(() => {
   loadAppointments();
 });
+
+function backgroundColorStyle(calendarId: number) {
+  const color = getDoctorColor(calendarId) ?? "#ef4b4c";
+  return `background-color: ${color}`;
+}
 </script>
 
 <template>
-  <div class="scheduler">
+  <div class="scheduler" :class="{ fullWidth }">
     <div class="header">
       <div class="controls">
         <button class="calendar-pick" @click="toggleCalendar">Day</button>
@@ -211,7 +217,7 @@ onMounted(() => {
               v-for="calendar in selectedCalendarsFiltered"
               class="column-header"
             >
-              {{ calendar.firstName }}
+              {{ "Dr. " + calendar.firstName + " " + calendar.lastName }}
             </th>
           </tr>
         </thead>
@@ -231,7 +237,7 @@ onMounted(() => {
                 class="appointment"
                 :style="[
                   computeStyle(appointment, slot),
-                  `background-color: ${getDoctorColor(calendar.id)}`,
+                  backgroundColorStyle(calendar.id),
                 ]"
               >
                 <span>{{ appointment.time }}</span>
@@ -290,6 +296,20 @@ onMounted(() => {
       color: white;
     }
   }
+
+  &.fullWidth {
+    width: 80vw;
+
+    .slot {
+      &.calendar {
+        width: calc((80vw - 80vw / 7));
+
+        .appointment {
+          font-size: 18px;
+        }
+      }
+    }
+  }
 }
 
 .calendar-container {
@@ -325,6 +345,7 @@ onMounted(() => {
         transform: translateX(-50%);
         width: 90%;
         overflow: hidden;
+        border-radius: 5px;
 
         display: flex;
         flex-direction: column;

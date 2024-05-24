@@ -10,8 +10,13 @@ const props = withDefaults(
   defineProps<{
     selectedCalendars: SelectedDoctor[];
     appointmentsUpdate: boolean;
+    fullWidth?: boolean;
+    width?: string;
   }>(),
-  {}
+  {
+    fullWidth: false,
+    width: "65vw",
+  }
 );
 
 // Types for the data used in the component
@@ -147,7 +152,7 @@ watch(
 </script>
 
 <template>
-  <div class="scheduler">
+  <div class="scheduler" :class="{ fullWidth }">
     <div class="header">
       <div class="controls">
         <button class="calendar-pick" @click="toggleCalendar">Month</button>
@@ -258,6 +263,18 @@ watch(
       color: white;
     }
   }
+
+  &.fullWidth {
+    width: 80vw;
+
+    .calendar-container {
+      .calendar {
+        .day {
+          width: calc(90vw / 7);
+        }
+      }
+    }
+  }
 }
 
 .calendar-container {
@@ -317,7 +334,7 @@ watch(
             height: 10px;
             width: 10px;
             border-radius: 50%;
-            background-color: red;
+            background-color: @red;
           }
 
           #hour {

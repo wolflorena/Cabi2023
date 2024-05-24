@@ -85,4 +85,9 @@ public class AppointmentController {
         List<AppointmentDoctorDashboardDTO> appointments = appointmentService.getNextAppointments(doctorId);
         return ResponseEntity.ok(appointments);
     }
+
+    @GetMapping("/totalNumber")
+    public ResponseEntity<Integer> getTotalNumber(@RequestParam Long doctorId, @RequestParam Appointment.AppointmentStatus appointmentStatus) {
+        return new ResponseEntity<>(appointmentService.getAppointmentsNumberByStatusAndDoctor(doctorId,appointmentStatus), HttpStatus.OK );
+    }
 }

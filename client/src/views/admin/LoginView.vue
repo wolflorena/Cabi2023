@@ -67,24 +67,6 @@ async function login() {
     passwordText.value = "";
   }
 }
-// async function login() {
-//   const hashPassword = await bcrypt.hash(
-//     passwordText.value,
-//     "$2a$10$QkRidA35ea0Fzm/ObrOEgO"
-//   );
-//   if (emailText.value && passwordText.value) {
-//     loginAdmin(emailText.value, hashPassword)
-//       .then((res) => {
-//         console.log(localStorage.getItem("email"));
-//       })
-//       .catch((error) => {
-//         emailText.value = "";
-//         passwordText.value = "";
-//       });
-//   } else {
-//     passwordText.value = "";
-//   }
-// }
 </script>
 
 <template>
@@ -113,7 +95,12 @@ async function login() {
             </router-link>
           </div>
         </div>
-        <CustomButton text="Login" width="200" height="30" />
+        <CustomButton
+          text="Login"
+          width="200"
+          height="30"
+          @click.prevent="login"
+        />
       </form>
     </div>
   </div>

@@ -9,7 +9,7 @@ import AddAppointmentModal from "@/components/AddAppointmentModal.vue";
 import DatePicker from "@/components/DatePicker.vue";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 import { getAllDoctors } from "@/services/doctor_service";
-
+import CustomModal from "@/components/CustomModal.vue";
 import type { Doctor, SelectedDoctor } from "@/data/types/Entities";
 import { createAppointment } from "@/services/appointments_service";
 import ActionButton from "@/components/ActionButton.vue";
@@ -22,6 +22,11 @@ const showMonthCalendar = ref(true);
 const daySelected = ref(new Date());
 const selectedContent = ref("");
 const updateAppointments = ref(false);
+const showAddDoctorModal = ref(false);
+
+const doctorEmail = ref("");
+const doctorFirstName = ref("");
+const doctorLasttName = ref("");
 
 type Day = {
   date: number;
@@ -143,6 +148,12 @@ onMounted(() => {
         icon-token="circle-plus"
         @click="prepareAddAppointmentModal"
       />
+      <ActionButton
+        button-style="full"
+        icon-token="circle-plus"
+        text="Add doctor account"
+        @click="showAddDoctorModal = true"
+      />
       <DatePicker @select-day="openDailyCalendar" />
 
       <CustomDropdown
@@ -198,6 +209,29 @@ onMounted(() => {
     @add-appointment="addAppointment"
     @close="closeModal"
   />
+
+  <CustomModal
+    :show="showAddDoctorModal"
+    title="Create Doctor Account"
+    @button2="showAddDoctorModal = false"
+  >
+    <div class="selection">
+      <div class="option">
+        <label>Doctor Email</label>
+        <input type="text" v-model="doctorEmail" />
+      </div>
+
+      <div class="option">
+        <label>Doctor First Name</label>
+        <input type="text" v-model="doctorFirstName" />
+      </div>
+
+      <div class="option">
+        <label>Doctor Last Name</label>
+        <input type="text" v-model="doctorLasttName" />
+      </div>
+    </div>
+  </CustomModal>
 </template>
 
 <style scoped lang="less">
@@ -249,6 +283,37 @@ onMounted(() => {
           box-sizing: border-box;
         }
       }
+    }
+  }
+}
+
+.selection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .option {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+
+    label {
+      color: @sugar;
+      font-size: 18px;
+    }
+
+    input {
+      width: 160px;
+      background-color: @font-gray;
+      border-radius: 10px;
+      outline: none;
+      color: @font-darker-gray;
+      font-size: 15px;
+      padding: 5px;
+      border: none;
     }
   }
 }
