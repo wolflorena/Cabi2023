@@ -5,10 +5,9 @@ const props = withDefaults(
     alt?: string;
   }>(),
   {
-    src: "defaultAvatar",
+    src: "../assets/default-avatar.png",
   }
 );
-console.log(props.src);
 </script>
 <template>
   <div class="avatar">

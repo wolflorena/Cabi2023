@@ -4,20 +4,56 @@ import CustomButton from "@/components/CustomButton.vue";
 import InfoField from "@/components/InfoField.vue";
 import { UserDetails } from "@/data/types/Entities";
 import { getUserIdAndToken } from "@/services/authentication_service";
-import { editUserDetails } from "@/services/customer_service";
-import { ref } from "vue";
+import {
+  editUserDetails,
+  getAvatar,
+  uploadAvatar,
+} from "@/services/customer_service";
+import { onMounted, ref } from "vue";
 const props = defineProps<{
   userDetails: UserDetails;
+  avatarImage?: string;
 }>();
 
 const emits = defineEmits<{
   updateUserDetails: [newUserDetails: UserDetails];
+  updateAvatarImage: [newAvatarImage: string];
 }>();
 
 const editedUserDetails = ref<UserDetails>(props.userDetails);
+const avatarFile = ref<File | undefined>();
+const avatarPreview = ref<string | undefined>(props.avatarImage);
+console.log(props.avatarImage);
+
+function handleFileChange(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    const file = target.files[0];
+    if (file.size > 500 * 1024) {
+      alert("File size exceeds 500KB");
+      return;
+    }
+    const fileReader = new FileReader();
+    fileReader.onload = () => {
+      avatarPreview.value = fileReader.result as string;
+    };
+    fileReader.readAsDataURL(file);
+    avatarFile.value = file;
+  }
+}
+
+function triggerFileInput() {
+  const fileInput = document.getElementById("fileInput");
+  if (fileInput) {
+    fileInput.click();
+  }
+}
 
 async function handleSaveChanges() {
   const { userId, token } = getUserIdAndToken();
+  if (avatarFile.value) {
+    await uploadAvatar(userId, token, avatarFile.value);
+  }
   const newUserDetails = await editUserDetails(
     userId,
     token,
@@ -25,6 +61,9 @@ async function handleSaveChanges() {
   );
 
   emits("updateUserDetails", newUserDetails);
+  if (avatarPreview.value !== props.avatarImage && avatarPreview.value) {
+    emits("updateAvatarImage", avatarPreview.value);
+  }
 }
 </script>
 
@@ -33,9 +72,16 @@ async function handleSaveChanges() {
     <div class="avatar-settings-container">
       <div class="avatar-settings">
         <div class="top-side">
-          <AvatarImage src="../../../assets/default-avatar.png" alt="" />
-
+          <AvatarImage :src="avatarPreview" alt="" />
+          <input
+            type="file"
+            id="fileInput"
+            @change="handleFileChange"
+            accept=".jpg,.png"
+            style="display: none"
+          />
           <CustomButton
+            type="input"
             text="Choose a file"
             :isMain="false"
             color="#30619b"
@@ -44,6 +90,7 @@ async function handleSaveChanges() {
             :style="{
               width: '100%',
             }"
+            @click="triggerFileInput"
           />
           <div class="text">
             <span>Acceptable formats: .jpg, .png</span>

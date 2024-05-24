@@ -29,7 +29,6 @@ async function getById(userId: number, token: string): Promise<UserDetails> {
   if (!response.ok) {
     throw new Error("Failed to fetch user data");
   }
-  console.log(response.json);
 
   const user: UserDetails = await response.json();
   return user;
@@ -70,4 +69,46 @@ async function editUserDetails(
   return user;
 }
 
-export { getAllPageable, getById, editStatus, getAllPatients, editUserDetails };
+async function uploadAvatar(userId: number, token: string, avatar: File) {
+  const formData = new FormData();
+  formData.append("avatar", avatar);
+  const response = await fetch(
+    `${API_URL}/upload-avatar?customerId=${userId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to upload avatar");
+  }
+}
+
+async function getAvatar(userId: number, token: string) {
+  const response = await fetch(`${API_URL}/avatar?customerId=${userId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to retrieve avatar");
+  }
+
+  return response.blob();
+}
+
+export {
+  getAllPageable,
+  getById,
+  editStatus,
+  getAllPatients,
+  editUserDetails,
+  uploadAvatar,
+  getAvatar,
+};

@@ -5,13 +5,14 @@ import { UserDetails } from "@/data/types/Entities";
 import { ref } from "vue";
 const props = defineProps<{
   userDetails: UserDetails;
+  avatarImage?: string;
 }>();
 </script>
 
 <template>
   <div class="view-profile-container">
     <div class="avatar-container">
-      <AvatarImage src="../../../assets/default-avatar.png" alt="" />
+      <AvatarImage :src="avatarImage" alt="" />
     </div>
     <div class="fields">
       <InfoField

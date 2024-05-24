@@ -8,11 +8,17 @@ import com.example.server.repository.CustomerRepository;
 import com.example.server.service.CustomerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,6 +47,17 @@ public class CustomerServiceImpl implements CustomerService {
         registerCustomerDto.setPassword(encodedPassword);
 
         Customer customerToBeSaved = new Customer(registerCustomerDto);
+        //add a default profile picture for every new user.
+        byte[] defaultAvatar = new byte[0];
+
+        //getFile() method needs this try catch check.
+        try {
+            defaultAvatar = loadDefaultAvatar();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        customerToBeSaved.setAvatar(defaultAvatar);
+
         customerRepository.save(customerToBeSaved);
         return modelMapper.map(customerToBeSaved, ResponseCustomerDTO.class);
     }
@@ -131,11 +148,34 @@ public class CustomerServiceImpl implements CustomerService {
         return new CustomerEditDetailsDTO(customer);
     }
 
+    public Customer uploadAvatar(Long customerId, MultipartFile avatar) {
+        try{
+            Customer customer = customerRepository.findById(customerId)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+            customer.setAvatar(avatar.getBytes());
+            return customerRepository.save(customer);
+        }catch (Exception e){
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public byte[] getAvatar(Long customerId){
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        return customer.getAvatar();
+    }
+
     private boolean isValidEmail(String email) {
         // simple regex rule for email validation.
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         Pattern pattern = Pattern.compile(emailRegex);
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
+    }
+
+    private byte[] loadDefaultAvatar() throws IOException {
+        ClassPathResource imgFile = new ClassPathResource("images/default-avatar.png");
+        return Files.readAllBytes(imgFile.getFile().toPath());
     }
 }

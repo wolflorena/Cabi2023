@@ -8,7 +8,7 @@ import EditProfile from "./profile-content/EditProfile.vue";
 import SecuritySettings from "./profile-content/SecuritySettings.vue";
 import { jwtDecode } from "jwt-decode";
 import { LoadingState, UserDetails, jwtPayload } from "@/data/types/Entities";
-import { getById } from "@/services/customer_service";
+import { getAvatar, getById } from "@/services/customer_service";
 import { getUserIdAndToken } from "@/services/authentication_service";
 
 const profilePage = ref("viewProfile");
@@ -18,7 +18,6 @@ const isActivePage = (page: string) =>
 
 const handleClick = (page: string) => {
   profilePage.value = page;
-  console.log(isActivePage("viewProfile").value);
 };
 
 const userDetails = ref<UserDetails>({
@@ -29,6 +28,7 @@ const userDetails = ref<UserDetails>({
   dateOfBirth: "string",
   occupation: "string",
 });
+const avatarImage = ref<string>();
 const isLoading = ref<boolean>(false);
 
 async function loadUserDetails() {
@@ -39,7 +39,6 @@ async function loadUserDetails() {
       if (resp) {
         userDetails.value = resp;
         isLoading.value = false;
-        console.log(userDetails.value);
       }
     });
   } catch (err) {
@@ -51,8 +50,23 @@ function handleUserDetailsUpdate(editedUserDetails: UserDetails) {
   userDetails.value = editedUserDetails;
 }
 
+async function retrieveUserAvatar() {
+  const { userId, token } = getUserIdAndToken();
+  const blob = await getAvatar(userId, token);
+
+  if (blob.size > 0) {
+    avatarImage.value = URL.createObjectURL(blob);
+  } else {
+    avatarImage.value = undefined;
+  }
+}
+
+function handleAvatarImageUpdated(newAvatarImage: string) {
+  avatarImage.value = newAvatarImage;
+}
 onMounted(() => {
   loadUserDetails();
+  retrieveUserAvatar();
 });
 </script>
 
@@ -86,12 +100,15 @@ onMounted(() => {
         <ViewProfile
           v-if="isActivePage('viewProfile').value"
           :userDetails="userDetails"
+          :avatarImage="avatarImage"
         />
 
         <EditProfile
           v-if="isActivePage('editProfile').value"
           :userDetails="userDetails"
+          :avatarImage="avatarImage"
           @updateUserDetails="handleUserDetailsUpdate"
+          @update-avatar-image="handleAvatarImageUpdated"
         />
 
         <SecuritySettings v-if="isActivePage('securitySettings').value" />
