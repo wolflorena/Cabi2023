@@ -94,7 +94,7 @@ export type FormEvent = {
 
 export type UserDetails = {
   firstName: string;
-  secondName: string;
+  lastName: string;
   email: string;
   phoneNo: string;
   dateOfBirth: string;
@@ -104,4 +104,13 @@ export type UserDetails = {
 export type TreatmentType = {
   serviceName: string;
   count: number;
+};
+
+export type jwtPayload = {
+  user_id: number;
+  role: string;
+};
+
+export type LoadingState = {
+  state: "loading";
 };

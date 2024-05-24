@@ -13,10 +13,12 @@
     "@fortawesome/free-solid-svg-icons": "^6.5.0",
     "@fortawesome/vue-fontawesome": "^3.0.5",
     "bcryptjs": "^2.4.3",
+    "date-fns": "^3.6.0",
     "jwt-decode": "^4.0.0",
     "md-editor-v3": "^4.14.1",
     "vue": "^3.2.13",
-    "vue-router": "^4.0.3"
+    "vue-router": "^4.0.3",
+    "vue3-datepicker": "^0.4.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

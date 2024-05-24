@@ -1,8 +1,9 @@
 package com.example.server.controller;
 
-import com.example.server.repository.DTOs.CustomerPageDTO;
-import com.example.server.repository.DTOs.RegisterCustomerDTO;
-import com.example.server.repository.DTOs.ResponseCustomerDTO;
+import com.example.server.repository.DTOs.Customers.CustomerEditDetailsDTO;
+import com.example.server.repository.DTOs.Customers.CustomerPageDTO;
+import com.example.server.repository.DTOs.Customers.RegisterCustomerDTO;
+import com.example.server.repository.DTOs.Customers.ResponseCustomerDTO;
 import com.example.server.repository.entity.Customer;
 import com.example.server.service.implementation.CustomerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,4 +74,8 @@ public class CustomerController {
         return customerServiceImpl.editAccountStatus(customerId, status);
     }
 
+    @PutMapping("/edit")
+    public ResponseEntity<CustomerEditDetailsDTO> editCustomerDetails(@RequestParam Long customerId, @RequestBody CustomerEditDetailsDTO customer) {
+        return new ResponseEntity<>(customerServiceImpl.editCustomerDetails(customerId, customer),HttpStatus.OK);
+    }
 }

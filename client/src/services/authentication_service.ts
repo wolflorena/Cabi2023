@@ -1,3 +1,6 @@
+import { jwtPayload } from "@/data/types/Entities";
+import { jwtDecode } from "jwt-decode";
+
 const API_URL = "http://localhost:9090/api/auth";
 
 export async function loginService(email: string, password: string) {
@@ -9,4 +12,18 @@ export async function loginService(email: string, password: string) {
     body: JSON.stringify({ email, password }),
   });
   return response;
+}
+
+export function getUserIdAndToken(): { userId: number; token: string } {
+  const token = localStorage.getItem("jwtToken");
+  if (!token) {
+    throw new Error("No JWT token found");
+  }
+  const decodedToken: jwtPayload = jwtDecode(token);
+  if (decodedToken.user_id != null) {
+    const userId = decodedToken.user_id;
+    return { userId, token };
+  } else {
+    throw new Error("The token doesn't have an user_id");
+  }
 }

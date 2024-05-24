@@ -106,6 +106,7 @@ async function updateProfile() {
           label="Date of Employment"
           v-model:input-value="dateOfEmployment"
           :is-readonly="viewOnly"
+          type="text"
         />
       </div>
 

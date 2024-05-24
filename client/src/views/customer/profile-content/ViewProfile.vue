@@ -2,15 +2,10 @@
 import AvatarImage from "@/components/AvatarImage.vue";
 import InfoField from "@/components/InfoField.vue";
 import { UserDetails } from "@/data/types/Entities";
-
-const userDetails: UserDetails = {
-  firstName: "Iulian",
-  secondName: "Alex",
-  email: "iulian.alex@yahoo.com",
-  dateOfBirth: "12",
-  phoneNo: "070000000",
-  occupation: "Student",
-};
+import { ref } from "vue";
+const props = defineProps<{
+  userDetails: UserDetails;
+}>();
 </script>
 
 <template>
@@ -29,7 +24,7 @@ const userDetails: UserDetails = {
       <InfoField
         uuid="SecondName"
         label="Second Name"
-        :inputValue="userDetails.secondName"
+        :inputValue="userDetails.lastName"
         :isReadonly="true"
         type="text"
       />

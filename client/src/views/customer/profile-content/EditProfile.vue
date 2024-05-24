@@ -3,20 +3,28 @@ import AvatarImage from "@/components/AvatarImage.vue";
 import CustomButton from "@/components/CustomButton.vue";
 import InfoField from "@/components/InfoField.vue";
 import { UserDetails } from "@/data/types/Entities";
-import { Ref, computed, ref, watch } from "vue";
+import { getUserIdAndToken } from "@/services/authentication_service";
+import { editUserDetails } from "@/services/customer_service";
+import { ref } from "vue";
+const props = defineProps<{
+  userDetails: UserDetails;
+}>();
 
-//after login i should populate the userDetails with the user details information.
-const userProfile: Ref<UserDetails> = ref<UserDetails>({
-  firstName: "Iulian",
-  secondName: "Alex",
-  email: "Iulian-Alex@yahoo.com",
-  phoneNo: "0720301853",
-  dateOfBirth: "12.05.2001",
-  occupation: "Student",
-});
+const emits = defineEmits<{
+  updateUserDetails: [newUserDetails: UserDetails];
+}>();
 
-function handleSaveChanges() {
-  console.log(userProfile.value);
+const editedUserDetails = ref<UserDetails>(props.userDetails);
+
+async function handleSaveChanges() {
+  const { userId, token } = getUserIdAndToken();
+  const newUserDetails = await editUserDetails(
+    userId,
+    token,
+    editedUserDetails.value
+  );
+
+  emits("updateUserDetails", newUserDetails);
 }
 </script>
 
@@ -69,17 +77,17 @@ function handleSaveChanges() {
       >
       <div class="info-fields-group">
         <InfoField
-          uuid="Last Name"
-          label="Last Name"
-          v-model:inputValue="userProfile.firstName"
+          uuid="First Name"
+          label="First Name"
+          v-model:inputValue="editedUserDetails.firstName"
           :isReadonly="false"
           type="text"
           variant="ACCOUNT_INFORMATION"
         />
         <InfoField
-          uuid="Second Name"
-          label="Second Name"
-          v-model:inputValue="userProfile.secondName"
+          uuid="Last Name"
+          label="Last Name"
+          v-model:inputValue="editedUserDetails.lastName"
           :isReadonly="false"
           type="text"
           variant="ACCOUNT_INFORMATION"
@@ -87,7 +95,7 @@ function handleSaveChanges() {
         <InfoField
           uuid="Email"
           label="Email"
-          v-model:input-value="userProfile.email"
+          v-model:input-value="editedUserDetails.email"
           :isReadonly="false"
           type="text"
           variant="ACCOUNT_INFORMATION"
@@ -95,23 +103,23 @@ function handleSaveChanges() {
         <InfoField
           uuid="PhoneNumber"
           label="Phone Number"
-          v-model:input-value="userProfile.phoneNo"
+          v-model:input-value="editedUserDetails.phoneNo"
           :isReadonly="false"
-          type="text"
+          type="phoneNo"
           variant="ACCOUNT_INFORMATION"
         />
         <InfoField
           uuid="DateOfBirth"
           label="Date of Birth"
-          v-model:input-value="userProfile.dateOfBirth"
+          v-model:input-value="editedUserDetails.dateOfBirth"
           :isReadonly="false"
-          type="text"
+          type="date"
           variant="ACCOUNT_INFORMATION"
         />
         <InfoField
           uuid="Occupation"
           label="Occupation"
-          v-model:input-value="userProfile.occupation"
+          v-model:input-value="editedUserDetails.occupation"
           :isReadonly="false"
           type="text"
           variant="ACCOUNT_INFORMATION"

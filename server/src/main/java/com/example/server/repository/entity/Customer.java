@@ -1,8 +1,7 @@
 package com.example.server.repository.entity;
 
-import com.example.server.repository.DTOs.RegisterCustomerDTO;
+import com.example.server.repository.DTOs.Customers.RegisterCustomerDTO;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

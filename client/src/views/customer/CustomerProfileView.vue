@@ -2,10 +2,14 @@
 import Sidebar from "@/components/Sidebar.vue";
 import TableHeaderButton from "@/components/TableHeaderButton.vue";
 import { CustomerSidebarOptions } from "@/data/types/SidebarOptions";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import ViewProfile from "./profile-content/ViewProfile.vue";
 import EditProfile from "./profile-content/EditProfile.vue";
 import SecuritySettings from "./profile-content/SecuritySettings.vue";
+import { jwtDecode } from "jwt-decode";
+import { LoadingState, UserDetails, jwtPayload } from "@/data/types/Entities";
+import { getById } from "@/services/customer_service";
+import { getUserIdAndToken } from "@/services/authentication_service";
 
 const profilePage = ref("viewProfile");
 
@@ -16,6 +20,40 @@ const handleClick = (page: string) => {
   profilePage.value = page;
   console.log(isActivePage("viewProfile").value);
 };
+
+const userDetails = ref<UserDetails>({
+  firstName: "string",
+  lastName: "string",
+  email: "string",
+  phoneNo: "string",
+  dateOfBirth: "string",
+  occupation: "string",
+});
+const isLoading = ref<boolean>(false);
+
+async function loadUserDetails() {
+  try {
+    const { userId, token } = getUserIdAndToken();
+    isLoading.value = true;
+    await getById(userId, token).then((resp) => {
+      if (resp) {
+        userDetails.value = resp;
+        isLoading.value = false;
+        console.log(userDetails.value);
+      }
+    });
+  } catch (err) {
+    throw new Error("Failed to load user profile: " + err);
+  }
+}
+
+function handleUserDetailsUpdate(editedUserDetails: UserDetails) {
+  userDetails.value = editedUserDetails;
+}
+
+onMounted(() => {
+  loadUserDetails();
+});
 </script>
 
 <template>
@@ -43,10 +81,18 @@ const handleClick = (page: string) => {
           />
         </div>
       </div>
-      <div class="profile-content">
-        <ViewProfile v-if="isActivePage('viewProfile').value" />
+      <div v-if="isLoading">LOADING....</div>
+      <div v-else class="profile-content">
+        <ViewProfile
+          v-if="isActivePage('viewProfile').value"
+          :userDetails="userDetails"
+        />
 
-        <EditProfile v-if="isActivePage('editProfile').value" />
+        <EditProfile
+          v-if="isActivePage('editProfile').value"
+          :userDetails="userDetails"
+          @updateUserDetails="handleUserDetailsUpdate"
+        />
 
         <SecuritySettings v-if="isActivePage('securitySettings').value" />
       </div>

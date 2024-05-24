@@ -1,7 +1,8 @@
 package com.example.server.service.implementation;
 
 import com.example.server.exception.types.EmailExistsException;
-import com.example.server.repository.DTOs.*;
+import com.example.server.repository.DTOs.AppointmentDoctorDashboardDTO;
+import com.example.server.repository.DTOs.Customers.*;
 import com.example.server.repository.entity.Customer;
 import com.example.server.repository.CustomerRepository;
 import com.example.server.service.CustomerService;
@@ -13,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -72,10 +75,10 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerPageDTO getAllCustomersForAdmin(Pageable pageable) {
         CustomerPageDTO customerPageDTO = new CustomerPageDTO();
         customerPageDTO.setTotal(customerRepository.findAll().size());
-        List<CustomerAdminDTO> result = customerRepository
+        List<AppointmentDoctorDashboardDTO.CustomerAdminDTO> result = customerRepository
                 .findAll()
                 .stream()
-                .map(customer -> modelMapper.map(customer, CustomerAdminDTO.class))
+                .map(customer -> modelMapper.map(customer, AppointmentDoctorDashboardDTO.CustomerAdminDTO.class))
                 .toList();
         return new CustomerPageDTO(customerPageDTO.getTotal(), new PageImpl<>(result, pageable, result.size()));
     }
@@ -86,5 +89,53 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setAccountStatus(status);
         customerRepository.save(customer);
         return modelMapper.map(customer, ResponseCustomerDTO.class);
+    }
+
+    @Override
+    public CustomerEditDetailsDTO editCustomerDetails(Long customerId, CustomerEditDetailsDTO customerDetails){
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new IllegalArgumentException("Customer not found"));;
+
+        if (customerDetails.getEmail() != null && !isValidEmail(customerDetails.getEmail())) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+
+        // check the email not to be already used for another user.
+        if (customerDetails.getEmail() != null && !customerDetails.getEmail().equals(customer.getEmail())) {
+            boolean emailExists = customerRepository.existsByEmail(customerDetails.getEmail());
+            if (emailExists) {
+                throw new IllegalArgumentException("Email already in use");
+            }
+        }
+
+        if (customerDetails.getFirstName() != null) {
+            customer.setFirstName(customerDetails.getFirstName());
+        }
+        if (customerDetails.getLastName() != null) {
+            customer.setLastName(customerDetails.getLastName());
+        }
+        if (customerDetails.getEmail() != null) {
+            customer.setEmail(customerDetails.getEmail());
+        }
+        if (customerDetails.getPhoneNo() != null) {
+            customer.setPhoneNo(customerDetails.getPhoneNo());
+        }
+        if (customerDetails.getDateOfBirth() != null) {
+            customer.setDateOfBirth(customerDetails.getDateOfBirth());
+        }
+        if (customerDetails.getOccupation() != null) {
+            customer.setOccupation(customerDetails.getOccupation());
+        }
+        customer = customerRepository.save(customer);
+
+        // Step 6: Return the updated customer details
+        return new CustomerEditDetailsDTO(customer);
+    }
+
+    private boolean isValidEmail(String email) {
+        // simple regex rule for email validation.
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
     }
 }

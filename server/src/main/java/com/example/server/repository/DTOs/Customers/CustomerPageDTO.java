@@ -1,5 +1,6 @@
-package com.example.server.repository.DTOs;
+package com.example.server.repository.DTOs.Customers;
 
+import com.example.server.repository.DTOs.AppointmentDoctorDashboardDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,5 +11,5 @@ import org.springframework.data.domain.Page;
 @NoArgsConstructor
 public class CustomerPageDTO {
     private int total;
-    private Page<CustomerAdminDTO> pagedCustomers;
+    private Page<AppointmentDoctorDashboardDTO.CustomerAdminDTO> pagedCustomers;
 }

@@ -15,4 +15,14 @@ public class AppointmentDoctorDashboardDTO {
     private String customerFirstName;
     private String customerLastName;
     private String serviceName;
+
+    @Data
+    @NoArgsConstructor
+    public static class CustomerAdminDTO {
+        private Long customerId;
+        private String firstName;
+        private String lastName;
+        private String email;
+        private String phoneNo;
+    }
 }

@@ -1,4 +1,4 @@
-package com.example.server.repository.DTOs;
+package com.example.server.repository.DTOs.Customers;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

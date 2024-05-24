@@ -1,5 +1,7 @@
 <script setup lang="ts">
-withDefaults(
+import { computed, ref, watch } from "vue";
+
+const props = withDefaults(
   defineProps<{
     uuid: string;
     label: string;
@@ -17,10 +19,71 @@ withDefaults(
 
 const emit = defineEmits(["update:inputValue"]);
 
-const inputChange = (event: any) => {
-  emit("update:inputValue", event.target.value);
-  console.log(event.target.value);
+const dateInput = ref<string | undefined>(props.inputValue);
+const phoneNo = ref<string | undefined>(props.inputValue);
+const wrongFormat = ref<boolean>(false);
+
+const inputChange = (e: any) => {
+  if (e.target.value == "") {
+    wrongFormat.value = true;
+  } else {
+    wrongFormat.value = false;
+    emit("update:inputValue", e.target.value);
+  }
 };
+
+// logic to prevent user to enter wrong dates as their date of birth.
+watch(dateInput, (newValue) => {
+  const dateRegex = /^(19|20)\d\d-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+
+  if (newValue) {
+    let formattedValue = newValue.replace(/\D/g, "");
+
+    if (formattedValue.length > 4) {
+      formattedValue = `${formattedValue.slice(0, 4)}-${formattedValue.slice(
+        4
+      )}`;
+    }
+    if (formattedValue.length > 7) {
+      formattedValue = `${formattedValue.slice(0, 7)}-${formattedValue.slice(
+        7
+      )}`;
+    }
+    dateInput.value = formattedValue;
+    wrongFormat.value = false;
+    if (dateRegex.test(formattedValue)) {
+      emit("update:inputValue", formattedValue);
+    } else {
+      wrongFormat.value = true;
+    }
+  }
+});
+
+//here is a check to immediate format the phoneNo info fields
+watch(
+  phoneNo,
+  (newValue) => {
+    if (newValue && props.type === "phoneNo") {
+      let formattedValue = newValue.replace(/\D/g, "");
+
+      if (formattedValue.length > 4) {
+        formattedValue = `${formattedValue.slice(0, 4)}-${formattedValue.slice(
+          4
+        )}`;
+      }
+      if (formattedValue.length > 8) {
+        formattedValue = `${formattedValue.slice(0, 8)}-${formattedValue.slice(
+          8
+        )}`;
+      }
+      phoneNo.value = formattedValue;
+      emit("update:inputValue", formattedValue);
+    }
+  },
+  {
+    immediate: true,
+  }
+);
 </script>
 
 <template>
@@ -32,10 +95,32 @@ const inputChange = (event: any) => {
   >
     <label :for="uuid">{{ label }}</label>
     <input
+      v-if="type === 'date'"
+      type="text"
+      :id="uuid"
+      :value="dateInput"
+      :readonly="isReadonly"
+      maxlength="10"
+      :class="wrongFormat ? 'bad-format' : ''"
+      @input="(e:any)=> dateInput=e.target.value"
+    />
+    <input
+      v-else-if="type === 'phoneNo'"
+      :type="type"
+      :id="uuid"
+      :value="phoneNo"
+      :readonly="isReadonly"
+      :class="wrongFormat ? 'bad-format' : ''"
+      @input="(e:any) => phoneNo = e.target.value"
+      maxlength="12"
+    />
+    <input
+      v-else
       :type="type"
       :id="uuid"
       :value="inputValue"
       :readonly="isReadonly"
+      :class="wrongFormat ? 'bad-format' : ''"
       @input="inputChange"
     />
   </div>
@@ -70,6 +155,9 @@ const inputChange = (event: any) => {
     border-radius: 4px;
     background-color: transparent;
     color: @black;
+    &.bad-format {
+      border-color: red;
+    }
   }
 
   input[readonly] {
