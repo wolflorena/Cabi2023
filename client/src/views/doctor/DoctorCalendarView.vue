@@ -7,6 +7,7 @@ import DayScheduler from "@/components/DayScheduler.vue";
 import { SelectedDoctor } from "@/data/types/Entities";
 import { getDoctorById } from "@/services/doctor_service";
 import CustomButton from "@/components/CustomButton.vue";
+import DoctorUnavailability from "@/components/DoctorUnavailability.vue";
 
 const daySelected = ref(new Date());
 const updateAppointments = ref(false);
@@ -17,7 +18,7 @@ const buttonText = ref("Set unavailability");
 const selectedDoctor = ref<SelectedDoctor[]>([]);
 
 async function getDoctorDetails() {
-  await getDoctorById(2).then((res) => {
+  await getDoctorById(1).then((res) => {
     selectedDoctor.value.push({ ...res, checked: true });
     console.log(selectedDoctor);
   });
@@ -44,7 +45,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
+  <div class="container" :class="{ showUnavailability }">
     <Sidebar :options="DoctorSidebarOptions" />
 
     <MonthScheduler
@@ -61,7 +62,7 @@ onMounted(() => {
       @toggle-calendar="toggleCalendar"
       :full-width="true"
     />
-    <div class="unavailability" v-else></div>
+    <DoctorUnavailability v-else />
 
     <div class="button">
       <CustomButton
@@ -77,6 +78,15 @@ onMounted(() => {
 </template>
 
 <style scoped lang="less">
+@import (reference) "@/assets/styles.less";
+
+.container {
+  display: flex;
+
+  &.showUnavailability {
+    background-color: @gray;
+  }
+}
 .button {
   position: absolute;
   top: 7px;

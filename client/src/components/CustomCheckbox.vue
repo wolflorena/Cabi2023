@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { StyleValue } from "vue";
+
 const props = withDefaults(
   defineProps<{
     uuid: string;
     text?: string;
     color?: string;
     modelValue: boolean;
+    fontSize?: StyleValue;
+    fontColor?: string;
   }>(),
   {
     modelValue: false,
@@ -33,7 +37,10 @@ function onCheckedChange(event: Event) {
     ><span>
       <svg width="12px" height="10px">
         <use xlink:href="#check-4"></use></svg></span
-    ><span>{{ text }}</span></label
+    ><span
+      :style="{ fontSize: fontSize ? fontSize + 'px' : '', color: fontColor ?? '' }"
+      >{{ text }}</span
+    ></label
   >
   <svg class="inline-svg">
     <symbol id="check-4" viewbox="0 0 12 10">

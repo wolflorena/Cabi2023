@@ -9,10 +9,12 @@ const props = withDefaults(
     width?: StyleValue;
     fontSize?: StyleValue;
     color?: string;
+    disabled?: boolean;
   }>(),
   {
     text: "",
     isMain: true,
+    disabled: false,
   }
 );
 
@@ -29,9 +31,11 @@ const handleClickEvent = () => {
   <button
     :style="{
       backgroundColor: isMain ? '#ef4b4c' : color ? color : '#43506c',
-      height: height ? height + 'px' : '',
-      width: width ? width + 'px' : '',
-      fontSize: fontSize ? fontSize + 'px' : '',
+      height: height ? height + 'px' : 'auto',
+      width: width ? width + 'px' : 'auto',
+      fontSize: fontSize ? fontSize + 'px' : 'inherit',
+      opacity: disabled ? '0.6' : '1',
+      cursor: disabled ? 'not-allowed' : 'pointer',
     }"
     :class="isMain"
     @click="handleClickEvent"
