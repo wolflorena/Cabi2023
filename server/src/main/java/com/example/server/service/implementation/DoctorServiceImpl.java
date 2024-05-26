@@ -1,6 +1,7 @@
 package com.example.server.service.implementation;
 
 import com.example.server.exception.types.EmailExistsException;
+import com.example.server.exception.types.NotFoundException;
 import com.example.server.repository.AppointmentRepository;
 import com.example.server.repository.DTOs.*;
 import com.example.server.repository.DoctorRepository;
@@ -61,7 +62,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public DoctorResponseDTO getDoctorById(Long doctorId) {
-        Doctor doctor = doctorRepository.findById(doctorId).orElseThrow();
+        Doctor doctor = doctorRepository.findById(doctorId).orElseThrow(() -> new NotFoundException("Doctor not found"));
         return modelMapper.map(doctor, DoctorResponseDTO.class);
     }
 
@@ -78,7 +79,7 @@ public class DoctorServiceImpl implements DoctorService {
         LocalDate today = LocalDate.now();
         LocalDate end = today.plusMonths(1);
         List<LocalDate> availableDates = new ArrayList<>();
-        com.example.server.repository.entity.Service service = serviceRepository.findById(serviceId).orElseThrow();
+        com.example.server.repository.entity.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new NotFoundException("Service not found"));
 
         for (LocalDate date = today; date.isBefore(end); date = date.plusDays(1)) {
             List<Appointment> bookedAppointments = appointmentRepository.findBookedTimesAndDurationsByDoctorIdAndDate(doctorId, date);
@@ -112,7 +113,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     public List<LocalTime> findAvailableHours(Long doctorId, Long serviceId, LocalDate date) {
-        com.example.server.repository.entity.Service service = serviceRepository.findById(serviceId).orElseThrow();
+        com.example.server.repository.entity.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new NotFoundException("Service not found"));
         int serviceDuration = service.getDuration();
 
         List<Appointment> appointments = appointmentRepository.findBookedTimesAndDurationsByDoctorIdAndDate(doctorId, date);
@@ -151,7 +152,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public DoctorUpdateDTO updateDoctor(Long doctorId, DoctorUpdateDTO doctorUpdateDTO) {
-        Doctor doctor = doctorRepository.findById(doctorId).orElseThrow();
+        Doctor doctor = doctorRepository.findById(doctorId).orElseThrow(()-> new NotFoundException("Doctor not found"));
 
         if (doctorUpdateDTO.getFirstName() != null) {
             doctor.setFirstName(doctorUpdateDTO.getFirstName());

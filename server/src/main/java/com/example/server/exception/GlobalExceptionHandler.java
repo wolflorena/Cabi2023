@@ -1,8 +1,6 @@
 package com.example.server.exception;
 
-import com.example.server.exception.types.AppointmentExistsException;
-import com.example.server.exception.types.BadCredentialsException;
-import com.example.server.exception.types.EmailExistsException;
+import com.example.server.exception.types.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,33 +13,40 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private ResponseEntity<Object> buildResponseEntity(HttpStatus status, String message) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", message);
+        return new ResponseEntity<>(body, status);
+    }
 
     @ExceptionHandler(EmailExistsException.class)
     public ResponseEntity<Object> handleEmailExistsException(EmailExistsException ex, WebRequest request) {
-        // Create a response structure
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", "Email already in use");
-
-        // Return response entity with status code
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return buildResponseEntity(HttpStatus.BAD_REQUEST, "Email already in use");
     }
 
     @ExceptionHandler(AppointmentExistsException.class)
     public ResponseEntity<Object> handleAppointmentExistsException(AppointmentExistsException ex, WebRequest request) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", "An appointment already exists at this date and time for the selected doctor.");
-
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+        return buildResponseEntity(HttpStatus.CONFLICT, "An appointment already exists at this date and time for the selected doctor.");
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", "Bad credentials");
+        return buildResponseEntity(HttpStatus.CONFLICT, "Bad credentials");
+    }
 
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    @ExceptionHandler(DoctorUnavailableException.class)
+    public ResponseEntity<Object> handleDoctorUnavailableException(DoctorUnavailableException ex, WebRequest request) {
+        return buildResponseEntity(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Object> handleNotFoundException(NotFoundException ex, WebRequest request) {
+        return buildResponseEntity(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(ProductExistsException.class)
+    public ResponseEntity<Object> handleProductExistsException(ProductExistsException ex, WebRequest request) {
+        return buildResponseEntity(HttpStatus.CONFLICT, ex.getMessage());
     }
 }

@@ -1,14 +1,14 @@
 package com.example.server.service.implementation;
 
 import com.example.server.exception.types.AppointmentExistsException;
-import com.example.server.repository.AppointmentRepository;
-import com.example.server.repository.CustomerRepository;
+import com.example.server.exception.types.DoctorUnavailableException;
+import com.example.server.exception.types.NotFoundException;
+import com.example.server.repository.*;
 import com.example.server.repository.DTOs.*;
-import com.example.server.repository.DoctorRepository;
-import com.example.server.repository.ServiceRepository;
 import com.example.server.repository.entity.Appointment;
 import com.example.server.repository.entity.Customer;
 import com.example.server.repository.entity.Doctor;
+import com.example.server.repository.entity.DoctorUnavailability;
 import com.example.server.service.AppointmentService;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
@@ -28,13 +28,20 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final CustomerRepository customerRepository;
     private final DoctorRepository doctorRepository;
+    private final DoctorUnavailabilityRepository doctorUnavailabilityRepository;
     private final ServiceRepository serviceRepository;
     private final ModelMapper modelMapper;
 
-    private AppointmentServiceImpl(AppointmentRepository appointmentRepository, CustomerRepository customerRepository , DoctorRepository doctorRepository, ServiceRepository serviceRepository, ModelMapper modelMapper){
+    private AppointmentServiceImpl(AppointmentRepository appointmentRepository,
+                                   CustomerRepository customerRepository ,
+                                   DoctorRepository doctorRepository,
+                                   DoctorUnavailabilityRepository doctorUnavailabilityRepository,
+                                   ServiceRepository serviceRepository,
+                                   ModelMapper modelMapper){
         this.appointmentRepository = appointmentRepository;
         this.customerRepository = customerRepository;
         this.doctorRepository = doctorRepository;
+        this.doctorUnavailabilityRepository = doctorUnavailabilityRepository;
         this.serviceRepository = serviceRepository;
         this.modelMapper = modelMapper;
     }
@@ -46,16 +53,41 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointmentRequestDTO.getTime(),
                 appointmentRequestDTO.getDoctorId()
         )){
-            throw new AppointmentExistsException("An appointment already exists at this date and time for the selected doctor.");
+            throw new AppointmentExistsException("An appointment already exists at this date and time for the entire day.");
         }
+
+        List<DoctorUnavailability> unavailabilities = doctorUnavailabilityRepository.findByDoctorId(appointmentRequestDTO.getDoctorId());
+        LocalDate appointmentDate = appointmentRequestDTO.getDate();
+        LocalTime appointmentTime = appointmentRequestDTO.getTime();
+
+        for (DoctorUnavailability unavailability : unavailabilities) {
+            boolean isDateConflict = !appointmentDate.isBefore(unavailability.getStartDate()) &&
+                    !appointmentDate.isAfter(unavailability.getEndDate());
+
+            if (isDateConflict) {
+                if (unavailability.getStartTime() == null && unavailability.getEndTime() == null) {
+                    // All day unavailability
+                    throw new DoctorUnavailableException("Doctor is unavailable for the entire day.");
+                } else if (unavailability.getStartTime() != null && unavailability.getEndTime() != null) {
+                    // Time slot unavailability
+                    boolean isTimeConflict = !appointmentTime.isBefore(unavailability.getStartTime()) &&
+                            !appointmentTime.isAfter(unavailability.getEndTime());
+
+                    if (isTimeConflict) {
+                        throw new DoctorUnavailableException("Doctor is unavailable at the requested time.");
+                    }
+                }
+            }
+        }
+
         Appointment appointment = new Appointment();
 
         if (appointmentRequestDTO.getCustomerId() == null) {
             appointmentRequestDTO.setCustomerId(ID_CLIENT_DEFAULT);
         }
-        Customer customer = customerRepository.findById(appointmentRequestDTO.getCustomerId()).orElseThrow();
-        Doctor doctor = doctorRepository.findById(appointmentRequestDTO.getDoctorId()).orElseThrow();
-        com.example.server.repository.entity.Service service = serviceRepository.findById(appointmentRequestDTO.getServiceId()).orElseThrow();
+        Customer customer = customerRepository.findById(appointmentRequestDTO.getCustomerId()).orElseThrow(() -> new NotFoundException("Patient not found"));
+        Doctor doctor = doctorRepository.findById(appointmentRequestDTO.getDoctorId()).orElseThrow(() -> new NotFoundException("Doctor not found"));
+        com.example.server.repository.entity.Service service = serviceRepository.findById(appointmentRequestDTO.getServiceId()).orElseThrow(() -> new NotFoundException("Service not found"));
 
         appointment.setCustomer(customer);
         appointment.setDoctor(doctor);
@@ -71,13 +103,13 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public AppointmentDetailDTO getAppointmentById(Long appointmentId){
-        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow();
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(() -> new NotFoundException("Appointment not found"));
         return modelMapper.map(appointment, AppointmentDetailDTO.class);
     }
 
     @Override
     public Boolean deleteAppointment(Long appointmentId) {
-        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(() -> new AppointmentExistsException("Appointment not found"));
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(() -> new NotFoundException("Appointment not found"));
         appointmentRepository.delete(appointment);
         return true;
     }
@@ -146,7 +178,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public AppointmentResponseDTO updateAppointmentStatus(Long appointmentId, Appointment.AppointmentStatus status) {
-        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(() -> new RuntimeException("Appointment not found"));
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(() -> new NotFoundException("Appointment not found"));
         appointment.setStatus(status);
         appointmentRepository.save(appointment);
         return modelMapper.map(appointment, AppointmentResponseDTO.class);
@@ -158,7 +190,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         LocalDate today = now.toLocalDate();
         LocalTime currentTime = now.toLocalTime();
 
-        List<Appointment> appointments = appointmentRepository.findNextAppointmentsByDoctorId(doctorId,today, currentTime).orElseThrow();
+        List<Appointment> appointments = appointmentRepository.findNextAppointmentsByDoctorId(doctorId,today, currentTime).orElseThrow(() -> new NotFoundException("There are no upcoming appointments for today"));
 
         return appointments.stream()
                 .map(appointment -> modelMapper.map(appointment, AppointmentDoctorDashboardDTO.class))

@@ -1,5 +1,6 @@
 package com.example.server.service.implementation;
 
+import com.example.server.exception.types.NotFoundException;
 import com.example.server.repository.ServiceRepository;
 import com.example.server.repository.entity.Service;
 import com.example.server.service.ServiceService;
@@ -24,7 +25,7 @@ public class ServiceServiceImpl implements ServiceService {
 
     @Override
     public Service getService(Long serviceId){
-        Service service = serviceRepository.findById(serviceId).orElseThrow();
+        Service service = serviceRepository.findById(serviceId).orElseThrow(()-> new NotFoundException("Service not found"));
         return service;
     }
 

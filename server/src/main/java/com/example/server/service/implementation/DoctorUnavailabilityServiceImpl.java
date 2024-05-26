@@ -1,5 +1,6 @@
 package com.example.server.service.implementation;
 
+import com.example.server.exception.types.NotFoundException;
 import com.example.server.repository.DTOs.AppointmentResponseDTO;
 import com.example.server.repository.DTOs.VacationRequestDTO;
 import com.example.server.repository.DoctorRepository;
@@ -34,7 +35,7 @@ public class DoctorUnavailabilityServiceImpl implements DoctorUnavailabilityServ
     @Override
     public VacationRequestDTO createUnavailability(VacationRequestDTO unavailability) {
         DoctorUnavailability doctorUnavailability = new DoctorUnavailability();
-        Doctor doctor = doctorRepository.findById(unavailability.getDoctorId()).orElseThrow();
+        Doctor doctor = doctorRepository.findById(unavailability.getDoctorId()).orElseThrow(() -> new NotFoundException("Doctor not found"));
 
         if (unavailability.getStartDate() != unavailability.getStartDate()) {
             if (doctorUnavailabilityRepository.existsByStartDateAndEndDateAndDoctorId(
