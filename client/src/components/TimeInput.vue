@@ -3,15 +3,16 @@ import { ref, watch, defineProps, defineEmits } from "vue";
 import TimePicker from "./TimePicker.vue";
 import { formatTime } from "@/utils/helpers";
 
-const emit = defineEmits(["update:selectedTime", "toggleTimePicker"]);
-const props = defineProps({
-  label: String,
-  error: Boolean,
-  errorMessage: String,
-});
+const props = defineProps<{
+  label: string;
+  error: boolean;
+  errorMessage: string;
+}>();
 
 const selectedTime = ref("");
 const showTimePicker = ref(false);
+
+const emit = defineEmits(["update:selectedTime", "toggleTimePicker"]);
 
 function toggleTimePicker() {
   showTimePicker.value = !showTimePicker.value;
@@ -24,15 +25,6 @@ function handleTimeSelect(time: string) {
   emit("update:selectedTime", selectedTime.value);
   emit("toggleTimePicker", false);
 }
-
-watch(
-  () => props.error,
-  (newError) => {
-    if (newError) {
-      console.log("Error state changed:", newError);
-    }
-  }
-);
 </script>
 
 <template>

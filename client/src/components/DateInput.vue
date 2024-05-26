@@ -3,15 +3,16 @@ import { ref, watch, defineProps, defineEmits } from "vue";
 import DatePicker from "./DatePicker.vue";
 import { formatDate } from "@/utils/helpers";
 
-const emit = defineEmits(["update:selectedDate", "toggleDatePicker"]);
-const props = defineProps({
-  label: String,
-  error: Boolean,
-  errorMessage: String,
-});
+const props = defineProps<{
+  label: string;
+  error?: boolean;
+  errorMessage?: string;
+}>();
 
 const selectedDate = ref("");
 const showDatePicker = ref(false);
+
+const emit = defineEmits(["update:selectedDate", "toggleDatePicker"]);
 
 function toggleDatePicker() {
   showDatePicker.value = !showDatePicker.value;
@@ -24,15 +25,6 @@ function handleDateSelect(day: any) {
   emit("update:selectedDate", selectedDate.value);
   emit("toggleDatePicker", false);
 }
-
-watch(
-  () => props.error,
-  (newError) => {
-    if (newError) {
-      console.log("Error state changed:", newError);
-    }
-  }
-);
 </script>
 
 <template>

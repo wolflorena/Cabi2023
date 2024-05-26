@@ -5,6 +5,7 @@ import DateInput from "./DateInput.vue";
 import TimeInput from "./TimeInput.vue";
 import CustomButton from "./CustomButton.vue";
 import { createUnavailability } from "@/services/doctor_unavailability_service";
+import ErrorMessage from "./ErrorMessage.vue";
 
 const multipleDays = ref<boolean>(false);
 const allDay = ref<boolean>(false);
@@ -16,6 +17,7 @@ const endDateError = ref<boolean>(false);
 const endDateErrorMessage = ref<string>("");
 const endTimeError = ref<boolean>(false);
 const endTimeErrorMessage = ref<string>("");
+const errorMessage = ref<string>("");
 
 function handleStartDateUpdate(date: string) {
   selectedStartDate.value = date;
@@ -63,21 +65,71 @@ function handleEndTimeUpdate(time: string) {
 }
 
 async function addVacation() {
-  if (allDay.value) {
-    await createUnavailability(
-      selectedStartDate.value,
-      selectedEndDate.value,
-      1
-    );
+  if (multipleDays.value) {
+    if (selectedStartDate.value && selectedEndDate.value) {
+      errorMessage.value = "";
+
+      await createUnavailability(
+        selectedStartDate.value,
+        selectedEndDate.value,
+        1
+      )
+        .then((res) => {
+          if (res) {
+            multipleDays.value = false;
+            selectedStartDate.value = "";
+            selectedEndDate.value = "";
+          }
+        })
+        .catch((err) => errorMessage.value = err.message);
+    } else {
+      errorMessage.value =
+        "Start date and end date must be provided for multiple days vacation.";
+    }
   } else {
-    console.log(selectedStartTime.value);
-    await createUnavailability(
-      selectedStartDate.value,
-      selectedEndDate.value,
-      1,
-      selectedStartTime.value + ":00",
-      selectedEndTime.value + ":00"
-    );
+    if (allDay.value) {
+      errorMessage.value = "";
+
+      await createUnavailability(
+        selectedStartDate.value,
+        selectedStartDate.value,
+        1
+      )
+        .then((res) => {
+          if (res) {
+            allDay.value = false;
+            selectedStartDate.value = "";
+            selectedEndDate.value = "";
+          }
+        })
+        .catch((err) => errorMessage.value = err.message);
+    } else {
+      if (selectedStartTime.value && selectedEndTime.value) {
+        errorMessage.value = "";
+
+        await createUnavailability(
+          selectedStartDate.value,
+          selectedStartDate.value,
+          1,
+          selectedStartTime.value + ":00",
+          selectedEndTime.value + ":00"
+        )
+          .then((res) => {
+            if (res) {
+              multipleDays.value = false;
+              allDay.value = false;
+              selectedStartDate.value = "";
+              selectedEndDate.value = "";
+              selectedEndTime.value = "";
+              selectedStartTime.value = "";
+            }
+          })
+          .catch((err) => errorMessage.value = err.message);
+      } else {
+        errorMessage.value =
+          "Start time and end time must be provided for partial day vacation.";
+      }
+    }
   }
 }
 </script>
@@ -140,6 +192,7 @@ async function addVacation() {
         :disabled="endDateError || endTimeError"
         @action-triggered="addVacation"
       />
+      <ErrorMessage v-if="errorMessage != ''" :message="errorMessage" />
     </div>
   </div>
 </template>
@@ -175,6 +228,12 @@ async function addVacation() {
   .button {
     position: absolute;
     bottom: 50px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
   }
 }
 </style>
