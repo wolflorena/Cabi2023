@@ -2,6 +2,8 @@ package com.example.server.repository;
 
 import com.example.server.repository.entity.DoctorUnavailability;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -16,4 +18,7 @@ public interface DoctorUnavailabilityRepository extends JpaRepository<DoctorUnav
                                                    LocalTime endTime,
                                                    LocalDate startDate,
                                                    Long doctorId);
+
+    @Query("SELECT du FROM DoctorUnavailability du WHERE du.doctor.id = :doctorId AND :date BETWEEN du.startDate AND du.endDate")
+    List<DoctorUnavailability> findByDoctorIdAndDate(@Param("doctorId") Long doctorId, @Param("date") LocalDate date);
 }

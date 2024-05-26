@@ -3,6 +3,7 @@ package com.example.server.service;
 import com.example.server.repository.DTOs.VacationRequestDTO;
 import com.example.server.repository.entity.DoctorUnavailability;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface DoctorUnavailabilityService {

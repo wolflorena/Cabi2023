@@ -49,4 +49,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleProductExistsException(ProductExistsException ex, WebRequest request) {
         return buildResponseEntity(HttpStatus.CONFLICT, ex.getMessage());
     }
+
+    @ExceptionHandler(UnavailabilityExistsException.class)
+    public ResponseEntity<Object> handleUnavailabilityExistsException(UnavailabilityExistsException ex, WebRequest request) {
+        return buildResponseEntity(HttpStatus.CONFLICT, ex.getMessage());
+    }
 }

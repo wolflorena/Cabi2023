@@ -35,6 +35,11 @@ const colors = computed(
         :service-name="service.serviceName"
         :color="colors[index]"
       />
+      <DashboardRowPieChart
+        v-if="!treatments || treatments.length === 0"
+        :service-name="'NO TREATMENTS'"
+        :color="'#495570'"
+      />
     </div>
   </div>
 </template>

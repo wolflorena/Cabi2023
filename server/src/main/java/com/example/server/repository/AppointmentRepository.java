@@ -15,9 +15,10 @@ import java.util.Optional;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    boolean existsByDateAndTimeAndDoctorId(LocalDate date,
-                                           LocalTime time,
-                                           Long doctorId);
+    boolean existsByDateAndTimeAndDoctorIdAndStatusNot(LocalDate date,
+                                                       LocalTime time,
+                                                       Long doctorId,
+                                                       Appointment.AppointmentStatus status);
     List<Appointment> findByDateAndDoctorId(LocalDate date, Long doctorId);
 
     Page<Appointment> findAll(Pageable pageable);
@@ -38,4 +39,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                                                                @Param("status") Appointment.AppointmentStatus status,
                                                                @Param("startOfMonth") LocalDate startOfMonth,
                                                                @Param("endOfMonth") LocalDate endOfMonth);
+
+    List<Appointment> findBookedTimesAndDurationsByDoctorIdAndDateAndStatusNot(Long doctorId,
+                                                                               LocalDate date,
+                                                                               Appointment.AppointmentStatus status);
 }

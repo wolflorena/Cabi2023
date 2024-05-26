@@ -28,10 +28,7 @@ onMounted(() => {
 });
 
 async function getTreatmentTypes() {
-  await getServicesInCurrentMonth(1).then((res) => (treatments.value = res));
-  console.log(
-    getServicesInCurrentMonth(1).then((res) => (treatments.value = res))
-  );
+  await getServicesInCurrentMonth(26).then((res) => (treatments.value = res));
 }
 
 async function loadUpcomingAppointments() {

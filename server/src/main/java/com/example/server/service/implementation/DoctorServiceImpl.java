@@ -5,9 +5,11 @@ import com.example.server.exception.types.NotFoundException;
 import com.example.server.repository.AppointmentRepository;
 import com.example.server.repository.DTOs.*;
 import com.example.server.repository.DoctorRepository;
+import com.example.server.repository.DoctorUnavailabilityRepository;
 import com.example.server.repository.ServiceRepository;
 import com.example.server.repository.entity.Appointment;
 import com.example.server.repository.entity.Doctor;
+import com.example.server.repository.entity.DoctorUnavailability;
 import com.example.server.service.DoctorService;
 import com.example.server.service.SendEmailService;
 import org.modelmapper.ModelMapper;
@@ -27,18 +29,21 @@ public class DoctorServiceImpl implements DoctorService {
     private final DoctorRepository doctorRepository;
     private final AppointmentRepository appointmentRepository;
     private final ServiceRepository serviceRepository;
+    private final DoctorUnavailabilityRepository doctorUnavailabilityRepository;
     private final SendEmailService sendEmailService;
     private final ModelMapper modelMapper;
 
     public DoctorServiceImpl(DoctorRepository doctorRepository,
                              AppointmentRepository appointmentRepository,
                              ServiceRepository serviceRepository,
+                             DoctorUnavailabilityRepository doctorUnavailabilityRepository,
                              SendEmailService sendEmailService,
                              ModelMapper modelMapper) {
 
         this.doctorRepository = doctorRepository;
         this.appointmentRepository = appointmentRepository;
         this.serviceRepository = serviceRepository;
+        this.doctorUnavailabilityRepository = doctorUnavailabilityRepository;
         this.sendEmailService = sendEmailService;
         this.modelMapper = modelMapper;
     }
@@ -79,11 +84,34 @@ public class DoctorServiceImpl implements DoctorService {
         LocalDate today = LocalDate.now();
         LocalDate end = today.plusMonths(1);
         List<LocalDate> availableDates = new ArrayList<>();
-        com.example.server.repository.entity.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new NotFoundException("Service not found"));
+        com.example.server.repository.entity.Service service = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new NotFoundException("Service not found"));
 
         for (LocalDate date = today; date.isBefore(end); date = date.plusDays(1)) {
-            List<Appointment> bookedAppointments = appointmentRepository.findBookedTimesAndDurationsByDoctorIdAndDate(doctorId, date);
-            if (isDayAvailable(bookedAppointments, service.getDuration())) {
+            List<Appointment> bookedAppointments = appointmentRepository.findBookedTimesAndDurationsByDoctorIdAndDateAndStatusNot(
+                    doctorId, date, Appointment.AppointmentStatus.CANCELLED);
+
+            List<DoctorUnavailability> unavailabilities = doctorUnavailabilityRepository.findByDoctorId(doctorId);
+            boolean isUnavailable = false;
+
+            for (DoctorUnavailability unavailability : unavailabilities) {
+                if (!date.isBefore(unavailability.getStartDate()) && !date.isAfter(unavailability.getEndDate())) {
+                    if (unavailability.getStartTime() == null && unavailability.getEndTime() == null) {
+                        isUnavailable = true;
+                        break;
+                    } else {
+                        for (Appointment appointment : bookedAppointments) {
+                            if (!appointment.getTime().isBefore(unavailability.getStartTime()) &&
+                                    !appointment.getTime().isAfter(unavailability.getEndTime())) {
+                                isUnavailable = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!isUnavailable && isDayAvailable(bookedAppointments, service.getDuration())) {
                 availableDates.add(date);
             }
         }
@@ -112,15 +140,19 @@ public class DoctorServiceImpl implements DoctorService {
         return ChronoUnit.MINUTES.between(currentTime, endOfWork) >= appointmentDuration;
     }
 
+    @Override
     public List<LocalTime> findAvailableHours(Long doctorId, Long serviceId, LocalDate date) {
-        com.example.server.repository.entity.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new NotFoundException("Service not found"));
+        com.example.server.repository.entity.Service service = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new NotFoundException("Service not found"));
         int serviceDuration = service.getDuration();
 
         List<Appointment> appointments = appointmentRepository.findBookedTimesAndDurationsByDoctorIdAndDate(doctorId, date);
-        return calculateAvailableHours(appointments, serviceDuration);
+        List<DoctorUnavailability> unavailabilities = doctorUnavailabilityRepository.findByDoctorIdAndDate(doctorId, date);
+
+        return calculateAvailableHours(appointments, unavailabilities, serviceDuration);
     }
 
-    private List<LocalTime> calculateAvailableHours(List<Appointment> bookedAppointments, int duration) {
+    private List<LocalTime> calculateAvailableHours(List<Appointment> bookedAppointments, List<DoctorUnavailability> unavailabilities, int duration) {
         List<LocalTime> availableHours = new ArrayList<>();
         LocalTime startOfWork = LocalTime.of(9, 0);
         LocalTime endOfWork = LocalTime.of(17, 0);
@@ -128,14 +160,18 @@ public class DoctorServiceImpl implements DoctorService {
 
         if (bookedAppointments.isEmpty() && duration <= ChronoUnit.MINUTES.between(startOfWork, endOfWork)) {
             for (LocalTime time = startOfWork; time.plusMinutes(duration).isBefore(endOfWork.plusMinutes(1)); time = time.plusMinutes(30)) {
-                availableHours.add(time);
+                if (!isTimeInUnavailability(time, duration, unavailabilities)) {
+                    availableHours.add(time);
+                }
             }
             return availableHours;
         }
 
         for (Appointment appointment : bookedAppointments) {
             while (currentTime.plusMinutes(duration).isBefore(appointment.getTime().plusMinutes(1)) && currentTime.plusMinutes(duration).isBefore(endOfWork.plusMinutes(1))) {
-                availableHours.add(currentTime);
+                if (!isTimeInUnavailability(currentTime, duration, unavailabilities)) {
+                    availableHours.add(currentTime);
+                }
                 currentTime = currentTime.plusMinutes(30); // Incrementăm la fiecare 30 de minute
             }
 
@@ -143,11 +179,29 @@ public class DoctorServiceImpl implements DoctorService {
         }
 
         while (currentTime.plusMinutes(duration).isBefore(endOfWork.plusMinutes(1))) {
-            availableHours.add(currentTime);
+            if (!isTimeInUnavailability(currentTime, duration, unavailabilities)) {
+                availableHours.add(currentTime);
+            }
             currentTime = currentTime.plusMinutes(30);
         }
 
         return availableHours;
+    }
+
+    private boolean isTimeInUnavailability(LocalTime time, int duration, List<DoctorUnavailability> unavailabilities) {
+        for (DoctorUnavailability unavailability : unavailabilities) {
+            if (unavailability.getStartTime() == null && unavailability.getEndTime() == null) {
+                // All day unavailability
+                return true;
+            } else if (unavailability.getStartTime() != null && unavailability.getEndTime() != null) {
+                LocalTime endTime = time.plusMinutes(duration);
+                boolean isOverlap = !time.isBefore(unavailability.getStartTime()) && !endTime.isAfter(unavailability.getEndTime());
+                if (isOverlap) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override

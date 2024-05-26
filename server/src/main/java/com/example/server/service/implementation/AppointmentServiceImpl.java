@@ -48,12 +48,13 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public AppointmentResponseDTO addAppointment(AppointmentRequestDTO appointmentRequestDTO){
-        if(appointmentRepository.existsByDateAndTimeAndDoctorId(
+        if(appointmentRepository.existsByDateAndTimeAndDoctorIdAndStatusNot(
                 appointmentRequestDTO.getDate(),
                 appointmentRequestDTO.getTime(),
-                appointmentRequestDTO.getDoctorId()
+                appointmentRequestDTO.getDoctorId(),
+                Appointment.AppointmentStatus.CANCELLED
         )){
-            throw new AppointmentExistsException("An appointment already exists at this date and time for the entire day.");
+            throw new AppointmentExistsException("An appointment already exists at this date and time.");
         }
 
         List<DoctorUnavailability> unavailabilities = doctorUnavailabilityRepository.findByDoctorId(appointmentRequestDTO.getDoctorId());
