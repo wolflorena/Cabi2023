@@ -1,5 +1,6 @@
 package com.example.server.service.implementation;
 
+import com.example.server.exception.types.NotFoundException;
 import com.example.server.repository.CustomerRepository;
 import com.example.server.repository.DTOs.FormDetailsDTO;
 import com.example.server.repository.FormEventRepository;
@@ -32,8 +33,8 @@ public class FormEventServiceImpl implements FormEventService {
 
     @Override
     public void recordEvent(Long formId, Long customerId, FormEvent.FormEventType formEventType) {
-        Form form = formRepository.findById(formId).orElseThrow();
-        Customer customer = customerRepository.findById(customerId).orElseThrow();
+        Form form = formRepository.findById(formId).orElseThrow(()-> new NotFoundException("Form not found"));
+        Customer customer = customerRepository.findById(customerId).orElseThrow(()-> new NotFoundException("Patient not found"));
 
         Optional<FormEvent> existingEvent = formEventRepository.findByFormIdAndCustomerIdAndFormEventType(formId, customerId, formEventType);
 

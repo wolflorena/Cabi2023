@@ -2,17 +2,19 @@ package com.example.server.repository.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Data
 @NoArgsConstructor
+@Getter
+@Setter
 public class DoctorUnavailability {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long unavailabilityId;

@@ -45,8 +45,14 @@ function generateConicGradient(
 function createPieChart(data: TreatmentType[] | undefined) {
   if (!pieChart.value) return;
 
-  const total = data?.reduce((sum, item) => sum + item.count, 0) || 0;
-  const percentages = data?.map((item) => (item.count / total) * 100) || [];
+  if (!data || data.length === 0) {
+    pieChart.value.style.backgroundImage =
+      "conic-gradient(#495570 0deg 360deg)";
+    return;
+  }
+
+  const total = data.reduce((sum, item) => sum + item.count, 0);
+  const percentages = data.map((item) => (item.count / total) * 100);
 
   const gradient = generateConicGradient(percentages, props.colors);
   pieChart.value.style.backgroundImage = gradient;
@@ -55,7 +61,7 @@ function createPieChart(data: TreatmentType[] | undefined) {
 
   let angles = [0];
   let sum = 0;
-  data?.forEach((e) => {
+  data.forEach((e) => {
     sum += (e.count / total) * 360;
     angles.push(sum);
   });

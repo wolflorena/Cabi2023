@@ -1,5 +1,6 @@
 package com.example.server.service.implementation;
 
+import com.example.server.exception.types.NotFoundException;
 import com.example.server.repository.DTOs.FormAdminListDTO;
 import com.example.server.repository.DTOs.FormRequestDTO;
 import com.example.server.repository.DTOs.FormResponseDTO;
@@ -52,7 +53,7 @@ public class FormServiceImpl implements FormService {
 
     @Override
     public FormResponseDTO getFormById(Long formId) {
-        Form form =  formRepository.findById(formId).orElseThrow();
+        Form form =  formRepository.findById(formId).orElseThrow(()-> new NotFoundException("Form not found"));
         return modelMapper.map(form, FormResponseDTO.class);
     }
 
@@ -64,7 +65,7 @@ public class FormServiceImpl implements FormService {
 
     @Override
     public FormResponseDTO updateForm(Long formId, FormRequestDTO formRequestDTO) {
-        Form form = formRepository.findById(formId).orElseThrow();
+        Form form = formRepository.findById(formId).orElseThrow(()-> new NotFoundException("Form not found"));
 
         if (formRequestDTO.getTitle() != null) {
                 form.setTitle(formRequestDTO.getTitle());

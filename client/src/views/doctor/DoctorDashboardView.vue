@@ -28,14 +28,11 @@ onMounted(() => {
 });
 
 async function getTreatmentTypes() {
-  await getServicesInCurrentMonth(2).then((res) => (treatments.value = res));
-  console.log(
-    getServicesInCurrentMonth(2).then((res) => (treatments.value = res))
-  );
+  await getServicesInCurrentMonth(26).then((res) => (treatments.value = res));
 }
 
 async function loadUpcomingAppointments() {
-  await getUpcomingAppointments(2)
+  await getUpcomingAppointments(1)
     .then((res) => (appointments.value = res))
     .catch((e) => console.log(e));
 }
@@ -48,13 +45,12 @@ async function loadScheduledAppointments() {
 }
 
 async function getScheduledAppointmentsNumber(status: string): Promise<number> {
-  const res = await getTotalAppointments(2, status);
+  const res = await getTotalAppointments(1, status);
   return res;
 }
 
 const formattedDate = computed(() => {
   const currentDate = new Date();
-  console.log(currentDate);
 
   const monthNames = [
     "January",

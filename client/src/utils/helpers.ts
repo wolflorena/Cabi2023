@@ -1,3 +1,21 @@
+import { onMounted, onUnmounted } from "vue";
+
+export function useOutsideClick(popupRef:any, callback:any) {
+  const handleClickOutside = (event:Event) => {
+    if (popupRef.value && !popupRef.value.contains(event.target)) {
+      callback();
+    }
+  };
+
+  onMounted(() => {
+    document.addEventListener("click", handleClickOutside);
+  });
+
+  onUnmounted(() => {
+    document.removeEventListener("click", handleClickOutside);
+  });
+}
+
 /**
  * Formats a given time string from HH:mm:ss format to a 12-hour format with AM/PM notation.
  *

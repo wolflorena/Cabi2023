@@ -1,5 +1,7 @@
 package com.example.server.service.implementation;
 
+import com.example.server.exception.types.NotFoundException;
+import com.example.server.exception.types.ProductExistsException;
 import com.example.server.repository.DTOs.InventoryPageDTO;
 import com.example.server.repository.DTOs.InventoryUpdateDTO;
 import com.example.server.repository.InventoryRepository;
@@ -33,7 +35,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public Inventory getById(Long inventoryId) {
-        return inventoryRepository.findById(inventoryId).orElseThrow();
+        return inventoryRepository.findById(inventoryId).orElseThrow(()-> new NotFoundException("Product not found"));
     }
 
     @Override
@@ -63,7 +65,7 @@ public class InventoryServiceImpl implements InventoryService {
             if (inventoryRepository.findByProduct(inventoryUpdateDTO.getProduct()).isEmpty()) {
                 inventory.setProduct(inventoryUpdateDTO.getProduct());
             } else {
-                //TODO: @wolflorena create exception for product already exists
+                throw new ProductExistsException("This product already exists");
             }
         }
         if (inventoryUpdateDTO.getQuantity() != 0) {
