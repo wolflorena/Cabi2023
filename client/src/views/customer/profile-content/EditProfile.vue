@@ -23,7 +23,6 @@ const emits = defineEmits<{
 const editedUserDetails = ref<UserDetails>(props.userDetails);
 const avatarFile = ref<File | undefined>();
 const avatarPreview = ref<string | undefined>(props.avatarImage);
-console.log(props.avatarImage);
 
 function handleFileChange(event: Event) {
   const target = event.target as HTMLInputElement;

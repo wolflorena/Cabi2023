@@ -1,4 +1,5 @@
 import { jwtPayload } from "@/data/types/Entities";
+import { parseJSON } from "date-fns";
 import { jwtDecode } from "jwt-decode";
 
 const API_URL = "http://localhost:9090/api/auth";
@@ -11,6 +12,12 @@ export async function loginService(email: string, password: string) {
     },
     body: JSON.stringify({ email, password }),
   });
+
+  let responseData;
+  if (!response.ok) {
+    responseData = await response.json();
+    throw new Error(responseData.message);
+  }
   return response;
 }
 

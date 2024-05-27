@@ -17,7 +17,11 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["update:inputValue"]);
+const emits = defineEmits<{
+  "update:inputValue": [e: any];
+  onBlur: [];
+  onFocus: [];
+}>();
 
 const dateInput = ref<string | undefined>(props.inputValue);
 const phoneNo = ref<string | undefined>(props.inputValue);
@@ -28,7 +32,8 @@ const inputChange = (e: any) => {
     wrongFormat.value = true;
   } else {
     wrongFormat.value = false;
-    emit("update:inputValue", e.target.value);
+    emits("update:inputValue", e.target.value);
+    emits("onFocus");
   }
 };
 
@@ -52,12 +57,19 @@ watch(dateInput, (newValue) => {
     dateInput.value = formattedValue;
     wrongFormat.value = false;
     if (dateRegex.test(formattedValue)) {
-      emit("update:inputValue", formattedValue);
+      emits("update:inputValue", formattedValue);
     } else {
       wrongFormat.value = true;
     }
   }
 });
+
+const handleBlur = () => {
+  emits("onBlur");
+};
+const handleFocus = () => {
+  emits("onFocus");
+};
 
 //here is a check to immediate format the phoneNo info fields
 watch(
@@ -77,7 +89,7 @@ watch(
         )}`;
       }
       phoneNo.value = formattedValue;
-      emit("update:inputValue", formattedValue);
+      emits("update:inputValue", formattedValue);
     }
   },
   {
@@ -103,6 +115,8 @@ watch(
       maxlength="10"
       :class="wrongFormat ? 'bad-format' : ''"
       @input="(e:any)=> dateInput=e.target.value"
+      @focus="handleFocus"
+      @blur="handleBlur"
     />
     <input
       v-else-if="type === 'phoneNo'"
@@ -113,6 +127,8 @@ watch(
       :class="wrongFormat ? 'bad-format' : ''"
       @input="(e:any) => phoneNo = e.target.value"
       maxlength="12"
+      @focus="handleFocus"
+      @blur="handleBlur"
     />
     <input
       v-else
@@ -122,6 +138,8 @@ watch(
       :readonly="isReadonly"
       :class="wrongFormat ? 'bad-format' : ''"
       @input="inputChange"
+      @focus="handleFocus"
+      @blur="handleBlur"
     />
   </div>
 </template>

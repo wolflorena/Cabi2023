@@ -1,6 +1,102 @@
 <script setup lang="ts">
 import CustomButton from "@/components/CustomButton.vue";
 import InfoField from "@/components/InfoField.vue";
+import { ChangePasswordBody } from "@/data/types/Entities";
+import { getUserIdAndToken } from "@/services/authentication_service";
+import {
+  changePassword,
+  deactivateAccount,
+  deleteAccount,
+} from "@/services/customer_service";
+import { computed, ref, watch } from "vue";
+
+const currentPassword = ref<string>("");
+const newPassword = ref<string>("");
+const confirmPassword = ref<string>("");
+
+const infoMessage = ref<string>("");
+const isTyping = ref<boolean>(true);
+const isSuccessful = ref<boolean>(false);
+
+const infoMessageVisible = computed(() => {
+  if (isTyping.value) {
+    return false;
+  } else {
+    return true;
+  }
+});
+const passwordsMatch = computed(() => {
+  return newPassword.value === confirmPassword.value;
+});
+
+async function handleDeactivateAccount() {
+  try {
+    const { userId, token } = getUserIdAndToken();
+    const result = await deactivateAccount(userId, token);
+  } catch (error) {
+    console.error("Error deactivating account", error);
+  }
+}
+
+async function handleDeleteAccount() {
+  try {
+    const { userId, token } = getUserIdAndToken();
+    const result = await deleteAccount(userId, token);
+  } catch (error) {
+    console.error("Error deleting account", error);
+  }
+}
+
+async function handlePasswordChange() {
+  isTyping.value = false;
+
+  if (!currentPassword.value || !newPassword.value || !confirmPassword.value) {
+    infoMessage.value = "All fields are required.";
+    return;
+  }
+
+  if (!passwordsMatch.value) {
+    infoMessage.value = "New password do not match.";
+    return;
+  }
+
+  const changePasswordBody: ChangePasswordBody = {
+    currentPassword: currentPassword.value,
+    newPassword: newPassword.value,
+  };
+  try {
+    const { userId, token } = getUserIdAndToken();
+    const result = await changePassword(userId, token, changePasswordBody);
+    infoMessage.value = "Password changed successfully.";
+    isTyping.value = false;
+    isSuccessful.value = true;
+    currentPassword.value = "";
+    newPassword.value = "";
+    confirmPassword.value = "";
+  } catch (error) {
+    infoMessage.value =
+      "Current password is incorrect or failed to change password.";
+    console.error("Error changing password:", error);
+  }
+}
+
+function handleFocus() {
+  isTyping.value = true;
+  isSuccessful.value = false;
+  infoMessage.value = "";
+}
+
+function handleBlur() {
+  isTyping.value = false;
+}
+
+const infoMessageClass = computed(() => {
+  if (isSuccessful.value) {
+    return "success";
+  } else {
+    return "error";
+  }
+});
 </script>
 <template>
   <div class="security-settings-container">
@@ -18,37 +114,58 @@ import InfoField from "@/components/InfoField.vue";
       <InfoField
         uuid="currentPassword"
         label="Current Password"
-        inputValue="Password"
+        v-model:inputValue="currentPassword"
         :isReadonly="false"
-        type="text"
+        type="password"
         variant="ACCOUNT_INFORMATION"
+        @onFocus="handleFocus"
+        @onBlur="handleBlur"
       />
       <InfoField
         uuid="newPassword"
         label="New Password"
-        inputValue="pass"
+        v-model:inputValue="newPassword"
         :isReadonly="false"
-        type="text"
+        type="password"
         variant="ACCOUNT_INFORMATION"
+        @onFocus="handleFocus"
+        @onBlur="handleBlur"
       />
       <InfoField
         uuid="confirmPassword"
         label="Confirm Password"
-        inputValue="passsrd"
+        v-model:inputValue="confirmPassword"
         :isReadonly="false"
-        type="text"
+        type="password"
         variant="ACCOUNT_INFORMATION"
+        @onFocus="handleFocus"
+        @onBlur="handleBlur"
       />
-      <CustomButton
-        :isMain="false"
-        text="Save Changes"
-        width="240"
-        height="60"
-        fontSize="18"
-        :style="{
-          alignSelf: 'flex-end',
-        }"
-      />
+      <div class="info">
+        <span
+          class="info-message"
+          :class="infoMessageClass"
+          v-if="infoMessageVisible && infoMessage"
+        >
+          <font-awesome-icon
+            icon="circle-info"
+            id="info-icon"
+            class="info-icon"
+          />{{ infoMessage }}</span
+        >
+        <span v-else> </span>
+        <CustomButton
+          :isMain="false"
+          text="Save Changes"
+          width="240"
+          height="60"
+          fontSize="18"
+          :style="{
+            alignSelf: 'flex-end',
+          }"
+          @click="handlePasswordChange"
+        />
+      </div>
     </div>
     <div class="bottom-actions">
       <span
@@ -68,6 +185,7 @@ import InfoField from "@/components/InfoField.vue";
           width="240"
           height="60"
           fontSize="18"
+          @click="handleDeactivateAccount"
         />
         <CustomButton
           :isMain="true"
@@ -75,6 +193,7 @@ import InfoField from "@/components/InfoField.vue";
           width="240"
           height="60"
           fontSize="18"
+          @click="handleDeleteAccount"
         />
       </div>
     </div>
@@ -87,6 +206,32 @@ import InfoField from "@/components/InfoField.vue";
   flex-direction: column;
   width: 100%;
   margin: 86px 12px 0px 10vw;
+  .info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .info-message {
+      &.error {
+        color: red;
+        font-weight: bold;
+        padding-left: 5px;
+        .info-icon {
+          color: red;
+          margin: 0px 10px;
+        }
+      }
+      &.success {
+        color: green;
+        font-weight: bold;
+        padding-left: 5px;
+        .info-icon {
+          color: green;
+          margin: 0px 10px;
+        }
+      }
+    }
+  }
 
   .info-fields-group {
     display: flex;

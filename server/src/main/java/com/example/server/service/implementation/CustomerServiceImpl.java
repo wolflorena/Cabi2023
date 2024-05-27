@@ -7,12 +7,12 @@ import com.example.server.repository.entity.Customer;
 import com.example.server.repository.CustomerRepository;
 import com.example.server.service.CustomerService;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +27,8 @@ import java.util.regex.Pattern;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -148,12 +150,12 @@ public class CustomerServiceImpl implements CustomerService {
         return new CustomerEditDetailsDTO(customer);
     }
 
-    public Customer uploadAvatar(Long customerId, MultipartFile avatar) {
+    public void uploadAvatar(Long customerId, MultipartFile avatar) {
         try{
             Customer customer = customerRepository.findById(customerId)
                     .orElseThrow(() -> new IllegalArgumentException("User not found!"));
             customer.setAvatar(avatar.getBytes());
-            return customerRepository.save(customer);
+            customerRepository.save(customer);
         }catch (Exception e){
             throw new IllegalArgumentException(e);
         }
@@ -166,6 +168,34 @@ public class CustomerServiceImpl implements CustomerService {
         return customer.getAvatar();
     }
 
+
+    public void changePassword(Long customerId, String currentPassword, String newPassword) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (!passwordEncoder.matches(currentPassword, customer.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        String encodedNewPassword = passwordEncoder.encode(newPassword);
+        customer.setPassword(encodedNewPassword);
+        customerRepository.save(customer);
+    }
+
+    public void deleteAccount(Long customerId) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        customerRepository.deleteById(customerId);
+    }
+
+    public void deactivateAccount(Long customerId){
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        customer.setAccountStatus(Customer.AccountStatus.INACTIVE);
+        customerRepository.save(customer);
+    }
     private boolean isValidEmail(String email) {
         // simple regex rule for email validation.
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";

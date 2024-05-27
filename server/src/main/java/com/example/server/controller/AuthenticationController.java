@@ -17,6 +17,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -55,10 +57,13 @@ public class AuthenticationController {
             }
 
             final String jwt = jwtUtil.generateToken(authRequest.getEmail(), role, user_id);
-            return ResponseEntity.ok(new AuthenticationResponseDTO(jwt));
+            return new ResponseEntity<>(new AuthenticationResponseDTO(jwt), HttpStatus.OK);
 
         } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed: " + e.getMessage());
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("timestamp", System.currentTimeMillis());
+            body.put("message", "Authentication failed: " + e.getMessage());
+            return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
         }
     }
 }

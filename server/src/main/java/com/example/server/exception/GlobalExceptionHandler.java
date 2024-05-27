@@ -1,5 +1,6 @@
 package com.example.server.exception;
 
+import com.example.server.exception.types.AccountDeactivatedException;
 import com.example.server.exception.types.AppointmentExistsException;
 import com.example.server.exception.types.BadCredentialsException;
 import com.example.server.exception.types.EmailExistsException;
@@ -41,6 +42,15 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("message", "Bad credentials");
+
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(AccountDeactivatedException.class)
+    public ResponseEntity<Object> handleAccountDeactivatedException(AccountDeactivatedException ex, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "Account is deactivated");
 
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }

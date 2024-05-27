@@ -52,7 +52,7 @@ span {
     right: 0;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 9999;
+    z-index: 99;
   }
 }
 </style>

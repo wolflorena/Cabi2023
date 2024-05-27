@@ -111,6 +111,7 @@ export type jwtPayload = {
   role: string;
 };
 
-export type LoadingState = {
-  state: "loading";
+export type ChangePasswordBody = {
+  currentPassword: string;
+  newPassword: string;
 };

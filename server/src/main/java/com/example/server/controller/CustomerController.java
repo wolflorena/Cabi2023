@@ -1,11 +1,11 @@
 package com.example.server.controller;
 
-import com.example.server.repository.DTOs.Customers.CustomerEditDetailsDTO;
-import com.example.server.repository.DTOs.Customers.CustomerPageDTO;
-import com.example.server.repository.DTOs.Customers.RegisterCustomerDTO;
-import com.example.server.repository.DTOs.Customers.ResponseCustomerDTO;
+import com.example.server.exception.types.CanNotDeactivateException;
+import com.example.server.exception.types.CanNotDeleteException;
+import com.example.server.repository.DTOs.Customers.*;
 import com.example.server.repository.entity.Customer;
 import com.example.server.service.implementation.CustomerServiceImpl;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -93,6 +93,36 @@ public class CustomerController {
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(avatar);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestParam Long customerId, @Valid @RequestBody ChangePasswordBodyDTO changePasswordBody){
+        try{
+            customerServiceImpl.changePassword(customerId, changePasswordBody.getCurrentPassword(), changePasswordBody.getNewPassword());
+            return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/delete-account")
+    public ResponseEntity<String> deleteAccount(@RequestParam Long customerId){
+        try{
+            customerServiceImpl.deleteAccount(customerId);
+            return new ResponseEntity<>("Account deletion successful", HttpStatus.OK);
+        } catch (Exception e){
+            throw new CanNotDeleteException(e.getMessage());
+        }
+    }
+
+    @PutMapping("/deactivate-account")
+    public ResponseEntity<String> deactivateAccount(@RequestParam Long customerId){
+        try{
+            customerServiceImpl.deactivateAccount(customerId);
+            return new ResponseEntity<>("Account deactivation successful", HttpStatus.OK);
+        } catch (Exception e){
+            throw new CanNotDeactivateException(e.getMessage());
+        }
     }
 
 }

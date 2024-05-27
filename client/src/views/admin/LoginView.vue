@@ -7,7 +7,7 @@ import PasswordInput from "@/components/PasswordInput.vue";
 import { useRouter } from "vue-router";
 import { loginService } from "@/services/authentication_service";
 import { jwtDecode } from "jwt-decode";
-
+import Swal from "sweetalert2";
 const emailText = ref("");
 const passwordText = ref("");
 const error = ref("");
@@ -23,10 +23,8 @@ async function login() {
     if (emailText.value && passwordText.value) {
       console.log("Starting login process...");
       const response = await loginService(emailText.value, passwordText.value);
-      console.log("Received response from loginService:", response);
 
       const data = await response.json();
-      console.log("Parsed response JSON:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
@@ -60,8 +58,17 @@ async function login() {
     } else {
       error.value = "Please enter your email and password.";
     }
-  } catch (err) {
-    console.error("Error during login process:", err);
+  } catch (err: any) {
+    console.log("errmessage " + err);
+
+    if (err.message === "Authentication failed: Account is deactivated") {
+      Swal.fire({
+        titleText: "Your account has been deactivated. Please contact support.",
+        icon: "error",
+      });
+    } else {
+      console.log("Login failed. Please check your email and password.");
+    }
     error.value = "" + err;
     emailText.value = "";
     passwordText.value = "";

@@ -1,4 +1,4 @@
-import { UserDetails } from "@/data/types/Entities";
+import { ChangePasswordBody, UserDetails } from "@/data/types/Entities";
 import { format, parseISO } from "date-fns";
 
 const API_URL = "http://localhost:9090/api/customers";
@@ -103,6 +103,60 @@ async function getAvatar(userId: number, token: string) {
   return response.blob();
 }
 
+async function changePassword(
+  userId: number,
+  token: string,
+  changePasswordBody: ChangePasswordBody
+) {
+  const response = await fetch(
+    `${API_URL}/change-password?customerId=${userId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(changePasswordBody),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to change password");
+  }
+}
+
+async function deactivateAccount(userId: number, token: string) {
+  const response = await fetch(
+    `${API_URL}/deactivate-account?customerId=${userId}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to deactivate account");
+  }
+}
+async function deleteAccount(userId: number, token: string) {
+  const response = await fetch(
+    `${API_URL}/delete-account?customerId=${userId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to deactivate account");
+  }
+}
+
 export {
   getAllPageable,
   getById,
@@ -111,4 +165,7 @@ export {
   editUserDetails,
   uploadAvatar,
   getAvatar,
+  changePassword,
+  deactivateAccount,
+  deleteAccount,
 };

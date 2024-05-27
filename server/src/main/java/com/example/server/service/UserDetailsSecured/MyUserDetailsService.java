@@ -1,5 +1,6 @@
 package com.example.server.service.UserDetailsSecured;
 
+import com.example.server.exception.types.AccountDeactivatedException;
 import com.example.server.repository.AdminRepository;
 import com.example.server.repository.CustomerRepository;
 import com.example.server.repository.DoctorRepository;
@@ -8,6 +9,7 @@ import com.example.server.repository.entity.CustomUserDetails;
 import com.example.server.repository.entity.Customer;
 import com.example.server.repository.entity.Doctor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,6 +37,9 @@ public class MyUserDetailsService implements UserDetailsService {
         Optional<Customer> customerOpt = customerRepository.findByEmail(username);
         if (customerOpt.isPresent()) {
             Customer customer = customerOpt.get();
+            if (customer.getAccountStatus() == Customer.AccountStatus.INACTIVE) {
+                throw new AccountDeactivatedException("Account is deactivated");
+            }
             return new CustomUserDetails(customer.getId(), customer.getEmail(), customer.getPassword(),
                     Collections.singletonList(new SimpleGrantedAuthority("ROLE_CUSTOMER")));
         }
