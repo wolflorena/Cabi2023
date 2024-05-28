@@ -10,6 +10,7 @@ import {
   getUpcomingAppointments,
 } from "@/services/appointments_service";
 import { formatDate, formatTime } from "@/utils/helpers";
+import BarChart from "@/components/BarChart.vue";
 
 const treatments = ref<TreatmentType[]>();
 const appointments = ref<AppointmentDetail[]>();
@@ -109,6 +110,7 @@ const formattedDate = computed(() => {
               </div>
             </div>
           </div>
+          <BarChart />
         </div>
       </div>
 
@@ -165,6 +167,9 @@ const formattedDate = computed(() => {
 
       .right-side {
         width: 53vw;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
 
         .upcoming {
           border: 1px solid @gray;
