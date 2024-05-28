@@ -1,56 +1,15 @@
-<template>
-  <div class="chart-container">
-    <div class="y-axis">
-      <div
-        class="y-label"
-        v-for="(n, index) in yAxisLabels"
-        :key="n"
-        :style="{ top: `${60 * index - 7}px` }"
-      >
-        {{ n }}
-      </div>
-    </div>
-    <div class="chart-area">
-      <div
-        class="horizontal-line"
-        v-for="(n, index) in yAxisLabels"
-        :key="n"
-        :style="{ top: `${20 * n}px` }"
-      ></div>
-      <div class="chart">
-        <div
-          class="bar"
-          v-for="item in chartData"
-          :key="item.week"
-          @mousemove="showTooltip($event, item.appointments)"
-          @mouseout="hideTooltip"
-        >
-          <div
-            class="bar-inner"
-            :style="{ height: item.appointments * scale + 'px' }"
-          ></div>
-          <span class="label">{{ item.week }}</span>
-        </div>
-      </div>
-    </div>
-    <div class="tooltip" v-show="tooltipVisible" :style="tooltipStyle">
-      {{ tooltipText }}
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref } from "vue";
+import { AppointmentWeekly } from "@/data/types/Entities";
+import { onMounted, ref, watch } from "vue";
 
-const data = ref([
-  { week: "Week 1", appointments: 5 },
-  { week: "Week 2", appointments: 8 },
-  { week: "Week 3", appointments: 12 },
-  { week: "Week 4", appointments: 9 },
-]);
+const props = withDefaults(
+  defineProps<{
+    data: AppointmentWeekly[];
+  }>(),
+  {}
+);
 
-const chartData = ref(data.value);
-const scale = ref(20);
+const chartData = ref(props.data);
 const tooltipVisible = ref(false);
 const tooltipText = ref("");
 const tooltipStyle = ref({
@@ -58,14 +17,48 @@ const tooltipStyle = ref({
   top: "0px",
 });
 
-const maxAppointments = Math.max(
-  ...data.value.map((item) => item.appointments)
-);
-const yAxisLabels = ref(
-  Array.from(
-    { length: 5 },
-    (_, i) => i * Math.ceil(maxAppointments / 4)
-  ).reverse()
+const maxAppointments = ref(0);
+const yAxisIntervals = 4;
+const yAxisLabels = ref<number[]>([]);
+const noData = ref<boolean>(false);
+
+function updateYAxisLabels() {
+  if (maxAppointments.value === 0) {
+    yAxisLabels.value = [0];
+    return;
+  }
+  if (maxAppointments.value < 4) {
+    yAxisLabels.value = Array.from(
+      { length: yAxisIntervals + 1 },
+      (_, i) => (i * maxAppointments.value) / yAxisIntervals
+    ).reverse();
+  } else {
+    const intervalSize = Math.ceil(maxAppointments.value / yAxisIntervals);
+    yAxisLabels.value = Array.from(
+      { length: yAxisIntervals + 1 },
+      (_, i) => i * intervalSize
+    ).reverse();
+  }
+}
+
+function updateChartData() {
+  chartData.value = props.data;
+  const maxCount = Math.max(...props.data.map((item) => item.count), 0);
+  maxAppointments.value = maxCount;
+  noData.value = maxCount === 0;
+  updateYAxisLabels();
+}
+
+onMounted(() => {
+  updateChartData();
+});
+
+watch(
+  () => props.data,
+  () => {
+    updateChartData();
+  },
+  { deep: true }
 );
 
 function showTooltip(event: MouseEvent, number: number) {
@@ -81,6 +74,53 @@ function hideTooltip() {
   tooltipVisible.value = false;
 }
 </script>
+
+<template>
+  <div class="chart-container" v-if="!noData">
+    <div class="y-axis">
+      <div
+        class="y-label"
+        v-for="(n, index) in yAxisLabels"
+        :key="n"
+        :style="{ top: `${(index * 240) / yAxisIntervals - 7}px` }"
+      >
+        {{ n }}
+      </div>
+    </div>
+    <div class="chart-area">
+      <div
+        class="horizontal-line"
+        v-for="(n, index) in yAxisLabels"
+        :key="n"
+        :style="{ top: `${(index * 240) / yAxisIntervals}px` }"
+      ></div>
+      <div class="chart">
+        <div
+          class="bar"
+          v-for="item in chartData"
+          :key="item.week"
+          @mousemove="showTooltip($event, item.count)"
+          @mouseout="hideTooltip"
+        >
+          <div
+            class="bar-inner"
+            :style="{
+              height: (item.count * 240) / maxAppointments + 'px',
+            }"
+          ></div>
+          <span class="label">{{ item.week }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="tooltip" v-show="tooltipVisible" :style="tooltipStyle">
+      {{ tooltipText }}
+    </div>
+  </div>
+
+  <div class="chart-container empty" v-else>
+    <span>No appointments this month</span>
+  </div>
+</template>
 
 <style scoped lang="less">
 @import (reference) "@/assets/styles.less";
@@ -154,6 +194,16 @@ function hideTooltip() {
     border-radius: 3px;
     pointer-events: none;
     z-index: 10;
+  }
+
+  &.empty {
+    align-items: center;
+    justify-content: center;
+
+    span {
+      font-size: 20px;
+      color: @gray;
+    }
   }
 }
 </style>
