@@ -54,11 +54,6 @@ export const DoctorSidebarOptions: SidebarOptionsWithRole = {
       text: "Patients",
       icon: "hospital-user",
     },
-    {
-      path: "/inventory",
-      text: "Inventory",
-      icon: "cart-flatbed",
-    },
   ],
   role: "doctor",
 };
