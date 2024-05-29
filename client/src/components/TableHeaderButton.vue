@@ -1,17 +1,27 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
 const props = withDefaults(
   defineProps<{
     label: string;
     active?: boolean;
+    variant?: string;
   }>(),
   {
+    variant: "DEFAULT",
     active: false,
   }
 );
+
+const variantClass = computed(() => ({
+  "default-button": props.variant === "DEFAULT",
+  "customer-calendar-button": props.variant === "CUSTOMER-CALENDAR",
+  selected: props.active,
+}));
 </script>
 
 <template>
-  <button :class="{ selected: active }">{{ label }}</button>
+  <button :class="variantClass">{{ label }}</button>
 </template>
 
 <style scoped lang="less">
@@ -26,16 +36,22 @@ button {
   border-right: none;
   border-bottom: 5px solid transparent;
 
-  color: @white;
   font-size: 20px;
-  font-weight: 100;
+  font-weight: 500;
   cursor: pointer;
-  height: 5vh;
+  height: 100%;
   padding: 15px 40px;
   display: flex;
   align-items: center;
   &.selected {
     border-bottom-color: @red;
   }
+}
+.default-button {
+  color: @white;
+}
+
+.customer-calendar-button {
+  color: @smoke;
 }
 </style>

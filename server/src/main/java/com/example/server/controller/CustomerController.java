@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -96,12 +98,15 @@ public class CustomerController {
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<String> changePassword(@RequestParam Long customerId, @Valid @RequestBody ChangePasswordBodyDTO changePasswordBody){
+    public ResponseEntity<?> changePassword(@RequestParam Long customerId, @Valid @RequestBody ChangePasswordBodyDTO changePasswordBody){
         try{
             customerServiceImpl.changePassword(customerId, changePasswordBody.getCurrentPassword(), changePasswordBody.getNewPassword());
             return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
         } catch (Exception e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("timestamp", System.currentTimeMillis());
+            body.put("message", "Authentication failed: " + e.getMessage());
+            return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

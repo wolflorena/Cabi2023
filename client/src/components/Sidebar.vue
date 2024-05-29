@@ -16,12 +16,11 @@ const handleContentChange = (role: string, newPath: string): void => {
   } else {
     router.push("/" + role + newPath);
   }
-  console.log("/" + role + newPath);
 };
 
 function handleLogOut() {
   localStorage.removeItem("jwtToken");
-  router.push("/admin/login");
+  router.push("/login");
 }
 </script>
 

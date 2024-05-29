@@ -109,6 +109,8 @@ export type TreatmentType = {
 export type jwtPayload = {
   user_id: number;
   role: string;
+  sub: string;
+  exp: number;
 };
 
 export type ChangePasswordBody = {

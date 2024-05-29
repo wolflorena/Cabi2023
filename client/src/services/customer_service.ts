@@ -119,8 +119,10 @@ async function changePassword(
       body: JSON.stringify(changePasswordBody),
     }
   );
+  let responseData;
   if (!response.ok) {
-    throw new Error("Failed to change password");
+    responseData = await response.json();
+    throw new Error(responseData.message);
   }
 }
 
