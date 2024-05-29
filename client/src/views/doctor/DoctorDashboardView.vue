@@ -2,14 +2,20 @@
 import Sidebar from "@/components/Sidebar.vue";
 import DashboardPieChart from "@/components/DashboardPieChart.vue";
 import { DoctorSidebarOptions } from "@/data/types/SidebarOptions";
-import { AppointmentDetail, TreatmentType } from "@/data/types/Entities";
+import {
+  AppointmentDetail,
+  TreatmentType,
+  AppointmentWeekly,
+} from "@/data/types/Entities";
 import { computed, onMounted, ref } from "vue";
 import { getServicesInCurrentMonth } from "@/services/doctor_service";
 import {
   getTotalAppointments,
   getUpcomingAppointments,
+  getWeeklyAppointmentsNumber,
 } from "@/services/appointments_service";
 import { formatDate, formatTime } from "@/utils/helpers";
+import BarChart from "@/components/BarChart.vue";
 
 const treatments = ref<TreatmentType[]>();
 const appointments = ref<AppointmentDetail[]>();
@@ -20,11 +26,13 @@ const types = ref<string[]>([
   "CANCELLED",
 ]);
 const appointmentsCount = ref<Record<string, number>>({});
+const appointmentsWeekly = ref<AppointmentWeekly[]>([]);
 
 onMounted(() => {
   getTreatmentTypes();
   loadUpcomingAppointments();
   loadScheduledAppointments();
+  getDataForBarChart();
 });
 
 async function getTreatmentTypes() {
@@ -47,6 +55,12 @@ async function loadScheduledAppointments() {
 async function getScheduledAppointmentsNumber(status: string): Promise<number> {
   const res = await getTotalAppointments(1, status);
   return res;
+}
+
+async function getDataForBarChart() {
+  await getWeeklyAppointmentsNumber(1).then((res) => {
+    appointmentsWeekly.value = res;
+  });
 }
 
 const formattedDate = computed(() => {
@@ -109,6 +123,7 @@ const formattedDate = computed(() => {
               </div>
             </div>
           </div>
+          <BarChart :data="appointmentsWeekly" />
         </div>
       </div>
 
@@ -165,6 +180,9 @@ const formattedDate = computed(() => {
 
       .right-side {
         width: 53vw;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
 
         .upcoming {
           border: 1px solid @gray;
@@ -189,6 +207,8 @@ const formattedDate = computed(() => {
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 20px;
+            color: @gray;
           }
         }
       }

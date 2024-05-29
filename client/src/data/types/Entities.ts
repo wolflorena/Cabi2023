@@ -117,3 +117,8 @@ export type ChangePasswordBody = {
   currentPassword: string;
   newPassword: string;
 };
+
+export type AppointmentWeekly = {
+  week: string;
+  count: number;
+}

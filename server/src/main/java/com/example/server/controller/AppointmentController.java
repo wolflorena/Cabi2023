@@ -90,4 +90,10 @@ public class AppointmentController {
     public ResponseEntity<Integer> getTotalNumber(@RequestParam Long doctorId, @RequestParam Appointment.AppointmentStatus appointmentStatus) {
         return new ResponseEntity<>(appointmentService.getAppointmentsNumberByStatusAndDoctor(doctorId,appointmentStatus), HttpStatus.OK );
     }
+
+    @GetMapping("/weekly")
+    public ResponseEntity<List<WeeklyAppointmentsDTO>> getWeeklyAppointments(@RequestParam Long doctorId) {
+        List<WeeklyAppointmentsDTO> weeklyAppointments = appointmentService.getWeeklyAppointments(doctorId);
+        return ResponseEntity.ok(weeklyAppointments);
+    }
 }

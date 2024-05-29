@@ -24,4 +24,5 @@ public interface AppointmentService {
     AppointmentResponseDTO updateAppointmentStatus(Long appointmentId, Appointment.AppointmentStatus status);
     List<AppointmentDoctorDashboardDTO> getNextAppointments(Long doctorId);
     int getAppointmentsNumberByStatusAndDoctor(Long doctorId, Appointment.AppointmentStatus appointmentStatus);
+    List<WeeklyAppointmentsDTO> getWeeklyAppointments(Long doctorId);
 }

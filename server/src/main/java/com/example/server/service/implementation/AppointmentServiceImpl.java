@@ -18,8 +18,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
+import java.time.temporal.ChronoField;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -207,5 +210,24 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         List<Appointment> appointments = appointmentRepository.findAllByDoctorIdAndStatusAndDateBetween(doctorId, appointmentStatus, startOfMonth, endOfMonth);
         return appointments.size();
+    }
+
+    @Override
+    public List<WeeklyAppointmentsDTO> getWeeklyAppointments(Long doctorId) {
+        YearMonth currentMonth = YearMonth.now();
+        LocalDate startOfMonth = currentMonth.atDay(1);
+        LocalDate endOfMonth = currentMonth.atEndOfMonth();
+
+        List<Appointment> appointments = appointmentRepository.findAllByDoctorIdAndStatusAndDateBetween(doctorId, Appointment.AppointmentStatus.COMPLETED, startOfMonth, endOfMonth);
+
+        Map<Integer, Long> weeklyCounts = appointments.stream()
+                .collect(Collectors.groupingBy(appointment -> appointment.getDate().get(ChronoField.ALIGNED_WEEK_OF_MONTH), Collectors.counting()));
+
+        List<WeeklyAppointmentsDTO> result = new ArrayList<>();
+        for (int i = 1; i <= 4; i++) {
+            result.add(new WeeklyAppointmentsDTO("Week " + i, weeklyCounts.getOrDefault(i, 0L)));
+        }
+
+        return result;
     }
 }
