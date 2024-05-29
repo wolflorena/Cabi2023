@@ -68,6 +68,12 @@ function handleAvatarImageUpdated(newAvatarImage: string) {
 onMounted(() => {
   Swal.fire({
     titleText: "Loading...",
+    allowOutsideClick() {
+      return false;
+    },
+    showConfirmButton: false,
+    position: "center",
+    padding: "60px 100px",
   });
   loadUserDetails();
   retrieveUserAvatar();
@@ -84,18 +90,21 @@ onMounted(() => {
             label="View Profile"
             :active="isActivePage('viewProfile').value"
             @click="handleClick('viewProfile')"
+            variant="DEFAULT"
           />
 
           <TableHeaderButton
             label="Edit Profile"
             :active="isActivePage('editProfile').value"
             @click="handleClick('editProfile')"
+            variant="DEFAULT"
           />
 
           <TableHeaderButton
             label="Security settings"
             :active="isActivePage('securitySettings').value"
             @click="handleClick('securitySettings')"
+            variant="DEFAULT"
           />
         </div>
       </div>

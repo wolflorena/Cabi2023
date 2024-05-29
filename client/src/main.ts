@@ -17,6 +17,7 @@ import {
   faHospitalUser,
   faCartFlatbed,
   faCircleChevronDown,
+  faCircleChevronUp,
   faHighlighter,
   faEye,
   faPen,
@@ -26,8 +27,8 @@ import {
   faCheck,
   faXmark,
   faInfoCircle,
+  faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
-import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
   faInfoCircle,
@@ -50,6 +51,7 @@ library.add(
   faUser,
   faKey,
   faCheck,
+  faCircleChevronUp,
   faXmark
 );
 
