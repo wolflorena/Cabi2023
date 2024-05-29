@@ -4,12 +4,9 @@ import CustomButton from "@/components/CustomButton.vue";
 import InfoField from "@/components/InfoField.vue";
 import { UserDetails } from "@/data/types/Entities";
 import { getUserIdAndToken } from "@/services/authentication_service";
-import {
-  editUserDetails,
-  getAvatar,
-  uploadAvatar,
-} from "@/services/customer_service";
-import { onMounted, ref } from "vue";
+import { editUserDetails, uploadAvatar } from "@/services/customer_service";
+import Swal from "sweetalert2";
+import { ref } from "vue";
 const props = defineProps<{
   userDetails: UserDetails;
   avatarImage?: string;
@@ -63,6 +60,11 @@ async function handleSaveChanges() {
   if (avatarPreview.value !== props.avatarImage && avatarPreview.value) {
     emits("updateAvatarImage", avatarPreview.value);
   }
+
+  Swal.fire({
+    titleText: "Account have been updated successfully",
+    icon: "success",
+  });
 }
 </script>
 

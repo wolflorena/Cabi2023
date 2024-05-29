@@ -59,8 +59,6 @@ async function login() {
       error.value = "Please enter your email and password.";
     }
   } catch (err: any) {
-    console.log("errmessage " + err);
-
     if (err.message === "Authentication failed: Account is deactivated") {
       Swal.fire({
         titleText: "Your account has been deactivated. Please contact support.",

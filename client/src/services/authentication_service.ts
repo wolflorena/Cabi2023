@@ -34,3 +34,35 @@ export function getUserIdAndToken(): { userId: number; token: string } {
     throw new Error("The token doesn't have an user_id");
   }
 }
+
+export function isTokenValid(token: string) {
+  if (!token) {
+    return false;
+  }
+
+  try {
+    const decodedToken: jwtPayload = jwtDecode(token);
+    const currentTime = Date.now() / 1000; // Convert to seconds
+    return decodedToken.exp > currentTime;
+  } catch (error) {
+    return false;
+  }
+}
+
+export function getUserRole() {
+  const token = localStorage.getItem("jwtToken");
+  if (token) {
+    try {
+      const decodedToken: jwtPayload = jwtDecode(token);
+      return decodedToken.role;
+    } catch (error) {
+      return "none";
+    }
+  }
+  return "none";
+}
+
+export function isAuthenticated() {
+  const token = localStorage.getItem("jwtToken");
+  return token && isTokenValid(token);
+}

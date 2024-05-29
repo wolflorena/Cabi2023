@@ -30,7 +30,7 @@ button {
   font-size: 20px;
   font-weight: 100;
   cursor: pointer;
-  height: 5vh;
+  height: "100%";
   padding: 15px 40px;
   display: flex;
   align-items: center;

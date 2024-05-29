@@ -8,7 +8,9 @@ import {
   deactivateAccount,
   deleteAccount,
 } from "@/services/customer_service";
+import Swal from "sweetalert2";
 import { computed, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 
 const currentPassword = ref<string>("");
 const newPassword = ref<string>("");
@@ -18,6 +20,7 @@ const infoMessage = ref<string>("");
 const isTyping = ref<boolean>(true);
 const isSuccessful = ref<boolean>(false);
 
+const router = useRouter();
 const infoMessageVisible = computed(() => {
   if (isTyping.value) {
     return false;
@@ -30,21 +33,41 @@ const passwordsMatch = computed(() => {
 });
 
 async function handleDeactivateAccount() {
-  try {
-    const { userId, token } = getUserIdAndToken();
-    const result = await deactivateAccount(userId, token);
-  } catch (error) {
-    console.error("Error deactivating account", error);
-  }
+  Swal.fire({
+    titleText: "You really want to deactivate your account",
+    icon: "question",
+    confirmButtonText: "Yes, I do.",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const { userId, token } = getUserIdAndToken();
+        const result = await deactivateAccount(userId, token);
+      } catch (error) {
+        console.error("Error deactivating account", error);
+      }
+      router.push("/login");
+    }
+  });
 }
 
 async function handleDeleteAccount() {
-  try {
-    const { userId, token } = getUserIdAndToken();
-    const result = await deleteAccount(userId, token);
-  } catch (error) {
-    console.error("Error deleting account", error);
-  }
+  Swal.fire({
+    titleText: "Do you really want to delete your account",
+    icon: "question",
+    confirmButtonText: "Yes, I do",
+    cancelButtonText: "Nooo!",
+    showCancelButton: true,
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const { userId, token } = getUserIdAndToken();
+        const result = await deleteAccount(userId, token);
+      } catch (error) {
+        console.error("Error deleting account", error);
+      }
+      router.push("/login");
+    }
+  });
 }
 
 async function handlePasswordChange() {
@@ -68,15 +91,19 @@ async function handlePasswordChange() {
     const { userId, token } = getUserIdAndToken();
     const result = await changePassword(userId, token, changePasswordBody);
     infoMessage.value = "Password changed successfully.";
+    Swal.fire({
+      titleText: "Password changed successfully",
+      icon: "success",
+    });
     isTyping.value = false;
     isSuccessful.value = true;
     currentPassword.value = "";
     newPassword.value = "";
     confirmPassword.value = "";
-  } catch (error) {
+  } catch (error: any) {
     infoMessage.value =
-      "Current password is incorrect or failed to change password.";
-    console.error("Error changing password:", error);
+      "Current password is incorrect or failed to change password(CheckComplexity).";
+    console.error("Error changing password:", error.message);
   }
 }
 
@@ -151,8 +178,9 @@ const infoMessageClass = computed(() => {
             icon="circle-info"
             id="info-icon"
             class="info-icon"
-          />{{ infoMessage }}</span
-        >
+          />
+          <span> {{ infoMessage }}</span>
+        </span>
         <span v-else> </span>
         <CustomButton
           :isMain="false"
@@ -212,13 +240,14 @@ const infoMessageClass = computed(() => {
     align-items: center;
 
     .info-message {
+      display: flex;
+      align-items: center;
       &.error {
         color: red;
         font-weight: bold;
-        padding-left: 5px;
         .info-icon {
           color: red;
-          margin: 0px 10px;
+          margin: 0px 15px;
         }
       }
       &.success {

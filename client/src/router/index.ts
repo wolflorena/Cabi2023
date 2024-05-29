@@ -11,10 +11,21 @@ import AdminFormsView from "@/views/admin/AdminFormsView.vue";
 import AdminFormView from "@/views/admin/AdminFormView.vue";
 import AdminFormEventsView from "@/views/admin/AdminFormEventsView.vue";
 import CustomerProfileView from "@/views/customer/CustomerProfileView.vue";
+import CustomerAppointmentView from "@/views/customer/CustomerAppointmentView.vue";
 import DoctorProfileView from "@/views/doctor/DoctorProfileView.vue";
 import DoctorDashboardView from "@/views/doctor/DoctorDashboardView.vue";
 import DoctorAppointmentsView from "@/views/doctor/DoctorAppointmentsView.vue";
 import DoctorCalendarView from "@/views/doctor/DoctorCalendarView.vue";
+import {
+  getUserRole,
+  isAuthenticated,
+  isTokenValid,
+} from "@/services/authentication_service";
+
+type RouteMeta = {
+  requiresAuth: boolean;
+  roles?: string[];
+};
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -23,7 +34,7 @@ const routes: Array<RouteRecordRaw> = [
     component: SignupView,
   },
   {
-    path: "/admin/login",
+    path: "/login",
     name: "login",
     component: LoginView,
   },
@@ -96,27 +107,48 @@ const routes: Array<RouteRecordRaw> = [
     path: "/profile",
     name: "profile",
     component: CustomerProfileView,
+    meta: { requiresAuth: true, roles: ["ROLE_CUSTOMER"] } as RouteMeta,
   },
   {
     path: "/appointment",
     name: "appointment",
-    component: CustomerProfileView,
+    component: CustomerAppointmentView,
+    meta: { requiresAuth: true, roles: ["ROLE_CUSTOMER"] } as RouteMeta,
   },
   {
     path: "/history",
     name: "history",
     component: CustomerProfileView,
+    meta: { requiresAuth: true, roles: ["ROLE_CUSTOMER"] } as RouteMeta,
   },
   {
     path: "/forms",
     name: "formsCustomer",
     component: CustomerProfileView,
+    meta: { requiresAuth: true, roles: ["ROLE_CUSTOMER"] } as RouteMeta,
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+
+  if (requiresAuth && !isAuthenticated()) {
+    next("/login");
+  } else {
+    const userRole = getUserRole();
+    const routeRoles = to.meta.roles as string[];
+
+    if (requiresAuth && !routeRoles.includes(userRole)) {
+      next("/login");
+    } else {
+      next();
+    }
+  }
 });
 
 export default router;

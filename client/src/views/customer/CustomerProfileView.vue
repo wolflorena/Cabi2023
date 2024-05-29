@@ -6,10 +6,10 @@ import { computed, onMounted, ref } from "vue";
 import ViewProfile from "./profile-content/ViewProfile.vue";
 import EditProfile from "./profile-content/EditProfile.vue";
 import SecuritySettings from "./profile-content/SecuritySettings.vue";
-import { jwtDecode } from "jwt-decode";
-import { LoadingState, UserDetails, jwtPayload } from "@/data/types/Entities";
+import { UserDetails } from "@/data/types/Entities";
 import { getAvatar, getById } from "@/services/customer_service";
 import { getUserIdAndToken } from "@/services/authentication_service";
+import Swal from "sweetalert2";
 
 const profilePage = ref("viewProfile");
 
@@ -39,6 +39,7 @@ async function loadUserDetails() {
       if (resp) {
         userDetails.value = resp;
         isLoading.value = false;
+        Swal.close();
       }
     });
   } catch (err) {
@@ -65,6 +66,9 @@ function handleAvatarImageUpdated(newAvatarImage: string) {
   avatarImage.value = newAvatarImage;
 }
 onMounted(() => {
+  Swal.fire({
+    titleText: "Loading...",
+  });
   loadUserDetails();
   retrieveUserAvatar();
 });
@@ -95,8 +99,7 @@ onMounted(() => {
           />
         </div>
       </div>
-      <div v-if="isLoading">LOADING....</div>
-      <div v-else class="profile-content">
+      <div class="profile-content">
         <ViewProfile
           v-if="isActivePage('viewProfile').value"
           :userDetails="userDetails"
@@ -131,7 +134,7 @@ onMounted(() => {
     .header {
       align-self: flex-end;
       background-color: @gray;
-      height: 5vh;
+      height: 70px;
       width: 80%;
       border-bottom-left-radius: 40px;
 
@@ -143,6 +146,7 @@ onMounted(() => {
 
       .controls {
         width: 100%;
+        height: 100%;
         display: flex;
         justify-content: space-around;
       }

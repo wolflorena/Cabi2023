@@ -5,7 +5,7 @@ const props = withDefaults(
     alt?: string;
   }>(),
   {
-    src: "../assets/default-avatar.png",
+    src: "",
   }
 );
 </script>
