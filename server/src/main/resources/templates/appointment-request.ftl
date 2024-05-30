@@ -20,7 +20,7 @@
           bgcolor="#333333"
           style="background-color: #43506c; height: 100px"
         >
-          <h1 style="color: #e9e9e8">Appointment Notification, ${firstName}!</h1>
+          <h1 style="color: #e9e9e8">Appointment notification</h1>
         </td>
       </tr>
       <tr

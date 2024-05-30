@@ -56,12 +56,7 @@ export type PatientAdmin = {
   phoneNo: string;
 };
 
-export type Patient = {
-  customerId: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNo: string;
+export type Patient = PatientAdmin & {
   occupation: string;
   dateOfBirth: string;
 };
