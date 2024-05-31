@@ -133,7 +133,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<AppointmentCalendarDTO> getAllAppointmentsForCalendar() {
-        List<Appointment> appointments = appointmentRepository.findAll();
+        List<Appointment.AppointmentStatus> statuses = Arrays.asList(Appointment.AppointmentStatus.SCHEDULED, Appointment.AppointmentStatus.COMPLETED);
+        List<Appointment> appointments = appointmentRepository.findAllByStatusIn(statuses);
         return appointments.stream()
                 .map(appointment ->  modelMapper.map(appointment, AppointmentCalendarDTO.class))
                 .collect(Collectors.toList());
