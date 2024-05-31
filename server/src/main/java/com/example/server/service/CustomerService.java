@@ -16,7 +16,7 @@ public interface CustomerService {
     public List<ResponseCustomerDTO> getAll();
     public void deleteById(Long customerId);
     CustomerPageDTO getAllCustomersForAdmin(Pageable pageable);
+    CustomerPageDTO getAllCustomersForDoctor(Pageable pageable, Long doctorId);
     ResponseCustomerDTO editAccountStatus(Long customerId, Customer.AccountStatus status);
-
     CustomerEditDetailsDTO editCustomerDetails(Long customerId, CustomerEditDetailsDTO customer);
 }

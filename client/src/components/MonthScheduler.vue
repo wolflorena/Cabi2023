@@ -5,6 +5,7 @@ import type {
   SelectedDoctor,
   AppointmentCalendar,
 } from "@/data/types/Entities";
+import LoadingSpinner from "./LoadingSpinner.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -18,6 +19,8 @@ const props = withDefaults(
     width: "65vw",
   }
 );
+
+const isLoading = ref(false);
 
 // Types for the data used in the component
 type Day = {
@@ -130,8 +133,10 @@ function convertTime12to24(time: string): number {
 }
 
 async function loadAppointments() {
+  isLoading.value = true;
   await getAllForCalendar().then((res) => {
     appointments.value = res;
+    isLoading.value = false;
   });
 }
 
@@ -168,7 +173,7 @@ watch(
     </div>
 
     <div class="calendar-container">
-      <table class="calendar">
+      <table class="calendar" v-if="!isLoading">
         <thead>
           <tr class="weekdays">
             <th v-for="day in weekdays" :key="day" class="weekday">
@@ -217,6 +222,8 @@ watch(
           </tr>
         </tbody>
       </table>
+
+      <LoadingSpinner v-else />
     </div>
   </div>
 </template>
@@ -279,6 +286,7 @@ watch(
 
 .calendar-container {
   padding: 0px 10px;
+  height: 88vh;
 
   .calendar {
     border-collapse: collapse;

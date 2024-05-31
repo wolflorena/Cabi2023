@@ -103,6 +103,18 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public CustomerPageDTO getAllCustomersForDoctor(Pageable pageable, Long doctorId) {
+        CustomerPageDTO customerPageDTO = new CustomerPageDTO();
+        customerPageDTO.setTotal(customerRepository.findAll().size());
+        List<AppointmentDoctorDashboardDTO.CustomerAdminDTO> result = customerRepository
+                .findCustomersByDoctorIdAndAppointmentStatus(doctorId)
+                .stream()
+                .map(customer -> modelMapper.map(customer, AppointmentDoctorDashboardDTO.CustomerAdminDTO.class))
+                .toList();
+        return new CustomerPageDTO(customerPageDTO.getTotal(), new PageImpl<>(result, pageable, result.size()));
+    }
+
+    @Override
     public ResponseCustomerDTO editAccountStatus(Long customerId, Customer.AccountStatus status) {
         Customer customer = customerRepository.findById(customerId).orElseThrow();
         customer.setAccountStatus(status);

@@ -73,6 +73,22 @@ public class CustomerController {
         );
     }
 
+    @GetMapping("/allForDoctor")
+    public ResponseEntity<CustomerPageDTO> getPatientsForDoctor(@RequestParam(required = true) int pageSize,
+                                                                @RequestParam(required = true) int pageNumber,
+                                                                @RequestParam(required = true) Long doctorId) {
+        return new ResponseEntity<>(
+                customerServiceImpl.getAllCustomersForDoctor(
+                        PageRequest.of(
+                                pageNumber,
+                                pageSize
+                        ),
+                        doctorId
+                ),
+                HttpStatus.OK
+        );
+    }
+
     @PutMapping("/accountStatus")
     public ResponseCustomerDTO updateAccountStatus(@RequestParam Long customerId, @RequestParam Customer.AccountStatus status) {
         return customerServiceImpl.editAccountStatus(customerId, status);

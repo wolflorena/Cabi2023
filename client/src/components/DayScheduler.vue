@@ -2,6 +2,7 @@
 import { AppointmentCalendar, SelectedDoctor } from "@/data/types/Entities";
 import { ref, computed, watch, onMounted } from "vue";
 import { getAllForCalendar } from "@/services/appointments_service";
+import LoadingSpinner from "./LoadingSpinner.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -17,6 +18,7 @@ const props = withDefaults(
 type DayCalendarAppointment = AppointmentCalendar & { endTime: string };
 
 const currentDate = ref(props.daySelected);
+const isLoading = ref(false);
 
 const timeSlots: string[] = createTimeSlots(9, 18);
 const calendarsNumber = computed(() => props.selectedCalendars.length);
@@ -153,6 +155,7 @@ function getDoctorColor(doctorId: number): string {
 }
 
 async function loadAppointments() {
+  isLoading.value = true;
   await getAllForCalendar().then((res) => {
     const updatedAppointments = res.map(
       (appointment: DayCalendarAppointment) => {
@@ -179,6 +182,7 @@ async function loadAppointments() {
     );
 
     appointments.value = updatedAppointments;
+    isLoading.value = false;
   });
 }
 
@@ -209,7 +213,7 @@ function backgroundColorStyle(calendarId: number) {
     </div>
 
     <div class="calendar-container" :key="currentDateKey">
-      <table class="calendar">
+      <table v-if="!isLoading" class="calendar">
         <thead>
           <tr class="calendar-header">
             <th class="column-header">Hour</th>
@@ -250,6 +254,9 @@ function backgroundColorStyle(calendarId: number) {
           </tr>
         </tbody>
       </table>
+      <div v-else class="loading-container" style="height: 100vh">
+        <LoadingSpinner color="#30619b" />
+      </div>
     </div>
   </div>
 </template>

@@ -19,6 +19,15 @@ async function getAllPageable(pageSize: number, pageNumber: number) {
   return json;
 }
 
+async function getAllPatientsForDoctor(pageSize: number, pageNumber:number, doctorId:number) {
+  const response = await fetch(
+    `${API_URL}/allForDoctor?pageSize=${pageSize}&pageNumber=${pageNumber}&doctorId=${doctorId}`
+  );
+
+  const json = await response.json();
+  return json;
+}
+
 async function getById(userId: number, token: string): Promise<UserDetails> {
   const response = await fetch(`${API_URL}/get?id=${userId}`, {
     headers: {
@@ -170,4 +179,5 @@ export {
   changePassword,
   deactivateAccount,
   deleteAccount,
+  getAllPatientsForDoctor,
 };
