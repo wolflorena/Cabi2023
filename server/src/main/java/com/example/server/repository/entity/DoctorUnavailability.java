@@ -23,7 +23,6 @@ public class DoctorUnavailability {
     private LocalTime startTime;
     private LocalTime endTime;
     private String reason;
-
     @ManyToOne
     @JoinColumn(name = "doctor_id", nullable = false)
     @JsonBackReference(value="unavailabilities-doctor")

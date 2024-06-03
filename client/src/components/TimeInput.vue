@@ -5,8 +5,8 @@ import { formatTime } from "@/utils/helpers";
 
 const props = defineProps<{
   label: string;
-  error: boolean;
-  errorMessage: string;
+  error?: boolean;
+  errorMessage?: string;
 }>();
 
 const selectedTime = ref("");

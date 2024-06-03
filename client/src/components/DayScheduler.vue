@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { AppointmentCalendar, SelectedDoctor } from "@/data/types/Entities";
+import {
+  AppointmentCalendar,
+  SelectedDoctor,
+  Vacation,
+} from "@/data/types/Entities";
 import { ref, computed, watch, onMounted } from "vue";
 import { getAllForCalendar } from "@/services/appointments_service";
 import LoadingSpinner from "./LoadingSpinner.vue";
+import { getVacationsForCalendar } from "@/services/doctor_unavailability_service";
+import { formatTime } from "@/utils/helpers";
 
 const props = withDefaults(
   defineProps<{
@@ -24,6 +30,8 @@ const timeSlots: string[] = createTimeSlots(9, 18);
 const calendarsNumber = computed(() => props.selectedCalendars.length);
 const currentDateKey = computed(() => currentDate.value.toISOString());
 const appointments = ref<DayCalendarAppointment[]>([]);
+const vacationsAllDay = ref<Vacation[]>([]);
+const vacationsTimed = ref<Vacation[]>([]);
 
 function createTimeSlots(startHour: number, endHour: number): string[] {
   const slots: string[] = [];
@@ -91,14 +99,47 @@ function getAppointmentStyle(appointment: DayCalendarAppointment) {
   };
 }
 
-function computeStyle(appointment: DayCalendarAppointment, slot: string) {
-  const startHour = parseInt(appointment.time.split(":")[0]);
+function getVacationStyle(vacation: Vacation) {
+  if (!vacation.startTime || !vacation.endTime) {
+    return { height: "100%", top: "0" };
+  }
+
+  const startHour = parseInt(vacation.startTime.split(":")[0]);
+  const startMinutes = parseInt(vacation.startTime.split(":")[1]);
+  const endHour = parseInt(vacation.endTime.split(":")[0]);
+  const endMinutes = parseInt(vacation.endTime.split(":")[1]);
+
+  const startPosition = (startHour - 9) * 60 + startMinutes;
+
+  const endPosition = (endHour - 9) * 60 + endMinutes;
+
+  const duration = endPosition - startPosition;
+  return {
+    top: `${((startPosition - 60 * (startHour - 9)) * 100) / 60}%`,
+    height: `${(duration / 60) * (88 / 5)}vh`,
+  };
+}
+
+function computeStyle(item: DayCalendarAppointment, slot: string) {
+  const startHour = parseInt(item.time.split(":")[0]);
   const slotStartHour = parseInt(slot.split(":")[0]);
 
   if (startHour !== slotStartHour) {
     return { display: "none" };
   }
-  return getAppointmentStyle(appointment);
+  return getAppointmentStyle(item);
+}
+
+function computeVacationStyle(vacation: Vacation, slot: string) {
+  const startHour = vacation.startTime
+    ? parseInt(vacation.startTime.split(":")[0])
+    : 0;
+  const slotStartHour = parseInt(slot.split(":")[0]);
+
+  if (vacation.startTime && startHour !== slotStartHour) {
+    return { display: "none" };
+  }
+  return getVacationStyle(vacation);
 }
 
 function navigate(dayIncrement: number): void {
@@ -120,6 +161,28 @@ function getAppointmentsForCalendar(calendar: number) {
     return condition;
   });
   return filteredAppointments;
+}
+
+function getAllDayVacationsForCalendar(calendar: number) {
+  return vacationsAllDay.value.filter((vacation) => {
+    return (
+      vacation.startDate <= toLocalISOString(currentDate.value) &&
+      vacation.endDate >= toLocalISOString(currentDate.value) &&
+      selectedDoctors.value.includes(vacation.doctorId) &&
+      vacation.doctorId === calendar
+    );
+  });
+}
+
+function getTimedVacationsForCalendar(calendar: number) {
+  return vacationsTimed.value.filter((vacation) => {
+    return (
+      vacation.startDate <= toLocalISOString(currentDate.value) &&
+      vacation.endDate >= toLocalISOString(currentDate.value) &&
+      selectedDoctors.value.includes(vacation.doctorId) &&
+      vacation.doctorId === calendar
+    );
+  });
 }
 
 // Dacă currentDate.value este setată la 2024-02-20 01:00 în fusul orar UTC-3, atunci currentDate.value.toISOString() va returna 2024-02-19T04:00:00.000Z
@@ -186,8 +249,20 @@ async function loadAppointments() {
   });
 }
 
+async function loadVacations() {
+  isLoading.value = true;
+  await getVacationsForCalendar().then((res) => {
+    const allDay = res.filter((vacation: Vacation) => !vacation.startTime);
+    const timed = res.filter((vacation: Vacation) => vacation.startTime);
+    vacationsAllDay.value = allDay;
+    vacationsTimed.value = timed;
+    isLoading.value = false;
+  });
+}
+
 onMounted(() => {
   loadAppointments();
+  loadVacations();
 });
 
 function backgroundColorStyle(calendarId: number) {
@@ -219,6 +294,7 @@ function backgroundColorStyle(calendarId: number) {
             <th class="column-header">Hour</th>
             <th
               v-for="calendar in selectedCalendarsFiltered"
+              :key="calendar.id"
               class="column-header"
             >
               {{ "Dr. " + calendar.firstName + " " + calendar.lastName }}
@@ -226,7 +302,7 @@ function backgroundColorStyle(calendarId: number) {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="slot in timeSlots" class="slots">
+          <tr v-for="slot in timeSlots" :key="slot" class="slots">
             <td class="slot">
               <span>
                 {{ slot }}
@@ -234,10 +310,37 @@ function backgroundColorStyle(calendarId: number) {
             </td>
             <td
               v-for="calendar in selectedCalendarsFiltered"
+              :key="calendar.id"
               class="slot calendar"
             >
+              <div v-if="slot === timeSlots[0]">
+                <div
+                  v-for="vacation in getAllDayVacationsForCalendar(calendar.id)"
+                  :key="vacation.doctorId"
+                  class="vacation all-day"
+                >
+                  <span>All Day</span>
+                  <span>{{ vacation.reason }}</span>
+                </div>
+              </div>
+
+              <div
+                v-for="vacation in getTimedVacationsForCalendar(calendar.id)"
+                :key="vacation.doctorId"
+                class="vacation"
+                :style="[computeVacationStyle(vacation, slot)]"
+              >
+                <span>{{
+                  vacation.startTime.substring(
+                    0,
+                    vacation.startTime.lastIndexOf(":")
+                  )
+                }}</span>
+                <span>{{ vacation.reason }}</span>
+              </div>
               <div
                 v-for="appointment in getAppointmentsForCalendar(calendar.id)"
+                :key="appointment.appointmentId"
                 class="appointment"
                 :style="[
                   computeStyle(appointment, slot),
@@ -346,7 +449,8 @@ function backgroundColorStyle(calendarId: number) {
       width: calc((65vw - 65vw / 7) / v-bind(calendarsNumber));
       position: relative;
 
-      .appointment {
+      .appointment,
+      .vacation {
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
@@ -363,6 +467,16 @@ function backgroundColorStyle(calendarId: number) {
         color: @white;
         font-size: 12px;
         font-weight: bold;
+      }
+
+      .vacation {
+        background-color: #6e6e6e;
+
+        &.all-day {
+          position: absolute;
+          top: 10px;
+          height: 50px;
+        }
       }
     }
   }

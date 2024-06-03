@@ -24,6 +24,11 @@ public class DoctorUnavailabilityController {
         return doctorUnavailabilityService.getUnavailabilitiesByDoctorId(doctorId);
     }
 
+    @GetMapping("/forCalendar")
+    public List<VacationRequestDTO> getVacationsForCalendar() {
+        return doctorUnavailabilityService.getAllVacationsForCalendar();
+    }
+
     @PostMapping
     public VacationRequestDTO createUnavailability(@RequestBody VacationRequestDTO unavailability) {
         return doctorUnavailabilityService.createUnavailability(unavailability);

@@ -117,3 +117,12 @@ export type AppointmentWeekly = {
   week: string;
   count: number;
 }
+
+export type Vacation = {
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  reason: string;
+  doctorId: number;
+}

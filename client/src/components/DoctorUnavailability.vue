@@ -13,6 +13,7 @@ const selectedStartDate = ref("");
 const selectedEndDate = ref("");
 const selectedStartTime = ref("");
 const selectedEndTime = ref("");
+const reason = ref("");
 const endDateError = ref<boolean>(false);
 const endDateErrorMessage = ref<string>("");
 const endTimeError = ref<boolean>(false);
@@ -65,71 +66,79 @@ function handleEndTimeUpdate(time: string) {
 }
 
 async function addVacation() {
-  if (multipleDays.value) {
-    if (selectedStartDate.value && selectedEndDate.value) {
-      errorMessage.value = "";
+  if (reason.value) {
+    if (multipleDays.value) {
+      if (selectedStartDate.value && selectedEndDate.value) {
+        errorMessage.value = "";
 
-      await createUnavailability(
-        selectedStartDate.value,
-        selectedEndDate.value,
-        1
-      )
-        .then((res) => {
-          if (res) {
-            multipleDays.value = false;
-            selectedStartDate.value = "";
-            selectedEndDate.value = "";
-          }
-        })
-        .catch((err) => errorMessage.value = err.message);
+        await createUnavailability(
+          selectedStartDate.value,
+          selectedEndDate.value,
+          1,
+          reason.value
+        )
+          .then((res) => {
+            if (res) {
+              multipleDays.value = false;
+              selectedStartDate.value = "";
+              selectedEndDate.value = "";
+            }
+          })
+          .catch((err) => (errorMessage.value = err.message));
+      } else {
+        errorMessage.value =
+          "Start date and end date must be provided for multiple days vacation.";
+      }
     } else {
-      errorMessage.value =
-        "Start date and end date must be provided for multiple days vacation.";
-    }
-  } else {
-    if (allDay.value) {
-      errorMessage.value = "";
-
-      await createUnavailability(
-        selectedStartDate.value,
-        selectedStartDate.value,
-        1
-      )
-        .then((res) => {
-          if (res) {
-            allDay.value = false;
-            selectedStartDate.value = "";
-            selectedEndDate.value = "";
-          }
-        })
-        .catch((err) => errorMessage.value = err.message);
-    } else {
-      if (selectedStartTime.value && selectedEndTime.value) {
+      if (allDay.value) {
         errorMessage.value = "";
 
         await createUnavailability(
           selectedStartDate.value,
           selectedStartDate.value,
           1,
-          selectedStartTime.value + ":00",
-          selectedEndTime.value + ":00"
+          reason.value
         )
           .then((res) => {
             if (res) {
-              multipleDays.value = false;
               allDay.value = false;
               selectedStartDate.value = "";
               selectedEndDate.value = "";
-              selectedEndTime.value = "";
-              selectedStartTime.value = "";
+              reason.value = "";
             }
           })
-          .catch((err) => errorMessage.value = err.message);
+          .catch((err) => (errorMessage.value = err.message));
       } else {
-        errorMessage.value =
-          "Start time and end time must be provided for partial day vacation.";
+        if (selectedStartTime.value && selectedEndTime.value) {
+          errorMessage.value = "";
+
+          await createUnavailability(
+            selectedStartDate.value,
+            selectedStartDate.value,
+            1,
+            selectedStartTime.value + ":00",
+            selectedEndTime.value + ":00"
+          )
+            .then((res) => {
+              if (res) {
+                multipleDays.value = false;
+                allDay.value = false;
+                selectedStartDate.value = "";
+                selectedEndDate.value = "";
+                selectedEndTime.value = "";
+                selectedStartTime.value = "";
+                reason.value = "";
+              }
+            })
+            .catch((err) => (errorMessage.value = err.message));
+        } else {
+          errorMessage.value =
+            "Start time and end time must be provided for partial day vacation.";
+        }
       }
     }
+  } else {
+    errorMessage.value = "All field are requiered";
   }
 }
 </script>
@@ -183,6 +192,10 @@ async function addVacation() {
         />
       </div>
     </div>
+    <div class="reason">
+      <label>Reason</label>
+      <input type="text" v-model="reason" placeholder="Write your reason" />
+    </div>
     <div class="button">
       <CustomButton
         text="Save"
@@ -222,6 +235,32 @@ async function addVacation() {
       display: flex;
       flex-direction: column;
       gap: 10vh;
+    }
+  }
+
+  .reason {
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    label {
+      display: block;
+      font-weight: bold;
+      color: @sugar;
+      font-size: 25px;
+    }
+
+    input {
+      width: calc(19vw - 20px);
+      height: 40px;
+      padding: 0 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+      color: #333;
     }
   }
 

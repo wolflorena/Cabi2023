@@ -4,6 +4,7 @@ async function createUnavailability(
   startDate: string,
   endDate: string,
   doctorId: number,
+  reason: string,
   startTime?: string,
   endTime?: string
 ) {
@@ -18,6 +19,7 @@ async function createUnavailability(
         startTime,
         endTime,
         doctorId,
+        reason,
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -39,4 +41,9 @@ async function createUnavailability(
   return json;
 }
 
-export { createUnavailability };
+async function getVacationsForCalendar() {
+  const response = await fetch(`${API_URL}/forCalendar`);
+  const json = await response.json();
+  return json;
+}
+export { createUnavailability, getVacationsForCalendar };

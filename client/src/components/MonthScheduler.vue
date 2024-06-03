@@ -4,8 +4,10 @@ import { getAllForCalendar } from "@/services/appointments_service";
 import type {
   SelectedDoctor,
   AppointmentCalendar,
+  Vacation,
 } from "@/data/types/Entities";
 import LoadingSpinner from "./LoadingSpinner.vue";
+import { getVacationsForCalendar } from "@/services/doctor_unavailability_service";
 
 const props = withDefaults(
   defineProps<{
@@ -31,6 +33,7 @@ type Day = {
 // Reactive state of the component: the current date and the list of appointments
 const currentDate = ref(new Date());
 const appointments = ref<AppointmentCalendar[]>([]);
+const vacations = ref<Vacation[]>([]);
 
 // A list of the days of the week, used for displaying the calendar header
 const weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
@@ -60,8 +63,24 @@ const selectedAppointments = computed(() => {
     });
 });
 
+const selectedUnavailabilities = computed(() => {
+  const selectedDoctors = props.selectedCalendars
+    .filter((doctor) => doctor.checked)
+    .map((doctor) => doctor.id);
+
+  return vacations.value
+    .filter((vacation: Vacation) => selectedDoctors.includes(vacation.doctorId))
+    .sort((a: Vacation, b: Vacation) => {
+      const timeA = convertTime12to24(a.startTime);
+      const timeB = convertTime12to24(b.startTime);
+
+      return timeA - timeB;
+    });
+});
+
 onMounted(() => {
   loadAppointments();
+  loadUnavailabilities();
 });
 
 // Function that calculates the structure of days in the current month for display in the calendar
@@ -117,25 +136,36 @@ function getDoctorColor(doctorId: number): string {
   return doctor ? doctor.color : "#ffffff";
 }
 
-function convertTime12to24(time: string): number {
-  const [timePart, modifier] = time.split(" ");
-  let [hours, minutes] = timePart.split(":").map((num) => parseInt(num, 10));
+function convertTime12to24(time?: string): number {
+  if (time) {
+    const [timePart, modifier] = time.split(" ");
+    let [hours, minutes] = timePart.split(":").map((num) => parseInt(num, 10));
 
-  if (hours === 12) {
-    hours = 0;
+    if (hours === 12) {
+      hours = 0;
+    }
+
+    if (modifier === "PM") {
+      hours += 12;
+    }
+
+    return hours * 60 + minutes;
   }
-
-  if (modifier === "PM") {
-    hours += 12;
-  }
-
-  return hours * 60 + minutes;
+  return 0;
 }
 
 async function loadAppointments() {
   isLoading.value = true;
   await getAllForCalendar().then((res) => {
     appointments.value = res;
+    isLoading.value = false;
+  });
+}
+
+async function loadUnavailabilities() {
+  isLoading.value = true;
+  await getVacationsForCalendar().then((res) => {
+    vacations.value = res;
     isLoading.value = false;
   });
 }
@@ -216,6 +246,38 @@ watch(
                     )
                   }}</span>
                   <span id="details">{{ appointment.serviceName }}</span>
+                </div>
+                <div
+                  v-for="vacation in selectedUnavailabilities.filter((vacation: Vacation) => {
+                    return (
+                      
+                      (vacation.startDate <= day.fullDate &&
+                        vacation.endDate >= day.fullDate)
+                    );
+                  })"
+                  :key="vacation.doctorId"
+                  class="appointment vacation"
+                >
+                  <div
+                    id="circle"
+                    :style="{
+                      backgroundColor: getDoctorColor(vacation.doctorId),
+                    }"
+                  ></div>
+                  <span v-if="vacation.startTime" id="hour">{{
+                    vacation.startTime.substring(
+                      0,
+                      vacation.startTime.lastIndexOf(":")
+                    ) + " - "
+                  }}</span>
+
+                  <span v-if="vacation.endTime" id="hour">{{
+                    vacation.endTime.substring(
+                      0,
+                      vacation.endTime.lastIndexOf(":")
+                    )
+                  }}</span>
+                  <span id="details">{{ vacation.reason }}</span>
                 </div>
               </div>
             </td>
@@ -329,6 +391,7 @@ watch(
         margin-top: 2vh;
         max-height: calc(88vh / 5 - 4vh);
         overflow-y: scroll;
+        gap: 2px;
         .appointment {
           max-width: calc(65vw / 7);
 
@@ -356,6 +419,11 @@ watch(
             font-size: 12px;
             overflow: hidden;
             text-overflow: ellipsis;
+          }
+
+          &.vacation {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
           }
         }
       }
