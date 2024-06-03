@@ -3,8 +3,14 @@ const props = withDefaults(
   defineProps<{
     show: boolean;
     title?: string;
+    button1Text?: string;
+    button2Text?: string;
+    oneButton?: boolean;
   }>(),
-  {}
+  {
+    button1Text: "Save",
+    button2Text: "Cancel",
+  }
 );
 
 const emits = defineEmits(["button1", "button2"]);
@@ -19,9 +25,15 @@ const emits = defineEmits(["button1", "button2"]);
           <slot></slot>
         </div>
         <div class="modal-footer">
-          <button class="modal-button1" @click="$emit('button1')">Save</button>
-          <button class="modal-button2" @click="$emit('button2')">
-            Cancel
+          <button class="modal-button1" @click="$emit('button1')">
+            {{ button1Text }}
+          </button>
+          <button
+            v-if="!oneButton"
+            class="modal-button2"
+            @click="$emit('button2')"
+          >
+            {{ button2Text }}
           </button>
         </div>
       </div>

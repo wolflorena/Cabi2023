@@ -5,16 +5,19 @@ import router from "@/router";
 import { useRoute } from "vue-router";
 import { MdEditor } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import CustomButton from "@/components/CustomButton.vue";
 import ToggleButton from "@/components/ToggleButton.vue";
 import { addForm, getForm, updateForm } from "@/services/form_service";
 import { Form } from "@/data/types/Entities";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import { is } from "cypress/types/bluebird";
 
 const route = useRoute();
 const title = ref("");
 const description = ref("");
 const visibility = ref(false);
+const isLoading = ref(false);
 
 const formId = ref(route.params.id);
 const form = ref<Form>();
@@ -29,11 +32,13 @@ async function createForm() {
 }
 
 async function getFormDetails(formId: number) {
+  isLoading.value = true;
   await getForm(formId).then((res) => {
     form.value = res;
     title.value = res.title;
     description.value = res.description;
     visibility.value = res.visibility;
+    isLoading.value = false;
   });
 }
 
@@ -54,10 +59,12 @@ async function submitChanges() {
     alert("Form edited successfully");
   }
 }
+
+watch(isLoading, (newValue) => console.log(newValue));
 </script>
 
 <template>
-  <div class="container">
+  <div class="container" style="position: relative">
     <Sidebar :options="AdminSidebarOptions" />
 
     <div class="header">
@@ -71,27 +78,32 @@ async function submitChanges() {
       <span>{{ formId ? "Edit form" : "Create new form" }}</span>
     </div>
 
-    <div class="details">
-      <div class="form-info">
-        <div class="info-field">
-          <label for="title">Title</label>
-          <input type="text" id="title" v-model="title" />
-        </div>
-      </div>
+    <LoadingSpinner v-if="isLoading" />
 
-      <div class="rich-text">
-        <MdEditor
-          v-model="description"
-          language="en-US"
-          :toolbars-exclude="['github', 'save']"
+    <div v-else class="details-container">
+      <div class="details">
+        <div class="form-info">
+          <div class="info-field">
+            <label for="title">Title</label>
+            <input type="text" id="title" v-model="title" />
+          </div>
+        </div>
+
+        <div class="rich-text">
+          <MdEditor
+            v-model="description"
+            language="en-US"
+            :toolbars-exclude="['github', 'save']"
+          />
+        </div>
+
+        <ToggleButton
+          v-model="visibility"
+          text="Visibility for patients:"
+          uuid="form-toggle"
         />
       </div>
 
-      <ToggleButton
-        v-model="visibility"
-        text="Visibility for patients:"
-        uuid="form-toggle"
-      />
       <CustomButton
         text="Submit"
         :is-main="false"

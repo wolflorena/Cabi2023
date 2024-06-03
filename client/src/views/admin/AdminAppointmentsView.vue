@@ -117,6 +117,7 @@ async function showDeleteModal(appointmentId: number) {
 }
 
 async function deleteAppointmentById(appointmentId: number | undefined) {
+  isLoading.value = true;
   if (appointmentId) {
     await deleteAppointment(appointmentId)
       .then((res) => {
@@ -124,6 +125,7 @@ async function deleteAppointmentById(appointmentId: number | undefined) {
           console.log("Appointment successfull deleted!");
           showDelete.value = false;
           loadAppointments();
+          isLoading.value = false;
         }
       })
       .catch((error) => {
@@ -133,11 +135,13 @@ async function deleteAppointmentById(appointmentId: number | undefined) {
 }
 
 async function updateAppointmentStatus(appointmentId: number, status: string) {
+  isLoading.value = true;
   if (appointmentId) {
     await updateStatus(appointmentId, status).then((res) => {
       if (res) {
         loadAppointments();
       }
+      isLoading.value = false;
     });
   } else return;
 }
@@ -307,7 +311,9 @@ async function addAppointment(
       <CustomModal
         :show="showInfo"
         title="Appointment"
-        @button2="showInfo = false"
+        :one-button="true"
+        button1-text="Ok"
+        @button1="showInfo = false"
         class="appointment-info"
       >
         <div class="detail">
@@ -342,6 +348,7 @@ async function addAppointment(
       </CustomModal>
       <CustomModal
         :show="showDelete"
+        button1-text="Delete"
         @button2="showDelete = false"
         @button1="deleteAppointmentById(appointmentDetails?.appointmentId)"
       >

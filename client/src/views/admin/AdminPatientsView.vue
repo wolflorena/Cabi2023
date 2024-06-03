@@ -125,6 +125,7 @@ onMounted(() => {
       </div>
       <CustomModal
         :show="showDelete"
+        button1-text="Delete"
         @button2="showDelete = false"
         @button1="deletePatient(patientDetails?.customerId)"
       >

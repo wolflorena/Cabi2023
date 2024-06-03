@@ -166,6 +166,7 @@ async function deleteProductFromInventory() {
     </div>
     <CustomModal
       :show="showAddModal"
+      button1-text="Add Product"
       @button2="showAddModal = false"
       @button1="createProduct"
       title="New Product"
@@ -193,6 +194,7 @@ async function deleteProductFromInventory() {
 
     <CustomModal
       :show="showEdit"
+      button1-text="Delete"
       @button2="showEdit = false"
       @button1="editProduct"
       :title="selectedProduct?.product"

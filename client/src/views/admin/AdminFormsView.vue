@@ -35,6 +35,7 @@ async function showDeleteModal(formId: number) {
 }
 
 async function deleteFormById(formId: number | undefined) {
+  isLoading.value = true;
   if (formId) {
     await deleteForm(formId)
       .then((res) => {
@@ -42,6 +43,7 @@ async function deleteFormById(formId: number | undefined) {
           console.log("Appointment successfull deleted!");
           showDelete.value = false;
           loadForms();
+          isLoading.value = false;
         }
       })
       .catch((error) => {
@@ -105,6 +107,7 @@ async function deleteFormById(formId: number | undefined) {
     </div>
     <CustomModal
       :show="showDelete"
+      button1-text="Delete"
       @button2="showDelete = false"
       @button1="deleteFormById(formDetails?.formId)"
     >
