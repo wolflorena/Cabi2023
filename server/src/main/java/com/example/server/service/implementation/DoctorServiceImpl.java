@@ -18,10 +18,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
-import java.util.ArrayList;
+import java.util.*;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -149,59 +147,50 @@ public class DoctorServiceImpl implements DoctorService {
         List<Appointment> appointments = appointmentRepository.findBookedTimesAndDurationsByDoctorIdAndDate(doctorId, date);
         List<DoctorUnavailability> unavailabilities = doctorUnavailabilityRepository.findByDoctorIdAndDate(doctorId, date);
 
-        return calculateAvailableHours(appointments, unavailabilities, serviceDuration);
+        return calculateAvailableHours(appointments, serviceDuration, unavailabilities);
     }
 
-    private List<LocalTime> calculateAvailableHours(List<Appointment> bookedAppointments, List<DoctorUnavailability> unavailabilities, int duration) {
-        List<LocalTime> availableHours = new ArrayList<>();
+    private List<LocalTime> calculateAvailableHours(List<Appointment> bookedAppointments, int duration, List<DoctorUnavailability> unavailabilities) {
+        Set<LocalTime> availableHours = new TreeSet<>();
         LocalTime startOfWork = LocalTime.of(9, 0);
         LocalTime endOfWork = LocalTime.of(17, 0);
         LocalTime currentTime = startOfWork;
 
-        if (bookedAppointments.isEmpty() && duration <= ChronoUnit.MINUTES.between(startOfWork, endOfWork)) {
-            for (LocalTime time = startOfWork; time.plusMinutes(duration).isBefore(endOfWork.plusMinutes(1)); time = time.plusMinutes(30)) {
-                if (!isTimeInUnavailability(time, duration, unavailabilities)) {
-                    availableHours.add(time);
-                }
-            }
-            return availableHours;
-        }
-
-        for (Appointment appointment : bookedAppointments) {
-            while (currentTime.plusMinutes(duration).isBefore(appointment.getTime().plusMinutes(1)) && currentTime.plusMinutes(duration).isBefore(endOfWork.plusMinutes(1))) {
-                if (!isTimeInUnavailability(currentTime, duration, unavailabilities)) {
-                    availableHours.add(currentTime);
-                }
-                currentTime = currentTime.plusMinutes(30); // Incrementăm la fiecare 30 de minute
-            }
-
-            currentTime = appointment.getTime().plusMinutes(appointment.getFinalDuration());
-        }
-
         while (currentTime.plusMinutes(duration).isBefore(endOfWork.plusMinutes(1))) {
-            if (!isTimeInUnavailability(currentTime, duration, unavailabilities)) {
+            if (isTimeAvailable(currentTime, duration, bookedAppointments, unavailabilities)) {
                 availableHours.add(currentTime);
             }
             currentTime = currentTime.plusMinutes(30);
         }
 
-        return availableHours;
+        return new ArrayList<>(availableHours);
     }
 
-    private boolean isTimeInUnavailability(LocalTime time, int duration, List<DoctorUnavailability> unavailabilities) {
+    private boolean isTimeAvailable(LocalTime time, int duration, List<Appointment> bookedAppointments, List<DoctorUnavailability> unavailabilities) {
+        LocalTime endTime = time.plusMinutes(duration);
+
+        // Verificăm dacă timpul se suprapune cu o programare existentă
+        for (Appointment appointment : bookedAppointments) {
+            LocalTime appointmentStartTime = appointment.getTime();
+            LocalTime appointmentEndTime = appointment.getTime().plusMinutes(appointment.getFinalDuration());
+            if (time.isBefore(appointmentEndTime) && endTime.isAfter(appointmentStartTime)) {
+                return false;
+            }
+        }
+
+        // Verificăm dacă timpul se suprapune cu o indisponibilitate
         for (DoctorUnavailability unavailability : unavailabilities) {
             if (unavailability.getStartTime() == null && unavailability.getEndTime() == null) {
-                // All day unavailability
-                return true;
+                // Indisponibilitate pentru întreaga zi
+                return false;
             } else if (unavailability.getStartTime() != null && unavailability.getEndTime() != null) {
-                LocalTime endTime = time.plusMinutes(duration);
-                boolean isOverlap = !time.isBefore(unavailability.getStartTime()) && !endTime.isAfter(unavailability.getEndTime());
-                if (isOverlap) {
-                    return true;
+                if (time.isBefore(unavailability.getEndTime()) && endTime.isAfter(unavailability.getStartTime())) {
+                    return false;
                 }
             }
         }
-        return false;
+
+        return true;
     }
 
     @Override
