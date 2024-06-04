@@ -14,7 +14,7 @@ import CustomerProfileView from "@/views/customer/CustomerProfileView.vue";
 import CustomerAppointmentView from "@/views/customer/CustomerAppointmentView.vue";
 import DoctorProfileView from "@/views/doctor/DoctorProfileView.vue";
 import DoctorDashboardView from "@/views/doctor/DoctorDashboardView.vue";
-import DoctorAppointmentsView from "@/views/doctor/DoctorAppointmentsView.vue";
+import DoctorPatientsView from "@/views/doctor/DoctorPatientsView.vue";
 import DoctorCalendarView from "@/views/doctor/DoctorCalendarView.vue";
 import {
   getUserRole,
@@ -102,6 +102,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/doctor/calendar",
     name: "doctorCalendar",
     component: DoctorCalendarView,
+  },
+  {
+    path: "/doctor/patients",
+    name: "doctorPatients",
+    component: DoctorPatientsView,
   },
   {
     path: "/profile",

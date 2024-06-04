@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface DoctorUnavailabilityService {
     List<DoctorUnavailability> getUnavailabilitiesByDoctorId(Long doctorId);
+    List<VacationRequestDTO> getAllVacationsForCalendar();
     VacationRequestDTO createUnavailability(VacationRequestDTO unavailability);
     void deleteUnavailability(Long id);
 }

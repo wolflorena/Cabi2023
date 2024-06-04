@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import CustomButton from "@/components/CustomButton.vue";
-import bcrypt from "bcryptjs";
 import CustomInput from "@/components/CustomInput.vue";
 import PasswordInput from "@/components/PasswordInput.vue";
 import { useRouter } from "vue-router";

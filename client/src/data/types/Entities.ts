@@ -56,12 +56,7 @@ export type PatientAdmin = {
   phoneNo: string;
 };
 
-export type Patient = {
-  customerId: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNo: string;
+export type Patient = PatientAdmin & {
   occupation: string;
   dateOfBirth: string;
 };
@@ -121,4 +116,13 @@ export type ChangePasswordBody = {
 export type AppointmentWeekly = {
   week: string;
   count: number;
+}
+
+export type Vacation = {
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  reason: string;
+  doctorId: number;
 }

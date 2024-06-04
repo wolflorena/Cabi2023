@@ -80,6 +80,8 @@ async function fetchAvailableHours() {
 }
 
 function addAppointment() {
+  closeModal();
+
   emit(
     "addAppointment",
     selectedDate.value,
@@ -88,6 +90,7 @@ function addAppointment() {
     selectedService.value,
     selectedPatient.value
   );
+
   selectedDate.value = "";
   selectedHour.value = "";
   selectedDoctor.value = "";

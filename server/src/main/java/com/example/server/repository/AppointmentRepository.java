@@ -45,4 +45,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findBookedTimesAndDurationsByDoctorIdAndDateAndStatusNot(Long doctorId,
                                                                                LocalDate date,
                                                                                Appointment.AppointmentStatus status);
+    @Query("SELECT a FROM Appointment a WHERE a.status IN (:statuses)")
+    List<Appointment> findAllByStatusIn(@Param("statuses") List<Appointment.AppointmentStatus> statuses);
 }

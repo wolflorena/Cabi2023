@@ -8,11 +8,12 @@ import CustomDropdown from "@/components/CustomDropdown.vue";
 import AddAppointmentModal from "@/components/AddAppointmentModal.vue";
 import DatePicker from "@/components/DatePicker.vue";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
-import { getAllDoctors } from "@/services/doctor_service";
+import { createDoctorAccount, getAllDoctors } from "@/services/doctor_service";
 import CustomModal from "@/components/CustomModal.vue";
 import type { Doctor, SelectedDoctor } from "@/data/types/Entities";
 import { createAppointment } from "@/services/appointments_service";
 import ActionButton from "@/components/ActionButton.vue";
+import Swal from "sweetalert2";
 
 const doctors = ref<Doctor[]>([]);
 const selectedDoctors = ref<SelectedDoctor[]>([]);
@@ -122,11 +123,37 @@ async function addAppointment(
 ) {
   updateAppointments.value = false;
   if (date && hour && doctor && service && patient) {
-    await createAppointment(date, hour, doctor, service, patient).then((res) =>
-      console.log(res)
+    await createAppointment(date, hour, doctor, service, patient).then(
+      (res) => {
+        if (res) {
+          Swal.fire({
+            titleText: "Appointment have been created successfully",
+            icon: "success",
+          });
+        }
+      }
     );
     updateAppointments.value = true;
     showModal.value = false;
+  }
+}
+
+async function addDoctorAccount() {
+  if (doctorEmail.value && doctorFirstName.value && doctorLasttName.value) {
+    await createDoctorAccount(
+      doctorEmail.value,
+      doctorFirstName.value,
+      doctorLasttName.value
+    ).then((res) => {
+      if (res) {
+        Swal.fire({
+          titleText: "An email has been sent to the doctor.",
+          icon: "success",
+        });
+      }
+    });
+  } else {
+    console.log("All fields are required"); //create an error message
   }
 }
 
@@ -214,6 +241,7 @@ onMounted(() => {
     :show="showAddDoctorModal"
     title="Create Doctor Account"
     @button2="showAddDoctorModal = false"
+    @button1="addDoctorAccount"
   >
     <div class="selection">
       <div class="option">

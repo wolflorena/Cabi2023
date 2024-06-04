@@ -15,8 +15,10 @@ import CustomModal from "@/components/CustomModal.vue";
 import ActionButton from "@/components/ActionButton.vue";
 import TableHeader from "@/components/TableHeader.vue";
 import TableRow from "@/components/TableRow.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
 const showDelete = ref(false);
+const isLoading = ref(false);
 
 const currentPage = ref(1);
 const totalPages = ref(0);
@@ -27,17 +29,21 @@ const patientDetails = ref<PatientAdmin>();
 const router = useRouter();
 
 async function loadPatients() {
+  isLoading.value = true;
   await getAllPageable(10, currentPage.value - 1).then((res: any) => {
     patients.value = res.pagedCustomers.content;
     totalPages.value = Math.ceil(res.total / 10);
+    isLoading.value = false;
   });
 }
 
 async function changePage(pageNumber: number) {
+  isLoading.value = true;
   currentPage.value = pageNumber;
   await getAllPageable(10, currentPage.value - 1).then((res: any) => {
     patients.value = res.pagedCustomers.content;
     totalPages.value = Math.ceil(res.total / 10);
+    isLoading.value = false;
   });
 }
 
@@ -69,7 +75,7 @@ onMounted(() => {
 
     <div class="patients">
       <div class="patients-container">
-        <table>
+        <table v-if="patients.length > 0">
           <TableHeader
             :columns="['Patient', 'Email', 'Phone Number', 'Actions']"
           />
@@ -103,6 +109,14 @@ onMounted(() => {
           </tbody>
         </table>
 
+        <img
+          src="../../assets/nodata.svg"
+          alt=""
+          v-else-if="patients.length === 0 && isLoading === false"
+        />
+
+        <LoadingSpinner v-else />
+
         <Pagination
           :total-pages="totalPages"
           :current-page="currentPage"
@@ -111,6 +125,7 @@ onMounted(() => {
       </div>
       <CustomModal
         :show="showDelete"
+        button1-text="Delete"
         @button2="showDelete = false"
         @button1="deletePatient(patientDetails?.customerId)"
       >
@@ -151,7 +166,16 @@ onMounted(() => {
           margin-top: 20px;
         }
       }
+
+      img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 70%;
+      }
     }
+
     .delete-text {
       color: @white;
     }

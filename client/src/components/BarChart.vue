@@ -130,7 +130,7 @@ function hideTooltip() {
   text-align: center;
   border: 1px solid @gray;
   border-radius: 20px;
-  padding: 30px;
+  padding: 30px 50px;
   display: flex;
   position: relative;
 

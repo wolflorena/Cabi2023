@@ -3,9 +3,14 @@ const props = withDefaults(
   defineProps<{
     show: boolean;
     title?: string;
-    variant: string;
+    button1Text?: string;
+    button2Text?: string;
+    oneButton?: boolean;
+    variant?: string;
   }>(),
   {
+    button1Text: "Save",
+    button2Text: "Cancel",
     variant: "DARK",
   }
 );
@@ -29,12 +34,14 @@ const emits = defineEmits(["button1", "button2"]);
         </div>
         <div class="modal-footer">
           <button class="modal-button1" @click="$emit('button1')">
-            <font-awesome-icon :icon="['far', 'circle-check']" />
-            SAVE
+            {{ button1Text }}
           </button>
-          <button class="modal-button2" @click="$emit('button2')">
-            <font-awesome-icon :icon="['far', 'circle-xmark']" />
-            CANCEL
+          <button
+            v-if="!oneButton"
+            class="modal-button2"
+            @click="$emit('button2')"
+          >
+            {{ button2Text }}
           </button>
         </div>
       </div>

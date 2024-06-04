@@ -7,6 +7,7 @@ import { getDoctorById, updateDoctor } from "@/services/doctor_service";
 import { onMounted, ref, watch } from "vue";
 import InfoField from "@/components/InfoField.vue";
 import CustomButton from "@/components/CustomButton.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
 const viewOnly = ref(true);
 const doctor = ref<Doctor>();
@@ -16,10 +17,13 @@ const email = ref();
 const phoneno = ref();
 const address = ref();
 const dateOfEmployment = ref();
+const isLoading = ref(false);
 
 async function getDoctorDetails() {
+  isLoading.value = true;
   await getDoctorById(1).then((res) => {
     doctor.value = res;
+    isLoading.value = false;
   });
 }
 
@@ -68,7 +72,7 @@ async function updateProfile() {
       />
     </div>
 
-    <div class="details">
+    <div v-if="!isLoading" class="details">
       <img src="../../assets/default-avatar.png" alt="" />
       <div class="doctor-info">
         <InfoField
@@ -120,6 +124,9 @@ async function updateProfile() {
           @action-triggered="updateProfile"
         />
       </div>
+    </div>
+    <div v-else class="details" style="width: 85vw; position: relative">
+      <LoadingSpinner />
     </div>
   </div>
 </template>

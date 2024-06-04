@@ -15,5 +15,6 @@ public class VacationRequestDTO {
     private LocalDate endDate;
     private LocalTime startTime;
     private LocalTime endTime;
+    private String reason;
     private Long doctorId;
 }

@@ -4,6 +4,10 @@ import { ref, onMounted } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import Pagination from "@/components/Pagination.vue";
 import CustomModal from "@/components/CustomModal.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import ActionButton from "@/components/ActionButton.vue";
+import TableHeader from "@/components/TableHeader.vue";
+import TableRow from "@/components/TableRow.vue";
 import { Product } from "@/data/types/Entities";
 
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
@@ -14,13 +18,11 @@ import {
   deleteProduct,
   updateProduct,
 } from "@/services/inventory_service";
-import ActionButton from "@/components/ActionButton.vue";
-import TableHeader from "@/components/TableHeader.vue";
-import TableRow from "@/components/TableRow.vue";
 
 const showDelete = ref(false);
 const showAddModal = ref(false);
 const showEdit = ref(false);
+const isLoading = ref(false);
 
 const productName = ref("");
 const quantity = ref(0);
@@ -32,17 +34,21 @@ const inventory = ref<Product[]>([]);
 const selectedProduct = ref<Product>();
 
 async function loadProducts() {
+  isLoading.value = true;
   await getAllPageable(10, currentPage.value - 1).then((res: any) => {
     inventory.value = res.pagedInventory.content;
     totalPages.value = Math.ceil(res.total / 10);
+    isLoading.value = false;
   });
 }
 
 async function changePage(pageNumber: number) {
+  isLoading.value = true;
   currentPage.value = pageNumber;
   await getAllPageable(10, currentPage.value - 1).then((res: any) => {
     inventory.value = res.pagedInventory.content;
     totalPages.value = Math.ceil(res.total / 10);
+    isLoading.value = false;
   });
 }
 
@@ -101,7 +107,7 @@ async function deleteProductFromInventory() {
 
     <div class="products">
       <div class="products-container">
-        <table>
+        <table v-if="inventory.length > 0">
           <TableHeader
             :columns="['Product Name', 'Quantity', 'Actions']"
             :has-action-button="true"
@@ -132,6 +138,14 @@ async function deleteProductFromInventory() {
           </tbody>
         </table>
 
+        <img
+          src="../../assets/nodata.svg"
+          alt=""
+          v-else-if="inventory.length === 0 && isLoading === false"
+        />
+
+        <LoadingSpinner v-else />
+
         <Pagination
           :total-pages="totalPages"
           :current-page="currentPage"
@@ -152,6 +166,7 @@ async function deleteProductFromInventory() {
     </div>
     <CustomModal
       :show="showAddModal"
+      button1-text="Add Product"
       @button2="showAddModal = false"
       @button1="createProduct"
       title="New Product"
@@ -179,6 +194,7 @@ async function deleteProductFromInventory() {
 
     <CustomModal
       :show="showEdit"
+      button1-text="Delete"
       @button2="showEdit = false"
       @button1="editProduct"
       :title="selectedProduct?.product"
@@ -234,6 +250,14 @@ async function deleteProductFromInventory() {
         tbody {
           margin-top: 20px;
         }
+      }
+
+      img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 70%;
       }
     }
     .delete-text {

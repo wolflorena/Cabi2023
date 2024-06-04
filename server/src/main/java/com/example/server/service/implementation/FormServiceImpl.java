@@ -5,14 +5,17 @@ import com.example.server.repository.DTOs.FormAdminListDTO;
 import com.example.server.repository.DTOs.FormRequestDTO;
 import com.example.server.repository.DTOs.FormResponseDTO;
 import com.example.server.repository.DTOs.InventoryUpdateDTO;
+import com.example.server.repository.FormEventRepository;
 import com.example.server.repository.FormRepository;
 import com.example.server.repository.entity.Form;
+import com.example.server.repository.entity.FormEvent;
 import com.example.server.repository.entity.Inventory;
 import com.example.server.service.FormService;
 import net.bytebuddy.asm.Advice;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -22,10 +25,12 @@ import java.util.stream.Collectors;
 @Service
 public class FormServiceImpl implements FormService {
     private final FormRepository formRepository;
+    private final FormEventRepository formEventRepository;
     private final ModelMapper modelMapper;
 
-    public FormServiceImpl(FormRepository formRepository, ModelMapper modelMapper) {
+    public FormServiceImpl(FormRepository formRepository, FormEventRepository formEventRepository, ModelMapper modelMapper) {
         this.formRepository = formRepository;
+        this.formEventRepository = formEventRepository;
         this.modelMapper = modelMapper;
     }
 

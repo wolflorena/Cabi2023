@@ -20,7 +20,6 @@ const selectedDoctor = ref<SelectedDoctor[]>([]);
 async function getDoctorDetails() {
   await getDoctorById(1).then((res) => {
     selectedDoctor.value.push({ ...res, checked: true });
-    console.log(selectedDoctor);
   });
 }
 

@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DoctorUnavailabilityServiceImpl implements DoctorUnavailabilityService {
@@ -39,6 +40,14 @@ public class DoctorUnavailabilityServiceImpl implements DoctorUnavailabilityServ
     }
 
     @Override
+    public List<VacationRequestDTO> getAllVacationsForCalendar() {
+        List<DoctorUnavailability> doctorUnavailabilities = doctorUnavailabilityRepository.findAll();
+        return doctorUnavailabilities.stream()
+                .map(doctorUnavailability -> modelMapper.map(doctorUnavailability, VacationRequestDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public VacationRequestDTO createUnavailability(VacationRequestDTO unavailability) {
         DoctorUnavailability doctorUnavailability = new DoctorUnavailability();
         Doctor doctor = doctorRepository.findById(unavailability.getDoctorId())
@@ -60,6 +69,7 @@ public class DoctorUnavailabilityServiceImpl implements DoctorUnavailabilityServ
                 doctorUnavailability.setEndTime(unavailability.getEndTime());
                 doctorUnavailability.setStartDate(unavailability.getStartDate());
                 doctorUnavailability.setEndDate(unavailability.getEndDate());
+                doctorUnavailability.setReason(unavailability.getReason());
             }
         } else {
             if (doctorUnavailabilityRepository.existsByStartDateAndEndDateAndDoctorId(
@@ -72,6 +82,7 @@ public class DoctorUnavailabilityServiceImpl implements DoctorUnavailabilityServ
                 doctorUnavailability.setDoctor(doctor);
                 doctorUnavailability.setStartDate(unavailability.getStartDate());
                 doctorUnavailability.setEndDate(unavailability.getEndDate());
+                doctorUnavailability.setReason(unavailability.getReason());
             }
         }
 

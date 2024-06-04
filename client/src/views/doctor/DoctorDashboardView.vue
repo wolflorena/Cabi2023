@@ -16,6 +16,7 @@ import {
 } from "@/services/appointments_service";
 import { formatDate, formatTime } from "@/utils/helpers";
 import BarChart from "@/components/BarChart.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
 const treatments = ref<TreatmentType[]>();
 const appointments = ref<AppointmentDetail[]>();
@@ -28,6 +29,11 @@ const types = ref<string[]>([
 const appointmentsCount = ref<Record<string, number>>({});
 const appointmentsWeekly = ref<AppointmentWeekly[]>([]);
 
+const treatmentsAreLoading = ref(false);
+const upcomingIsLoading = ref(false);
+const barChartIsLoading = ref(false);
+const numbersAreLoading = ref(false);
+
 onMounted(() => {
   getTreatmentTypes();
   loadUpcomingAppointments();
@@ -36,20 +42,30 @@ onMounted(() => {
 });
 
 async function getTreatmentTypes() {
-  await getServicesInCurrentMonth(26).then((res) => (treatments.value = res));
+  treatmentsAreLoading.value = true;
+  await getServicesInCurrentMonth(26).then((res) => {
+    treatments.value = res;
+    treatmentsAreLoading.value = false;
+  });
 }
 
 async function loadUpcomingAppointments() {
+  upcomingIsLoading.value = true;
   await getUpcomingAppointments(1)
-    .then((res) => (appointments.value = res))
+    .then((res) => {
+      appointments.value = res;
+      upcomingIsLoading.value = false;
+    })
     .catch((e) => console.log(e));
 }
 
 async function loadScheduledAppointments() {
+  numbersAreLoading.value = true;
   for (const type of types.value) {
     const count = await getScheduledAppointmentsNumber(type);
     appointmentsCount.value[type] = count;
   }
+  numbersAreLoading.value = false;
 }
 
 async function getScheduledAppointmentsNumber(status: string): Promise<number> {
@@ -58,8 +74,10 @@ async function getScheduledAppointmentsNumber(status: string): Promise<number> {
 }
 
 async function getDataForBarChart() {
-  await getWeeklyAppointmentsNumber(1).then((res) => {
+  barChartIsLoading.value = true;
+  await getWeeklyAppointmentsNumber(3).then((res) => {
     appointmentsWeekly.value = res;
+    barChartIsLoading.value = false;
   });
 }
 
@@ -97,10 +115,15 @@ const formattedDate = computed(() => {
 
     <div class="dashboard">
       <div class="upper">
-        <DashboardPieChart :treatments="treatments" />
-
+        <DashboardPieChart
+          v-if="!treatmentsAreLoading"
+          :treatments="treatments"
+        />
+        <div v-else class="treatments">
+          <LoadingSpinner />
+        </div>
         <div class="right-side">
-          <div class="upcoming">
+          <div class="upcoming" v-if="!upcomingIsLoading">
             <h1>Upcoming appointments for today, {{ formatDate(Date()) }}</h1>
 
             <div v-if="appointments?.length === 0" class="message">
@@ -123,17 +146,28 @@ const formattedDate = computed(() => {
               </div>
             </div>
           </div>
-          <BarChart :data="appointmentsWeekly" />
+          <div class="upcoming" v-else style="position: relative">
+            <LoadingSpinner />
+          </div>
+          <BarChart v-if="!barChartIsLoading" :data="appointmentsWeekly" />
+          <div
+            v-else
+            class="barchart-container"
+            style="height: calc(50% - 60px); position: relative"
+          >
+            <LoadingSpinner />
+          </div>
         </div>
       </div>
 
       <div class="down">
         <div class="cards">
-          <div class="card" v-for="type in types">
+          <div class="card" v-for="type in types" style="position: relative">
             <h1>{{ type }}</h1>
-            <h1>
+            <h1 v-if="!numbersAreLoading">
               {{ appointmentsCount[type] }}
             </h1>
+            <LoadingSpinner v-else />
           </div>
         </div>
       </div>
@@ -177,6 +211,15 @@ const formattedDate = computed(() => {
       flex-wrap: wrap;
 
       gap: 3vw;
+
+      .treatments {
+        height: 33vw;
+        border: 1px solid @gray;
+        border-radius: 20px;
+        padding: 30px;
+        width: 300px;
+        position: relative;
+      }
 
       .right-side {
         width: 53vw;
@@ -235,6 +278,8 @@ const formattedDate = computed(() => {
           background-color: @gray;
           border-radius: 20px;
           padding: 10px;
+          height: 15vh;
+          width: auto;
 
           h1 {
             color: @white;

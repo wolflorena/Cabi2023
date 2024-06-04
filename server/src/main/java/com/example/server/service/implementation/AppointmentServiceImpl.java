@@ -10,6 +10,7 @@ import com.example.server.repository.entity.Customer;
 import com.example.server.repository.entity.Doctor;
 import com.example.server.repository.entity.DoctorUnavailability;
 import com.example.server.service.AppointmentService;
+import com.example.server.service.SendEmailService;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final DoctorRepository doctorRepository;
     private final DoctorUnavailabilityRepository doctorUnavailabilityRepository;
     private final ServiceRepository serviceRepository;
+    private final SendEmailService sendEmailService;
     private final ModelMapper modelMapper;
 
     private AppointmentServiceImpl(AppointmentRepository appointmentRepository,
@@ -37,12 +39,14 @@ public class AppointmentServiceImpl implements AppointmentService {
                                    DoctorRepository doctorRepository,
                                    DoctorUnavailabilityRepository doctorUnavailabilityRepository,
                                    ServiceRepository serviceRepository,
+                                   SendEmailService sendEmailService,
                                    ModelMapper modelMapper){
         this.appointmentRepository = appointmentRepository;
         this.customerRepository = customerRepository;
         this.doctorRepository = doctorRepository;
         this.doctorUnavailabilityRepository = doctorUnavailabilityRepository;
         this.serviceRepository = serviceRepository;
+        this.sendEmailService = sendEmailService;
         this.modelMapper = modelMapper;
     }
 
@@ -99,6 +103,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(Appointment.AppointmentStatus.REQUESTED);
 
         customer.getAppointments().add(appointment);
+        sendEmailService.sendAppointmentRequestInformationToPatient(appointmentRequestDTO.getCustomerId(), appointment);
         return modelMapper.map(appointmentRepository.save(appointment), AppointmentResponseDTO.class);
     }
 
@@ -125,7 +130,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<AppointmentCalendarDTO> getAllAppointmentsForCalendar() {
-        List<Appointment> appointments = appointmentRepository.findAll();
+        List<Appointment.AppointmentStatus> statuses = Arrays.asList(Appointment.AppointmentStatus.SCHEDULED, Appointment.AppointmentStatus.COMPLETED);
+        List<Appointment> appointments = appointmentRepository.findAllByStatusIn(statuses);
         return appointments.stream()
                 .map(appointment ->  modelMapper.map(appointment, AppointmentCalendarDTO.class))
                 .collect(Collectors.toList());
@@ -180,8 +186,18 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public AppointmentResponseDTO updateAppointmentStatus(Long appointmentId, Appointment.AppointmentStatus status) {
         Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(() -> new NotFoundException("Appointment not found"));
+
         appointment.setStatus(status);
         appointmentRepository.save(appointment);
+
+        if (status == Appointment.AppointmentStatus.SCHEDULED) {
+            sendEmailService.sendAppointmentInformationToPatient(appointment.getCustomer().getId(), appointment);
+        }
+
+        if (status == Appointment.AppointmentStatus.CANCELLED) {
+            sendEmailService.sendAppointmentCancelledToPatient(appointment.getCustomer().getId(), appointment);
+        }
+
         return modelMapper.map(appointment, AppointmentResponseDTO.class);
     }
 

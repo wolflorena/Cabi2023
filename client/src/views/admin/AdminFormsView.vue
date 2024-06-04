@@ -5,17 +5,23 @@ import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 import { onMounted, ref } from "vue";
 import { deleteForm, getAllForms, getForm } from "@/services/form_service";
 import CustomModal from "@/components/CustomModal.vue";
-import DateAndTimeSpan from "@/components/DateAndTimeSpan.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import ActionButton from "@/components/ActionButton.vue";
 import TableHeader from "@/components/TableHeader.vue";
 import TableRow from "@/components/TableRow.vue";
+import Swal from "sweetalert2";
 
 const forms = ref<Form[]>();
 const showDelete = ref(false);
 const formDetails = ref<Form>();
+const isLoading = ref(false);
 
 async function loadForms() {
-  await getAllForms().then((res) => (forms.value = res));
+  isLoading.value = true;
+  await getAllForms().then((res) => {
+    forms.value = res;
+    isLoading.value = false;
+  });
 }
 
 onMounted(() => {
@@ -30,13 +36,18 @@ async function showDeleteModal(formId: number) {
 }
 
 async function deleteFormById(formId: number | undefined) {
+  isLoading.value = true;
   if (formId) {
     await deleteForm(formId)
       .then((res) => {
         if (res.ok) {
-          console.log("Appointment successfull deleted!");
           showDelete.value = false;
           loadForms();
+          isLoading.value = false;
+          Swal.fire({
+            titleText: "Form has been successfully deleted!",
+            icon: "success",
+          });
         }
       })
       .catch((error) => {
@@ -52,7 +63,7 @@ async function deleteFormById(formId: number | undefined) {
 
     <div class="forms">
       <div class="forms-container">
-        <table>
+        <table v-if="forms && forms?.length > 0">
           <TableHeader :columns="['Title', 'Last updated', 'Actions']" />
           <tbody>
             <TableRow
@@ -80,6 +91,14 @@ async function deleteFormById(formId: number | undefined) {
           </tbody>
         </table>
 
+        <img
+          src="../../assets/nodata.svg"
+          alt=""
+          v-else-if="forms && forms.length === 0 && isLoading === false"
+        />
+
+        <LoadingSpinner v-else />
+
         <div class="add-button-container">
           <router-link to="forms/create">
             <button id="add">
@@ -92,6 +111,7 @@ async function deleteFormById(formId: number | undefined) {
     </div>
     <CustomModal
       :show="showDelete"
+      button1-text="Delete"
       @button2="showDelete = false"
       @button1="deleteFormById(formDetails?.formId)"
     >
@@ -127,6 +147,14 @@ async function deleteFormById(formId: number | undefined) {
         tbody {
           margin-top: 20px;
         }
+      }
+
+      img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 70%;
       }
     }
     .delete-text {

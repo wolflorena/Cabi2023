@@ -68,6 +68,41 @@ async function getServicesInCurrentMonth(doctorId: number) {
   return json;
 }
 
+async function createDoctorAccount(
+  email: string,
+  firstName: string,
+  lastName: string
+) {
+  let response;
+  let connectionError = false;
+  try {
+    response = await fetch(`${API_URL}/addDoctor`, {
+      method: "POST",
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+  } catch (error) {
+    connectionError = true;
+  }
+
+  if (connectionError) {
+    throw new Error("Server connection error");
+  }
+
+  const json = await response?.json();
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
+
+  return json;
+}
+
 export {
   getAllDoctors,
   getDoctorById,
@@ -75,4 +110,5 @@ export {
   getAvailableHours,
   updateDoctor,
   getServicesInCurrentMonth,
+  createDoctorAccount,
 };

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, readonly } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import TableHeaderButton from "@/components/TableHeaderButton.vue";
 import TableHeader from "@/components/TableHeader.vue";
@@ -7,7 +7,7 @@ import CustomCheckbox from "@/components/CustomCheckbox.vue";
 import Pagination from "@/components/Pagination.vue";
 import CustomModal from "@/components/CustomModal.vue";
 import AddAppointmentModal from "@/components/AddAppointmentModal.vue";
-import DateAndTimeSpan from "@/components/DateAndTimeSpan.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 import TableRow from "@/components/TableRow.vue";
 
@@ -26,10 +26,12 @@ import {
 } from "@/services/appointments_service";
 import { formatTime, formatDate } from "@/utils/helpers";
 import ActionButton from "@/components/ActionButton.vue";
+import Swal from "sweetalert2";
 
 const showModal = ref(false);
 const showInfo = ref(false);
 const showDelete = ref(false);
+const isLoading = ref(false);
 const appointmentDetails = ref<AppointmentDetail>();
 
 const doctors = ref<SelectedDoctor[]>([]);
@@ -42,12 +44,17 @@ const currentPage = ref(1);
 const totalPages = ref(0);
 
 async function loadDoctors() {
+  isLoading.value = true;
   await getAllDoctors().then((res: any) => {
-    doctors.value = res.map((doctor: any) => ({ ...doctor, checked: true }));
+    if (res) {
+      doctors.value = res.map((doctor: any) => ({ ...doctor, checked: true }));
+      isLoading.value = false;
+    }
   });
 }
 
 async function loadAppointments() {
+  isLoading.value = true;
   computeSelectedDoctorIds();
   await getAllPageable(
     10,
@@ -57,10 +64,12 @@ async function loadAppointments() {
   ).then((res: any) => {
     appointments.value = res.pagedAppointments.content;
     totalPages.value = Math.ceil(res.total / 10);
+    isLoading.value = false;
   });
 }
 
 async function changePage(pageNumber: number) {
+  isLoading.value = true;
   currentPage.value = pageNumber;
   await getAllPageable(
     10,
@@ -70,6 +79,7 @@ async function changePage(pageNumber: number) {
   ).then((res: any) => {
     appointments.value = res.pagedAppointments.content;
     totalPages.value = Math.ceil(res.total / 10);
+    isLoading.value = false;
   });
 }
 
@@ -77,7 +87,6 @@ function computeSelectedDoctorIds() {
   doctorIds.value = doctors.value
     .filter((doctor) => doctor.checked === true)
     .map((doctor) => doctor.id);
-  console.log(doctorIds.value);
 }
 
 onMounted(() => {
@@ -109,13 +118,18 @@ async function showDeleteModal(appointmentId: number) {
 }
 
 async function deleteAppointmentById(appointmentId: number | undefined) {
+  isLoading.value = true;
   if (appointmentId) {
     await deleteAppointment(appointmentId)
       .then((res) => {
         if (res.ok) {
-          console.log("Appointment successfull deleted!");
+          Swal.fire({
+            titleText: "Appointment have been deleted successfully",
+            icon: "success",
+          });
           showDelete.value = false;
           loadAppointments();
+          isLoading.value = false;
         }
       })
       .catch((error) => {
@@ -125,11 +139,13 @@ async function deleteAppointmentById(appointmentId: number | undefined) {
 }
 
 async function updateAppointmentStatus(appointmentId: number, status: string) {
+  isLoading.value = true;
   if (appointmentId) {
     await updateStatus(appointmentId, status).then((res) => {
       if (res) {
         loadAppointments();
       }
+      isLoading.value = false;
     });
   } else return;
 }
@@ -150,10 +166,17 @@ async function addAppointment(
   patient: number
 ) {
   if (date && hour && doctor && service && patient) {
-    await createAppointment(date, hour, doctor, service, patient).then((res) =>
-      console.log(res)
+    await createAppointment(date, hour, doctor, service, patient).then(
+      (res) => {
+        if (res) {
+          Swal.fire({
+            titleText: "Appointment have been created successfully",
+            icon: "success",
+          });
+        }
+        closeModal();
+      }
     );
-    showModal.value = false;
   }
 }
 </script>
@@ -167,16 +190,21 @@ async function addAppointment(
         icon-token="circle-plus"
         @action-triggered="prepareAddAppointmentModal"
       />
-      <div class="doctors">
+      <div class="doctors" style="position: relative; min-height: 100px">
         <div class="title">
           <h4>Select doctors</h4>
         </div>
-        <div v-for="doctor in doctors" :key="doctor.id">
-          <CustomCheckbox
-            v-model="doctor.checked"
-            :text="`Dr. ${doctor.firstName} ${doctor.lastName}`"
-            :uuid="`checkbox-doctor-${doctor.id}`"
-          />
+        <div v-if="!isLoading">
+          <div v-for="doctor in doctors" :key="doctor.id">
+            <CustomCheckbox
+              v-model="doctor.checked"
+              :text="`Dr. ${doctor.firstName} ${doctor.lastName}`"
+              :uuid="`checkbox-doctor-${doctor.id}`"
+            />
+          </div>
+        </div>
+        <div v-else>
+          <LoadingSpinner />
         </div>
       </div>
     </div>
@@ -278,7 +306,12 @@ async function addAppointment(
             </TableRow>
           </tbody>
         </table>
-        <img src="../../assets/nodata.svg" alt="" v-else />
+        <img
+          src="../../assets/nodata.svg"
+          alt=""
+          v-else-if="appointments.length === 0 && isLoading === false"
+        />
+        <LoadingSpinner v-else />
 
         <Pagination
           :total-pages="totalPages"
@@ -289,7 +322,9 @@ async function addAppointment(
       <CustomModal
         :show="showInfo"
         title="Appointment"
-        @button2="showInfo = false"
+        :one-button="true"
+        button1-text="Ok"
+        @button1="showInfo = false"
         class="appointment-info"
       >
         <div class="detail">
@@ -324,6 +359,7 @@ async function addAppointment(
       </CustomModal>
       <CustomModal
         :show="showDelete"
+        button1-text="Delete"
         @button2="showDelete = false"
         @button1="deleteAppointmentById(appointmentDetails?.appointmentId)"
       >
