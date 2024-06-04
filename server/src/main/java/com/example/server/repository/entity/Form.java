@@ -16,13 +16,18 @@ public class Form {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long formId;
+
     private String title;
+
     private String description;
+
     private Boolean visibility;
+
     private LocalDate editedDate;
+
     private LocalTime editedTime;
 
-    @OneToMany(mappedBy = "form")
-    @JsonManagedReference
+    @OneToMany(mappedBy = "form", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value="form-formEvents")
     private Set<FormEvent> formEvents;
 }

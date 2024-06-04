@@ -26,6 +26,7 @@ import {
 } from "@/services/appointments_service";
 import { formatTime, formatDate } from "@/utils/helpers";
 import ActionButton from "@/components/ActionButton.vue";
+import Swal from "sweetalert2";
 
 const showModal = ref(false);
 const showInfo = ref(false);
@@ -122,7 +123,10 @@ async function deleteAppointmentById(appointmentId: number | undefined) {
     await deleteAppointment(appointmentId)
       .then((res) => {
         if (res.ok) {
-          console.log("Appointment successfull deleted!");
+          Swal.fire({
+            titleText: "Appointment have been deleted successfully",
+            icon: "success",
+          });
           showDelete.value = false;
           loadAppointments();
           isLoading.value = false;
@@ -162,10 +166,17 @@ async function addAppointment(
   patient: number
 ) {
   if (date && hour && doctor && service && patient) {
-    await createAppointment(date, hour, doctor, service, patient).then((res) =>
-      console.log(res)
+    await createAppointment(date, hour, doctor, service, patient).then(
+      (res) => {
+        if (res) {
+          Swal.fire({
+            titleText: "Appointment have been created successfully",
+            icon: "success",
+          });
+        }
+        closeModal();
+      }
     );
-    showModal.value = false;
   }
 }
 </script>

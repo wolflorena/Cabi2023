@@ -26,11 +26,12 @@ public class FormEvent {
 
     @ManyToOne
     @JoinColumn(name = "form_id")
-    @JsonBackReference
+    @JsonBackReference(value="formEvents-form")
     private Form form;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
+    @JsonBackReference(value="formEvents-customer")
     private Customer customer;
 
     public enum FormEventType {

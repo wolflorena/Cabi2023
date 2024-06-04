@@ -9,6 +9,7 @@ import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import ActionButton from "@/components/ActionButton.vue";
 import TableHeader from "@/components/TableHeader.vue";
 import TableRow from "@/components/TableRow.vue";
+import Swal from "sweetalert2";
 
 const forms = ref<Form[]>();
 const showDelete = ref(false);
@@ -40,10 +41,13 @@ async function deleteFormById(formId: number | undefined) {
     await deleteForm(formId)
       .then((res) => {
         if (res.ok) {
-          console.log("Appointment successfull deleted!");
           showDelete.value = false;
           loadForms();
           isLoading.value = false;
+          Swal.fire({
+            titleText: "Form has been successfully deleted!",
+            icon: "success",
+          });
         }
       })
       .catch((error) => {

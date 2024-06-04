@@ -67,4 +67,9 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(FormEventAlreadyExistsException.class)
+    public ResponseEntity<Object> handleFormEventAlreadyExistsException(FormEventAlreadyExistsException ex, WebRequest request) {
+        return buildResponseEntity(HttpStatus.CONFLICT, ex.getMessage());
+    }
 }

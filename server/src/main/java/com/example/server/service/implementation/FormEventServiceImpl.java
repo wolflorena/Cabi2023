@@ -1,5 +1,6 @@
 package com.example.server.service.implementation;
 
+import com.example.server.exception.types.FormEventAlreadyExistsException;
 import com.example.server.exception.types.NotFoundException;
 import com.example.server.repository.CustomerRepository;
 import com.example.server.repository.DTOs.FormDetailsDTO;
@@ -39,7 +40,7 @@ public class FormEventServiceImpl implements FormEventService {
         Optional<FormEvent> existingEvent = formEventRepository.findByFormIdAndCustomerIdAndFormEventType(formId, customerId, formEventType);
 
         if(existingEvent.isPresent()) {
-            throw new IllegalStateException("Event of type " + formEventType + " already exists");
+            throw new FormEventAlreadyExistsException("The form has been already " + formEventType);
         }
 
         FormEvent formEvent = new FormEvent();
