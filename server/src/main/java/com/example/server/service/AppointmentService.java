@@ -20,9 +20,10 @@ public interface AppointmentService {
 
     AppointmentPageDTO getAllAppointmentsForAdmin(Pageable pageable, List<Long> doctorIds, Appointment.AppointmentStatus status);
     List<AppointmentResponseDTO> getAllAppointmentsByDateAndDoctor(LocalDate date, Long doctorId);
-
     AppointmentResponseDTO updateAppointmentStatus(Long appointmentId, Appointment.AppointmentStatus status);
     List<AppointmentDoctorDashboardDTO> getNextAppointments(Long doctorId);
     int getAppointmentsNumberByStatusAndDoctor(Long doctorId, Appointment.AppointmentStatus appointmentStatus);
     List<WeeklyAppointmentsDTO> getWeeklyAppointments(Long doctorId);
+
+    List<AppointmentResponseDTO> getAppointmentsByDoctorAndViewType(Long doctorId, LocalDate date, String viewType);
 }

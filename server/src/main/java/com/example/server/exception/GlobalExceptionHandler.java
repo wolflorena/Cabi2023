@@ -67,4 +67,12 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
+    @ExceptionHandler(CouldNotRetrieveAppointmentsByDateAndTypeException.class)
+    public ResponseEntity<Object> CouldNotRetrieveAppointmentsByDateAndTypeException (CouldNotRetrieveAppointmentsByDateAndTypeException  ex, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "Can not retrieve appointments based on type and date");
+
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
 }

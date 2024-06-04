@@ -21,7 +21,6 @@ function handlePasswordTextChanged(password: string) {
 async function login() {
   try {
     if (emailText.value && passwordText.value) {
-      console.log("Starting login process...");
       const response = await loginService(emailText.value, passwordText.value);
 
       const data = await response.json();
@@ -31,26 +30,19 @@ async function login() {
       }
 
       // Store the JWT token in localStorage
-      console.log("Storing JWT token...");
       localStorage.setItem("jwtToken", data.jwtToken);
 
       // Decode the token to extract role information
-      console.log("Decoding JWT token...");
       const decodedToken: any = jwtDecode(data.jwtToken);
-      console.log("Decoded JWT token:", decodedToken);
 
       const role = decodedToken.role;
-      console.log("User role:", role);
 
       // Redirect based on the role
       if (role === "ROLE_CUSTOMER") {
-        console.log("Redirecting to /profile...");
         router.push("/profile");
       } else if (role === "ROLE_ADMIN") {
-        console.log("Redirecting to /admin/dashboard...");
         router.push("/admin/dashboard");
       } else if (role === "ROLE_DOCTOR") {
-        console.log("Redirecting to /doctor/dashboard...");
         router.push("/doctor/dashboard");
       } else {
         throw new Error("Unknown role");
@@ -61,11 +53,11 @@ async function login() {
   } catch (err: any) {
     if (err.message === "Authentication failed: Account is deactivated") {
       Swal.fire({
-        titleText: "Your account has been deactivated. Please contact support.",
+        titleText:
+          "Your account have been deactivated. Please contact support.",
         icon: "error",
       });
     } else {
-      console.log("Login failed. Please check your email and password.");
     }
     error.value = "" + err;
     emailText.value = "";

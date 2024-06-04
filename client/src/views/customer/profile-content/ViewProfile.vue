@@ -4,7 +4,7 @@ import InfoField from "@/components/InfoField.vue";
 import { UserDetails } from "@/data/types/Entities";
 import { ref } from "vue";
 const props = defineProps<{
-  userDetails: UserDetails;
+  userDetails: UserDetails | null;
   avatarImage?: string;
 }>();
 </script>
@@ -14,7 +14,7 @@ const props = defineProps<{
     <div class="avatar-container">
       <AvatarImage :src="avatarImage" alt="" />
     </div>
-    <div class="fields">
+    <div class="fields" v-if="userDetails !== null">
       <InfoField
         uuid="FirstName"
         label="First Name"
@@ -44,7 +44,7 @@ const props = defineProps<{
         type="text"
       />
     </div>
-    <div class="bottom-fields">
+    <div class="bottom-fields" v-if="userDetails">
       <InfoField
         uuid="DateOfBirth"
         label="Date of Birth"

@@ -17,6 +17,5 @@ public interface CustomerService {
     public void deleteById(Long customerId);
     CustomerPageDTO getAllCustomersForAdmin(Pageable pageable);
     ResponseCustomerDTO editAccountStatus(Long customerId, Customer.AccountStatus status);
-
     CustomerEditDetailsDTO editCustomerDetails(Long customerId, CustomerEditDetailsDTO customer);
 }

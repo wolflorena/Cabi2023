@@ -6,12 +6,10 @@ import { computed, onMounted, ref } from "vue";
 import ViewProfile from "./profile-content/ViewProfile.vue";
 import EditProfile from "./profile-content/EditProfile.vue";
 import SecuritySettings from "./profile-content/SecuritySettings.vue";
-import { UserDetails } from "@/data/types/Entities";
-import { getAvatar, getById } from "@/services/customer_service";
-import { getUserIdAndToken } from "@/services/authentication_service";
-import Swal from "sweetalert2";
+import { useUserProfile } from "@/store/useUserProfile";
+import { SwalLoading } from "@/utils/helpers";
 
-const profilePage = ref("viewProfile");
+const profilePage = ref<string>("viewProfile");
 
 const isActivePage = (page: string) =>
   computed(() => profilePage.value === page);
@@ -20,63 +18,22 @@ const handleClick = (page: string) => {
   profilePage.value = page;
 };
 
-const userDetails = ref<UserDetails>({
-  firstName: "string",
-  lastName: "string",
-  email: "string",
-  phoneNo: "string",
-  dateOfBirth: "string",
-  occupation: "string",
-});
-const avatarImage = ref<string>();
-const isLoading = ref<boolean>(false);
+const {
+  userDetails,
+  avatarImage,
+  fetchUserProfile,
+  retrieveUserAvatar,
+  updateUserProfile,
+  updateAvatarImage,
+} = useUserProfile();
 
-async function loadUserDetails() {
-  try {
-    const { userId, token } = getUserIdAndToken();
-    isLoading.value = true;
-    await getById(userId, token).then((resp) => {
-      if (resp) {
-        userDetails.value = resp;
-        isLoading.value = false;
-        Swal.close();
-      }
-    });
-  } catch (err) {
-    throw new Error("Failed to load user profile: " + err);
+onMounted(async () => {
+  if (userDetails.value === null || avatarImage.value === null) {
+    SwalLoading.fire();
+    await fetchUserProfile();
+    await retrieveUserAvatar();
+    SwalLoading.close();
   }
-}
-
-function handleUserDetailsUpdate(editedUserDetails: UserDetails) {
-  userDetails.value = editedUserDetails;
-}
-
-async function retrieveUserAvatar() {
-  const { userId, token } = getUserIdAndToken();
-  const blob = await getAvatar(userId, token);
-
-  if (blob.size > 0) {
-    avatarImage.value = URL.createObjectURL(blob);
-  } else {
-    avatarImage.value = undefined;
-  }
-}
-
-function handleAvatarImageUpdated(newAvatarImage: string) {
-  avatarImage.value = newAvatarImage;
-}
-onMounted(() => {
-  Swal.fire({
-    titleText: "Loading...",
-    allowOutsideClick() {
-      return false;
-    },
-    showConfirmButton: false,
-    position: "center",
-    padding: "60px 100px",
-  });
-  loadUserDetails();
-  retrieveUserAvatar();
 });
 </script>
 
@@ -108,7 +65,7 @@ onMounted(() => {
           />
         </div>
       </div>
-      <div class="profile-content">
+      <div class="profile-content" v-if="userDetails">
         <ViewProfile
           v-if="isActivePage('viewProfile').value"
           :userDetails="userDetails"
@@ -119,8 +76,8 @@ onMounted(() => {
           v-if="isActivePage('editProfile').value"
           :userDetails="userDetails"
           :avatarImage="avatarImage"
-          @updateUserDetails="handleUserDetailsUpdate"
-          @update-avatar-image="handleAvatarImageUpdated"
+          @updateUserDetails="updateUserProfile"
+          @update-avatar-image="updateAvatarImage"
         />
 
         <SecuritySettings v-if="isActivePage('securitySettings').value" />

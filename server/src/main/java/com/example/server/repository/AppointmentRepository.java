@@ -23,6 +23,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     Page<Appointment> findAll(Pageable pageable);
 
+    @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.date BETWEEN :startDate AND :endDate")
+    List<Appointment> findByDoctorIdAndDateRange(Long doctorId, LocalDate startDate, LocalDate endDate);
     Page<Appointment> findAllByStatusIn(List<Appointment.AppointmentStatus> statuses, Pageable pageable);
     Page<Appointment> findAllByDoctorIdIn(List<Long> doctorIds, Pageable pageable);
     Page<Appointment> findAllByDoctorIdInAndStatusIn(List<Long> doctorIds, List<Appointment.AppointmentStatus> statuses, Pageable pageable);

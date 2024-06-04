@@ -3,8 +3,11 @@ const props = withDefaults(
   defineProps<{
     show: boolean;
     title?: string;
+    variant: string;
   }>(),
-  {}
+  {
+    variant: "DARK",
+  }
 );
 
 const emits = defineEmits(["button1", "button2"]);
@@ -13,15 +16,25 @@ const emits = defineEmits(["button1", "button2"]);
 <template>
   <Transition name="modal">
     <div v-if="show" class="modal-mask">
-      <div class="modal-container">
+      <div
+        class="modal-container"
+        :class="{
+          light: variant === 'LIGHT',
+          dark: variant === 'DARK',
+        }"
+      >
         <div class="modal-header">
           <h1>{{ title }}</h1>
           <slot></slot>
         </div>
         <div class="modal-footer">
-          <button class="modal-button1" @click="$emit('button1')">Save</button>
+          <button class="modal-button1" @click="$emit('button1')">
+            <font-awesome-icon :icon="['far', 'circle-check']" />
+            SAVE
+          </button>
           <button class="modal-button2" @click="$emit('button2')">
-            Cancel
+            <font-awesome-icon :icon="['far', 'circle-xmark']" />
+            CANCEL
           </button>
         </div>
       </div>
@@ -57,6 +70,17 @@ const emits = defineEmits(["button1", "button2"]);
     justify-content: center;
     flex-direction: column;
 
+    &.light {
+      background-color: @dark-gray;
+
+      .modal-header {
+        h1 {
+          color: @heavy-smoke;
+          font-weight: bold;
+          font-size: 22px;
+        }
+      }
+    }
     .modal-header,
     .modal-footer {
       width: 100%;
@@ -82,10 +106,30 @@ const emits = defineEmits(["button1", "button2"]);
 
         &.modal-button {
           &1 {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+
+            font-size: 20px;
             color: @green;
+            &:hover {
+              background-color: @darker-gray;
+              border-radius: 30px;
+            }
           }
           &2 {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 20px;
+            padding: 6px 10px;
+
             color: @red;
+            &:hover {
+              background-color: @darker-gray;
+              border-radius: 30px;
+            }
           }
         }
       }

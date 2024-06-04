@@ -14,10 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.YearMonth;
+import java.time.*;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -230,4 +227,34 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         return result;
     }
+
+    @Override
+    public List<AppointmentResponseDTO> getAppointmentsByDoctorAndViewType(Long doctorId, LocalDate date, String viewType) {
+        LocalDate startDate;
+        LocalDate endDate;
+
+        switch (viewType.toUpperCase()) {
+            case "DAY":
+                startDate = date;
+                endDate = date;
+                break;
+            case "WEEK":
+                startDate = date.with(DayOfWeek.MONDAY);
+                endDate = date.with(DayOfWeek.SUNDAY);
+                break;
+            case "MONTH":
+                startDate = date.withDayOfMonth(1);
+                endDate = date.withDayOfMonth(date.lengthOfMonth());
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid view type: " + viewType);
+        }
+
+        List<Appointment> appointments = appointmentRepository.findByDoctorIdAndDateRange(doctorId, startDate, endDate);
+        return appointments.stream()
+                .map(appointment -> modelMapper.map(appointment, AppointmentResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+
 }

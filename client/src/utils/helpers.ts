@@ -1,7 +1,8 @@
+import Swal from "sweetalert2";
 import { onMounted, onUnmounted } from "vue";
 
-export function useOutsideClick(popupRef:any, callback:any) {
-  const handleClickOutside = (event:Event) => {
+export function useOutsideClick(popupRef: any, callback: any) {
+  const handleClickOutside = (event: Event) => {
     if (popupRef.value && !popupRef.value.contains(event.target)) {
       callback();
     }
@@ -151,3 +152,13 @@ function getDayWithSuffix(day: number): string {
     return `${day}th`;
   }
 }
+
+export const SwalLoading = Swal.mixin({
+  titleText: "Loading...",
+  allowOutsideClick() {
+    return false;
+  },
+  showConfirmButton: false,
+  position: "center",
+  padding: "60px 100px",
+});
