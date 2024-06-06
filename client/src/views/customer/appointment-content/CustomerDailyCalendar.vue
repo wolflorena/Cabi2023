@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import CustomerAddsAppointment from "@/components/CustomerAddsAppointment.vue";
-import { Appointment, Doctor } from "@/data/types/Entities";
+import {
+  Appointment,
+  AppointmentCalendar,
+  Doctor,
+  Vacation,
+} from "@/data/types/Entities";
 import { createAppointment } from "@/services/appointments_service";
 import { getUserIdAndToken } from "@/services/authentication_service";
 import { useLoadAppointments } from "@/store/useLoadAppointments";
 import { useUserProfile } from "@/store/useUserProfile";
 import { format, formatISO } from "date-fns";
-import { computed, getCurrentInstance, onMounted, ref } from "vue";
+import { computed, getCurrentInstance, onMounted, ref, watch } from "vue";
 
 const props = defineProps<{
-  appointments: Appointment[];
+  appointments: AppointmentCalendar[];
+  unavailabilites: Vacation[] | null;
   selectedDoctor: Doctor | null;
   calendarDate: Date;
 }>();
@@ -20,14 +26,12 @@ const emits = defineEmits<{
 
 const timeSlots: string[] = createTimeSlots(9, 18, 10);
 const { userId } = getUserIdAndToken();
-
 const showAppointmentModal = ref<boolean>(false);
 const { userDetails, fetchUserProfile } = useUserProfile();
-const appointmentsForTheDay = computed(() => {
-  return props.appointments.filter(
-    (app) => app.date === formatISO(props.calendarDate).split("T")[0]
-  );
-});
+
+const appointmentsForTheDay = ref<AppointmentCalendar[]>([]);
+const date = ref<Date>(props.calendarDate);
+
 function createTimeSlots(
   startHour: number,
   endHour: number,
@@ -47,7 +51,10 @@ const calendarHeaderDate = computed(() => {
   return format(props.calendarDate, "EEEE, MMMM d yyyy");
 });
 
-function getAppointmentPosition(appointment: Appointment, startHour: number) {
+function getAppointmentPosition(
+  appointment: AppointmentCalendar,
+  startHour: number
+) {
   const [hour, minutes] = appointment.time.split(":").map(Number);
   const adjustedHour = hour - startHour;
   const start = adjustedHour * 6 + Math.floor(minutes / 10);
@@ -56,7 +63,7 @@ function getAppointmentPosition(appointment: Appointment, startHour: number) {
   return { start: start + 1, duration: duration };
 }
 
-function getAppointmentStyle(appointment: Appointment) {
+function getAppointmentStyle(appointment: AppointmentCalendar) {
   const { start, duration } = getAppointmentPosition(appointment, 9);
   return {
     gridRowStart: start,
@@ -115,14 +122,35 @@ async function handleAddAppointment(
   doctorId: number,
   serviceId: number
 ) {
+  showAppointmentModal.value = false;
   const resp = await createAppointment(date, hour, doctorId, serviceId, userId);
   emits("createdAppointment");
-  const instance = getCurrentInstance();
-  instance?.proxy?.$forceUpdate();
 }
 function closeAppointmentModal() {
   showAppointmentModal.value = false;
 }
+
+watch(
+  () => props.calendarDate,
+  (newDate) => {
+    date.value = newDate;
+    appointmentsForTheDay.value = props.appointments.filter(
+      (app) => app.date === formatISO(date.value).split("T")[0]
+    );
+  }
+);
+
+watch(
+  () => props.appointments,
+  (newAppointments) => {
+    appointmentsForTheDay.value = newAppointments.filter(
+      (app) => app.date === formatISO(date.value).split("T")[0]
+    );
+  },
+  {
+    immediate: true,
+  }
+);
 
 onMounted(async () => {
   if (userDetails.value === null) {
@@ -156,12 +184,17 @@ onMounted(async () => {
           v-for="appointment in appointmentsForTheDay"
           :key="appointment.appointmentId"
           class="appointment-block"
+          :class="{ 'user-appointment': appointment.customerId === userId }"
           :style="getAppointmentStyle(appointment)"
         >
-          <div v-if="appointment.customerId === userId">
-            {{ userDetails?.firstName }} {{ userDetails?.lastName }} start:{{
-              appointment.date
-            }}
+          <div
+            class="appointment-text"
+            v-if="appointment.customerId === userId"
+          >
+            <span :style="{ fontSize: '18px' }">
+              {{ userDetails?.firstName }} {{ userDetails?.lastName }}
+            </span>
+            <span> Service: <br />{{ appointment.serviceName }} </span>
           </div>
           <div v-else>BUSY</div>
         </div>
@@ -173,6 +206,7 @@ onMounted(async () => {
     :selectedDoctor="selectedDoctor"
     :selectedDate="calendarDate"
     :userDetails="userDetails"
+    variant="DAY"
     @close="closeAppointmentModal"
     @addAppointment="handleAddAppointment"
   />
@@ -257,6 +291,18 @@ onMounted(async () => {
         margin: 2px 10px;
         border-radius: 10px;
         grid-column: 3 / span 1;
+        &.user-appointment {
+          background-color: @green;
+          color: @smoke;
+          font-weight: bolder;
+          font-size: 14px;
+        }
+
+        .appointment-text {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        }
       }
     }
 

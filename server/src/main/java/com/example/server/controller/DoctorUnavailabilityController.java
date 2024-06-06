@@ -6,6 +6,9 @@ import com.example.server.service.DoctorUnavailabilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.Year;
+import java.util.Date;
 import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -27,6 +30,12 @@ public class DoctorUnavailabilityController {
     @GetMapping("/forCalendar")
     public List<VacationRequestDTO> getVacationsForCalendar() {
         return doctorUnavailabilityService.getAllVacationsForCalendar();
+    }
+
+    @GetMapping("/forCalendarForYear")
+    public List<VacationRequestDTO> getVacationsForCalendarForYear() {
+        Year selectedYear = Year.of(LocalDate.now().getYear());
+        return doctorUnavailabilityService.getAllVacationsForCalendarForYear(selectedYear);
     }
 
     @PostMapping

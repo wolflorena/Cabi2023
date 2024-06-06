@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import { Appointment, Doctor } from "@/data/types/Entities";
+import {
+  Appointment,
+  AppointmentCalendar,
+  Doctor,
+  Vacation,
+} from "@/data/types/Entities";
 import CustomerCalendarHeader from "./CustomerCalendarHeader.vue";
 import placeholderImage from "@/assets/please-select-a-doctor.jpg";
-import { computed } from "vue";
-import { format } from "date-fns";
 import CustomerDailyCalendar from "./CustomerDailyCalendar.vue";
 import CustomerWeeklyCalendar from "./CustomerWeeklyCalendar.vue";
 
 const props = defineProps<{
   selectedDoctor: Doctor | null;
-  appointments: Appointment[];
+  appointments: AppointmentCalendar[];
+  unavailabilites: Vacation[] | null;
   calendarDate: Date;
   calendarViewType: string;
 }>();
@@ -56,6 +60,7 @@ function handleCreatedAppointment() {
       <CustomerDailyCalendar
         :appointments="appointments"
         :selectedDoctor="selectedDoctor"
+        :unavailabilites="unavailabilites"
         :calendarDate="calendarDate"
         @created-appointment="handleCreatedAppointment"
       />
@@ -66,7 +71,9 @@ function handleCreatedAppointment() {
       <CustomerWeeklyCalendar
         :appointments="appointments"
         :selectedDoctor="selectedDoctor"
+        :unavailabilites="unavailabilites"
         :calendarDate="calendarDate"
+        @created-appointment="handleCreatedAppointment"
       />
     </div>
     <div v-else>No Appointments for this day.</div>

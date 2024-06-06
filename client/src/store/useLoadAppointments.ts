@@ -1,7 +1,16 @@
-import { Appointment, Doctor } from "@/data/types/Entities";
+import {
+  Appointment,
+  AppointmentCalendar,
+  Doctor,
+  Vacation,
+} from "@/data/types/Entities";
 import { getDoctorAppointments } from "@/services/appointments_service";
 import { getUserIdAndToken } from "@/services/authentication_service";
 import { getAllDoctors } from "@/services/doctor_service";
+import {
+  getVacationsForCalendar,
+  getVacationsForCalendarForYear,
+} from "@/services/doctor_unavailability_service";
 import { SwalLoading } from "@/utils/helpers";
 import { formatISO } from "date-fns";
 import { ref } from "vue";
@@ -10,8 +19,9 @@ const doctors = ref<Doctor[] | null>(null);
 const selectedDoctor = ref<Doctor | null>(null);
 const calendarDate = ref<Date>(new Date(Date.now()));
 const calendarViewtype = ref<string>("WEEK");
-const appointments = ref<Appointment[]>([]);
+const appointments = ref<AppointmentCalendar[]>([]);
 const appointmentsCache = ref(new Map());
+const unavailabilities = ref<Vacation[] | null>(null);
 
 const { userId, token } = getUserIdAndToken();
 
@@ -27,14 +37,14 @@ async function loadDoctors() {
   SwalLoading.close();
 }
 
-async function fetchAppointments() {
+async function fetchAppointments(forceUpdate: boolean = false) {
   if (!selectedDoctor.value) return;
 
   const monthName = calendarDate.value.getMonth();
 
   const cacheKey = `${selectedDoctor.value.id}-month=${monthName}`;
 
-  if (appointmentsCache.value.has(cacheKey)) {
+  if (!forceUpdate && appointmentsCache.value.has(cacheKey)) {
     appointments.value = appointmentsCache.value.get(cacheKey);
   } else {
     const date = formatISO(calendarDate.value).split("T")[0];
@@ -43,20 +53,26 @@ async function fetchAppointments() {
     });
 
     try {
-      const res = await getDoctorAppointments(
-        token,
-        selectedDoctor.value.id,
-        date,
-        "MONTH"
-      );
-      if (res) {
-        appointments.value = res;
+      const [resAppointments, resUnavailabilities] = await Promise.all([
+        getDoctorAppointments(token, selectedDoctor.value.id, date, "MONTH"),
+        getVacationsForCalendarForYear(),
+      ]);
 
-        appointmentsCache.value.set(cacheKey, res);
-        SwalLoading.close();
+      if (resAppointments) {
+        appointments.value = resAppointments;
+        appointmentsCache.value.set(cacheKey, resAppointments);
+        console.log("forced appointments " + resAppointments);
       }
+
+      if (resUnavailabilities) {
+        unavailabilities.value = resUnavailabilities;
+      }
+
+      SwalLoading.close();
     } catch (error: any) {
       appointments.value = [];
+      unavailabilities.value = [];
+      SwalLoading.close();
     }
   }
 }
@@ -69,6 +85,7 @@ export function useLoadAppointments() {
     selectedDoctor,
     appointments,
     appointmentsCache,
+    unavailabilities,
     loadDoctors,
     handleClickOnCalendarButton,
     fetchAppointments,

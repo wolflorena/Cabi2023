@@ -1,3 +1,5 @@
+import { formatISO } from "date-fns";
+
 const API_URL = "http://localhost:9090/api/unavailability";
 
 async function createUnavailability(
@@ -46,4 +48,14 @@ async function getVacationsForCalendar() {
   const json = await response.json();
   return json;
 }
-export { createUnavailability, getVacationsForCalendar };
+
+async function getVacationsForCalendarForYear() {
+  const response = await fetch(`${API_URL}/forCalendarForYear`);
+  const json = await response.json();
+  return json;
+}
+export {
+  createUnavailability,
+  getVacationsForCalendar,
+  getVacationsForCalendarForYear,
+};

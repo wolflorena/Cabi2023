@@ -14,12 +14,12 @@ const {
   calendarDate,
   calendarViewtype,
   appointments,
+  unavailabilities,
   loadDoctors,
   fetchAppointments,
 } = useLoadAppointments();
 
-const { userDetails, avatarImage, fetchUserProfile, retrieveUserAvatar } =
-  useUserProfile();
+const { fetchUserProfile, retrieveUserAvatar } = useUserProfile();
 
 const dropdownOpen = ref<boolean>(false);
 
@@ -42,12 +42,12 @@ function handleViewTypeChange(type: string) {
 }
 
 async function handleUpdateAppointments() {
-  console.log(appointments.value);
-
-  await fetchAppointments();
+  await fetchAppointments(true);
 }
 
-watch([selectedDoctor, calendarDate, calendarViewtype], fetchAppointments);
+watch([selectedDoctor, calendarDate, calendarViewtype], async () => {
+  await fetchAppointments();
+});
 
 onMounted(async () => {
   if (doctors.value === null) {
@@ -84,6 +84,7 @@ onMounted(async () => {
           :selectedDoctor="selectedDoctor"
           :appointments="appointments"
           :calendarDate="calendarDate"
+          :unavailabilites="unavailabilities"
           :calendarViewType="calendarViewtype"
           @onDateChange="handleDateChange"
           @onViewTypeChange="handleViewTypeChange"

@@ -1,42 +1,44 @@
 <script setup lang="ts">
 import AddAppointmentModal from "@/components/AddAppointmentModal.vue";
+import CustomerAddsAppointment from "@/components/CustomerAddsAppointment.vue";
 import {
   Appointment,
   AppointmentCalendar,
   Doctor,
+  Vacation,
 } from "@/data/types/Entities";
+import { createAppointment } from "@/services/appointments_service";
 import { getUserIdAndToken } from "@/services/authentication_service";
 import { useUserProfile } from "@/store/useUserProfile";
 import {
   addDays,
+  differenceInDays,
   endOfWeek,
   format,
   formatISO,
   parseISO,
   startOfWeek,
 } from "date-fns";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 const props = defineProps<{
-  appointments: Appointment[];
+  appointments: AppointmentCalendar[];
   selectedDoctor: Doctor | null;
+  unavailabilites: Vacation[] | null;
   calendarDate: Date;
+}>();
+
+const emits = defineEmits<{
+  createdAppointment: [];
 }>();
 
 const timeSlots: string[] = createTimeSlots(9, 18, 10);
 const { userId } = getUserIdAndToken();
-
 const showAppointmentModal = ref<boolean>(false);
 const { userDetails, fetchUserProfile } = useUserProfile();
-const start = startOfWeek(props.calendarDate, { weekStartsOn: 1 }); //weekStartsOn: 1 - 1 inseamna Luni, 0 Duminica
-const end = endOfWeek(props.calendarDate, { weekStartsOn: 1 });
-
-const appointmentsForTheWeek = computed(() => {
-  return props.appointments.filter((app) => {
-    const appointmentDate = parseISO(app.date);
-    return appointmentDate >= start && appointmentDate <= end;
-  });
-});
+const start = ref(startOfWeek(props.calendarDate, { weekStartsOn: 1 })); //weekStartsOn: 1 - 1 inseamna Luni, 0 Duminica
+const end = ref(addDays(start.value, 4)); // end e setat ca fiind start Date(LUNI) + 4 rezultand end(VINERI)
+const appointmentsForTheWeek = ref<AppointmentCalendar[]>([]);
 
 function createTimeSlots(
   startHour: number,
@@ -53,10 +55,13 @@ function createTimeSlots(
 }
 
 const calendarHeaderDate = computed(() => {
-  return `${format(start, "d")} - ${format(end, "dd MMMM yyyy")}`;
+  return `${format(start.value, "d")} - ${format(end.value, "dd MMMM yyyy")}`;
 });
 
-function getAppointmentPosition(appointment: Appointment, startHour: number) {
+function getAppointmentPosition(
+  appointment: AppointmentCalendar,
+  startHour: number
+) {
   const [hour, minutes] = appointment.time.split(":").map(Number);
   const adjustedHour = hour - startHour;
   const start = adjustedHour * 6 + Math.floor(minutes / 10);
@@ -65,17 +70,103 @@ function getAppointmentPosition(appointment: Appointment, startHour: number) {
   return { start: start + 1, duration: duration };
 }
 
-function getAppointmentStyle(appointment: Appointment) {
+function getAppointmentStyle(appointment: AppointmentCalendar) {
+  console.log(appointment);
+
+  if (
+    (appointment.status === "CANCELLED" ||
+      appointment.status === "REQUESTED") &&
+    appointment.customerId !== userId
+  ) {
+    console.log("display NONE !!!!!!!!!!!!!!");
+
+    return { display: "none" };
+  }
   const { start, duration } = getAppointmentPosition(appointment, 9);
   let appointmentDay = new Date(appointment.date).getDay();
-
-  console.log("app " + appointment.date + " " + appointmentDay);
 
   return {
     gridRowStart: start,
     gridRowEnd: start + duration,
     gridColumn: `${appointmentDay * 2 + 1} / span 1`,
   };
+}
+
+function getUnavailabilityStyle(unavailability: Vacation) {
+  // console.log(unavailability);
+  // const startDate = new Date(unavailability.startDate);
+  // const endDate = new Date(unavailability.endDate);
+  // if (startDate >= start.value && endDate <= end.value)
+  //   if (unavailability.startTime === null && unavailability.endTime === null) {
+  //     // asta inseamna ca doctorul e unavailable pentru mai multe zile
+  //     const start = 1;
+  //     const duration = 48;
+  //     const appointmentDay = new Date(unavailability.startDate).getDay();
+  //     return {
+  //       gridRowStart: start,
+  //       gridRowEnd: start + duration,
+  //       gridColumn: `${appointmentDay * 2 + 1} / span 1`,
+  //     };
+  //   }
+  const unavailabilityStartDate = new Date(unavailability.startDate);
+  const unavailabilityEndDate = new Date(unavailability.endDate);
+  // ori e toata ziua ori sunt cateva ore in ziua respectiva
+  // console.log(
+  //   "props " +
+  //     props.calendarDate.getDate() +
+  //     "unavailabilty date " +
+  //     unavailabilityStartDate.getDate()
+  // );
+
+  if (
+    unavailabilityStartDate <= start.value ||
+    unavailabilityEndDate >= end.value
+  ) {
+    return {
+      display: "none",
+    };
+  }
+
+  if (
+    unavailability.startDate === unavailability.endDate &&
+    unavailability.startTime !== null &&
+    unavailability.endTime !== null
+  ) {
+    // console.log("AM INTRATTTT ----------");
+
+    const [startHour, startMinutes] = unavailability.startTime
+      .split(":")
+      .map(Number);
+    const [endHour, endMinutes] = unavailability.endTime.split(":").map(Number);
+    const adjustedHour = startHour - 9;
+    const startPos = adjustedHour * 6 + Math.floor(startMinutes / 10);
+    const endPos = getEndPos(startHour, startMinutes, endHour, endMinutes);
+    const appointmentDay = new Date(unavailability.startDate).getDay();
+
+    return {
+      gridRowStart: startPos + 1,
+      gridRowEnd: startPos + 1 + endPos,
+      gridColumn: `${appointmentDay * 2 + 1} / span 1`,
+    };
+  }
+}
+
+function getEndPos(
+  startHour: number,
+  startMinutes: number,
+  endHour: number,
+  endMinutes: number
+): number {
+  // Convert start time to minutes since start of the day
+  const startTimeInMinutes = startHour * 60 + startMinutes;
+
+  // Convert end time to minutes since start of the day
+  const endTimeInMinutes = endHour * 60 + endMinutes;
+
+  // Calculate duration
+  const durationInMinutes = endTimeInMinutes - startTimeInMinutes;
+
+  return Math.ceil(durationInMinutes / 10);
 }
 
 interface Time {
@@ -123,12 +214,46 @@ function slotHasAppointment(slot: string): boolean {
 function handleShowAppointment() {
   showAppointmentModal.value = true;
 }
-function handleAddAppointment() {
-  console.log("add appointment");
+async function handleAddAppointment(
+  date: string,
+  hour: string,
+  doctorId: number,
+  serviceId: number
+) {
+  showAppointmentModal.value = false;
+  const resp = await createAppointment(date, hour, doctorId, serviceId, userId);
+  emits("createdAppointment");
 }
 function closeAppointmentModal() {
   showAppointmentModal.value = false;
 }
+
+// start si end sunt actualizate atunci cand calendarul se schimba.
+watch(
+  () => props.calendarDate,
+  (newDate) => {
+    start.value = startOfWeek(newDate, { weekStartsOn: 1 });
+    end.value = endOfWeek(addDays(start.value, 4));
+
+    appointmentsForTheWeek.value = props.appointments.filter((app) => {
+      const appointmentDate = parseISO(app.date);
+      return appointmentDate >= start.value && appointmentDate <= end.value;
+    });
+  }
+);
+
+watch(
+  () => props.appointments,
+  (newAppointments) => {
+    console.log("appointments changed + " + newAppointments);
+
+    appointmentsForTheWeek.value = newAppointments.filter((app) => {
+      const appointmentDate = parseISO(app.date);
+      return appointmentDate >= start.value && appointmentDate <= end.value;
+    });
+  },
+  { immediate: true }
+);
 
 onMounted(async () => {
   if (userDetails.value === null) {
@@ -154,6 +279,7 @@ onMounted(async () => {
         <div class="time-slot-block"></div>
         <div class="time-slot-block"></div>
         <div class="weekday-header" v-for="day in 5" :key="day">
+          {{ format(addDays(start, day - 1), "dd") }},
           {{ format(addDays(start, day - 1), "EEEE") }}
         </div>
       </div>
@@ -187,27 +313,39 @@ onMounted(async () => {
           v-for="appointment in appointmentsForTheWeek"
           :key="appointment.appointmentId"
           class="appointment-block"
+          :class="{ 'user-appointment': appointment.customerId === userId }"
           :style="getAppointmentStyle(appointment)"
         >
-          <div v-if="appointment.customerId === userId">
-            {{ userDetails?.firstName }} {{ userDetails?.lastName }} start:{{
-              appointment.date
-            }}
+          <div
+            class="appointment-text"
+            v-if="appointment.customerId === userId"
+          >
+            <span :style="{ fontSize: '18px' }">
+              {{ userDetails?.firstName }} {{ userDetails?.lastName }}
+            </span>
+            <span> service name: <br />{{ appointment.serviceName }} </span>
           </div>
           <div v-else>BUSY</div>
         </div>
+        <!-- <div
+          v-for="(unavailability, index) in props.unavailabilites"
+          :key="index"
+          class="appointment-block"
+          :style="getUnavailabilityStyle(unavailability)"
+        >
+          <div>BUSY</div>
+        </div> -->
       </div>
     </div>
   </div>
-  <AddAppointmentModal
-    v-if="showAppointmentModal"
+  <CustomerAddsAppointment
+    variant="WEEK"
     :visible="showAppointmentModal"
-    :doctor="selectedDoctor"
-    :date="calendarDate"
-    :patient="userDetails"
-    variant="CUSTOMER_APPOINTMENT"
-    @add-appointment="handleAddAppointment"
+    :selectedDoctor="selectedDoctor"
+    :selectedDate="calendarDate"
+    :userDetails="userDetails"
     @close="closeAppointmentModal"
+    @addAppointment="handleAddAppointment"
   />
 </template>
 
@@ -268,13 +406,13 @@ onMounted(async () => {
         justify-content: center;
         grid-column: span 2;
         font-weight: bold;
-        color: @dark-gray;
+        color: @white;
       }
     }
   }
 
   .calendar-table-container {
-    margin: 0px 80px 20px 40px;
+    margin: 10px 80px 20px 40px;
     background-color: @light-smoke;
     overflow-y: scroll;
     max-height: 72vh;
@@ -343,6 +481,19 @@ onMounted(async () => {
         margin: 2px 10px;
         border-radius: 10px;
         grid-column: 3 / span 1;
+
+        &.user-appointment {
+          background-color: @green;
+          color: @smoke;
+          font-weight: bolder;
+          font-size: 14px;
+        }
+
+        .appointment-text {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        }
       }
     }
 

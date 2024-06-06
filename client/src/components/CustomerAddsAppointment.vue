@@ -1,20 +1,33 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import type { Doctor, Service, UserDetails } from "@/data/types/Entities";
-import { getAvailableHours } from "@/services/doctor_service";
+import {
+  getAvailableDates,
+  getAvailableHours,
+} from "@/services/doctor_service";
 import { getAllServices } from "@/services/service_service";
 import CustomModal from "./CustomModal.vue";
-import { formatISO, parseISO } from "date-fns";
+import {
+  addDays,
+  endOfWeek,
+  format,
+  formatISO,
+  parseISO,
+  startOfWeek,
+} from "date-fns";
+import { SwalLoading } from "@/utils/helpers";
 
 const props = withDefaults(
   defineProps<{
     visible: boolean;
+    variant?: string;
     selectedDoctor: Doctor | null;
     selectedDate: Date;
     userDetails: UserDetails | null;
   }>(),
   {
     visible: false,
+    variant: "DAY",
   }
 );
 
@@ -27,6 +40,7 @@ const selectedService = ref();
 const selectedDate = ref(formatISO(props.selectedDate).split("T")[0]);
 const selectedHour = ref();
 const availableHours = ref<string[]>([]);
+const availableDates = ref<string[]>([]);
 
 onMounted(() => {
   loadServices();
@@ -38,6 +52,19 @@ async function loadServices() {
   });
 }
 
+const availableWeekDates = computed(() => {
+  const startOfWeekDate = startOfWeek(props.selectedDate, { weekStartsOn: 1 });
+  const endOfWeekDate = addDays(startOfWeekDate, 4);
+
+  console.log("Start of Week:", startOfWeekDate);
+  console.log("End of Week:", endOfWeekDate);
+
+  return availableDates.value.filter((date) => {
+    const parsedDate = parseISO(date);
+    return parsedDate >= startOfWeekDate && parsedDate <= endOfWeekDate;
+  });
+});
+
 function closeModal() {
   selectedDate.value = "";
   selectedHour.value = "";
@@ -46,16 +73,31 @@ function closeModal() {
   emit("close");
 }
 
-async function fetchAvailableHours() {
-  if (props.selectedDoctor && props.selectedDate)
-    await getAvailableHours(
-      props.selectedDoctor.id,
-      selectedService.value,
-      formatISO(props.selectedDate).split("T")[0]
-    ).then((res: any) => {
-      availableHours.value = res;
-      console.log(res);
-    });
+async function fetchData() {
+  if (props.variant === "DAY") {
+    if (props.selectedDoctor && props.selectedDate) {
+      SwalLoading.fire();
+      await getAvailableHours(
+        props.selectedDoctor.id,
+        selectedService.value,
+        formatISO(props.selectedDate).split("T")[0]
+      ).then((res: any) => {
+        SwalLoading.close();
+        availableHours.value = res;
+      });
+    }
+  } else if (props.variant === "WEEK") {
+    if (props.selectedDoctor && props.selectedDate) {
+      SwalLoading.fire();
+      await getAvailableDates(
+        props.selectedDoctor.id,
+        selectedService.value
+      ).then((res: any) => {
+        availableDates.value = res;
+        selectedDate.value = availableDates.value[0];
+      });
+    }
+  }
 }
 
 function addAppointment() {
@@ -71,10 +113,33 @@ function addAppointment() {
   selectedHour.value = "";
   selectedService.value = "";
   availableHours.value = [];
+  availableDates.value = [];
 }
 
+watch(
+  () => selectedDate.value,
+  async () => {
+    if (props.selectedDoctor && selectedDate.value !== "") {
+      await getAvailableHours(
+        props.selectedDoctor.id,
+        selectedService.value,
+        selectedDate.value
+      ).then((res: any) => {
+        availableHours.value = res;
+        SwalLoading.close();
+      });
+    }
+  }
+);
+
 const hoursFetched = computed(() => {
-  return !(availableHours.value.length > 0);
+  if (
+    props.variant === "WEEK" &&
+    (availableHours.value.length <= 0 || availableWeekDates.value.length <= 0)
+  ) {
+    return true;
+  }
+  return false;
 });
 </script>
 
@@ -89,13 +154,21 @@ const hoursFetched = computed(() => {
     <div class="selection">
       <div class="option">
         <label>Select type of treatment *</label>
-        <select @change="fetchAvailableHours" v-model="selectedService">
+        <select @change="fetchData" v-model="selectedService">
           <option
             v-for="service in services"
             :key="service.serviceId"
             :value="service.serviceId"
           >
             {{ service.name }}
+          </option>
+        </select>
+      </div>
+      <div class="option" v-if="variant === 'WEEK'">
+        <label>Select date *</label>
+        <select v-model="selectedDate">
+          <option v-for="date in availableWeekDates" :key="date" :value="date">
+            {{ format(date, "EEEE, MMMM d, yyyy") }}
           </option>
         </select>
       </div>

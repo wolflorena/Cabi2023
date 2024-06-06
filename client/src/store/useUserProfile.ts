@@ -4,7 +4,7 @@ import { getAvatar, getById } from "@/services/customer_service";
 import { getUserIdAndToken } from "@/services/authentication_service";
 
 const userProfile = ref<UserDetails | null>(null);
-const avatarImage = ref<string | undefined>(undefined);
+const avatarImage = ref<string | null>(null);
 
 async function fetchUserProfile() {
   if (!userProfile.value) {
@@ -28,7 +28,7 @@ async function retrieveUserAvatar() {
     if (blob.size > 0) {
       avatarImage.value = URL.createObjectURL(blob);
     } else {
-      avatarImage.value = undefined;
+      avatarImage.value = null;
     }
   }
 }

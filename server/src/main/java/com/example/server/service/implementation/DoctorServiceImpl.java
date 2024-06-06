@@ -116,6 +116,7 @@ public class DoctorServiceImpl implements DoctorService {
         return availableDates;
     }
 
+
     private boolean isDayAvailable(List<Appointment> bookedAppointments, int appointmentDuration) {
         LocalTime startOfWork = LocalTime.of(9, 0);
         LocalTime endOfWork = LocalTime.of(17, 0);
