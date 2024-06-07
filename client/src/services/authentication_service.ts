@@ -24,8 +24,6 @@ export async function loginService(email: string, password: string) {
 export async function registerCustomer(
   registerCustomerBody: RegisterCustomerBody
 ) {
-  console.log(registerCustomerBody);
-
   const response = await fetch(`http://localhost:9090/api/customers/register`, {
     method: "POST",
     headers: {
@@ -38,7 +36,6 @@ export async function registerCustomer(
 
   if (!response.ok) {
     responseData = await response.json();
-    console.log(responseData);
 
     throw new Error(responseData.message);
   }

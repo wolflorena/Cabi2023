@@ -16,9 +16,13 @@ import {
   endOfWeek,
   format,
   formatISO,
+  getDay,
+  isWeekend,
+  isWithinInterval,
   parseISO,
   startOfWeek,
 } from "date-fns";
+import Swal from "sweetalert2";
 import { computed, onMounted, ref, watch } from "vue";
 
 const props = defineProps<{
@@ -55,7 +59,10 @@ function createTimeSlots(
 }
 
 const calendarHeaderDate = computed(() => {
-  return `${format(start.value, "d")} - ${format(end.value, "dd MMMM yyyy")}`;
+  return `${format(start.value, "d")} - ${format(
+    addDays(start.value, 4),
+    "dd MMMM yyyy"
+  )}`;
 });
 
 function getAppointmentPosition(
@@ -71,15 +78,10 @@ function getAppointmentPosition(
 }
 
 function getAppointmentStyle(appointment: AppointmentCalendar) {
-  console.log(appointment);
-
-  if (
-    (appointment.status === "CANCELLED" ||
-      appointment.status === "REQUESTED") &&
-    appointment.customerId !== userId
-  ) {
-    console.log("display NONE !!!!!!!!!!!!!!");
-
+  if (appointment.status === "CANCELLED") {
+    return { display: "none" };
+  }
+  if (appointment.status === "REQUESTED" && appointment.customerId !== userId) {
     return { display: "none" };
   }
   const { start, duration } = getAppointmentPosition(appointment, 9);
@@ -90,125 +92,6 @@ function getAppointmentStyle(appointment: AppointmentCalendar) {
     gridRowEnd: start + duration,
     gridColumn: `${appointmentDay * 2 + 1} / span 1`,
   };
-}
-
-function getUnavailabilityStyle(unavailability: Vacation) {
-  // console.log(unavailability);
-  // const startDate = new Date(unavailability.startDate);
-  // const endDate = new Date(unavailability.endDate);
-  // if (startDate >= start.value && endDate <= end.value)
-  //   if (unavailability.startTime === null && unavailability.endTime === null) {
-  //     // asta inseamna ca doctorul e unavailable pentru mai multe zile
-  //     const start = 1;
-  //     const duration = 48;
-  //     const appointmentDay = new Date(unavailability.startDate).getDay();
-  //     return {
-  //       gridRowStart: start,
-  //       gridRowEnd: start + duration,
-  //       gridColumn: `${appointmentDay * 2 + 1} / span 1`,
-  //     };
-  //   }
-  const unavailabilityStartDate = new Date(unavailability.startDate);
-  const unavailabilityEndDate = new Date(unavailability.endDate);
-  // ori e toata ziua ori sunt cateva ore in ziua respectiva
-  // console.log(
-  //   "props " +
-  //     props.calendarDate.getDate() +
-  //     "unavailabilty date " +
-  //     unavailabilityStartDate.getDate()
-  // );
-
-  if (
-    unavailabilityStartDate <= start.value ||
-    unavailabilityEndDate >= end.value
-  ) {
-    return {
-      display: "none",
-    };
-  }
-
-  if (
-    unavailability.startDate === unavailability.endDate &&
-    unavailability.startTime !== null &&
-    unavailability.endTime !== null
-  ) {
-    // console.log("AM INTRATTTT ----------");
-
-    const [startHour, startMinutes] = unavailability.startTime
-      .split(":")
-      .map(Number);
-    const [endHour, endMinutes] = unavailability.endTime.split(":").map(Number);
-    const adjustedHour = startHour - 9;
-    const startPos = adjustedHour * 6 + Math.floor(startMinutes / 10);
-    const endPos = getEndPos(startHour, startMinutes, endHour, endMinutes);
-    const appointmentDay = new Date(unavailability.startDate).getDay();
-
-    return {
-      gridRowStart: startPos + 1,
-      gridRowEnd: startPos + 1 + endPos,
-      gridColumn: `${appointmentDay * 2 + 1} / span 1`,
-    };
-  }
-}
-
-function getEndPos(
-  startHour: number,
-  startMinutes: number,
-  endHour: number,
-  endMinutes: number
-): number {
-  // Convert start time to minutes since start of the day
-  const startTimeInMinutes = startHour * 60 + startMinutes;
-
-  // Convert end time to minutes since start of the day
-  const endTimeInMinutes = endHour * 60 + endMinutes;
-
-  // Calculate duration
-  const durationInMinutes = endTimeInMinutes - startTimeInMinutes;
-
-  return Math.ceil(durationInMinutes / 10);
-}
-
-interface Time {
-  hour: number;
-  minute: number;
-}
-
-function calculateEndTime(
-  startHour: number,
-  startMinute: number,
-  durationMinutes: number
-): { startTime: Time; endTime: Time } {
-  const startTime: Time = { hour: startHour, minute: startMinute };
-  const totalMinutes = startMinute + durationMinutes;
-  const endHour = startHour + Math.floor(totalMinutes / 60);
-  const endMinute = totalMinutes % 60;
-  const endTime: Time = { hour: endHour, minute: endMinute };
-
-  return { startTime, endTime };
-}
-
-function slotHasAppointment(slot: string): boolean {
-  const [hour, minutes] = slot.split(":").map(Number);
-  const slotTime = new Date();
-  slotTime.setHours(hour, minutes, 0, 0);
-
-  return appointmentsForTheWeek.value.some((app) => {
-    const [startHour, startMinutes] = app.time.split(":").map(Number);
-    const { startTime, endTime } = calculateEndTime(
-      startHour,
-      startMinutes,
-      app.finalDuration
-    );
-
-    const appointmentStartTime = new Date();
-    appointmentStartTime.setHours(startTime.hour, startTime.minute, 0, 0);
-
-    const appointmentEndTime = new Date();
-    appointmentEndTime.setHours(endTime.hour, endTime.minute, 0, 0);
-
-    return slotTime >= appointmentStartTime && slotTime < appointmentEndTime;
-  });
 }
 
 function handleShowAppointment() {
@@ -228,12 +111,64 @@ function closeAppointmentModal() {
   showAppointmentModal.value = false;
 }
 
+interface unavailableForDays {
+  wholeDay: boolean;
+  fromPosition: number;
+  toPosition: number;
+  columnPosition: number;
+}
+const unavailabilityForDays = computed((): unavailableForDays[] => {
+  if (props.unavailabilites) {
+    let unavailabilitesArray = props.unavailabilites.filter((unav) => {
+      let unavailabilyDate = new Date(unav.startDate);
+      return isWithinInterval(unavailabilyDate, {
+        start: start.value,
+        end: end.value,
+      });
+    });
+    return unavailabilitesArray.map((unav) => {
+      console.log("unav" + unav.startDate + " " + unav.startTime);
+
+      if (unav.startTime === null) {
+        let colPos = getDay(new Date(unav.startDate)) * 2 + 1;
+        // console.log("start date" + unav.startDate);
+        // console.log("day " + getDay(new Date(unav.startDate)));
+        // console.log("col pos " + colPos);
+
+        return {
+          wholeDay: true,
+          fromPosition: 1,
+          toPosition: 12,
+          columnPosition: colPos,
+        };
+      } else {
+        let [startHour, startMinute] = unav.startTime.split(":").map(Number);
+        let [endHour, endMinute] = unav.endTime.split(":").map(Number);
+        let fromPos = (startHour - 9) * 6 + 1 + Math.floor(startMinute / 10);
+        let toPos = (endHour - 9) * 6 + 1 + Math.ceil(endMinute / 10);
+        let colPos = getDay(new Date(unav.startDate)) * 2 + 1;
+        return {
+          wholeDay: false,
+          fromPosition: fromPos,
+          toPosition: toPos,
+          columnPosition: colPos,
+        };
+      }
+    });
+  }
+
+  return [];
+});
+
+console.log(unavailabilityForDays.value);
+
 // start si end sunt actualizate atunci cand calendarul se schimba.
 watch(
   () => props.calendarDate,
   (newDate) => {
     start.value = startOfWeek(newDate, { weekStartsOn: 1 });
-    end.value = endOfWeek(addDays(start.value, 4));
+    end.value = addDays(start.value, 4);
+    console.log("Start " + start.value + " end " + end.value);
 
     appointmentsForTheWeek.value = props.appointments.filter((app) => {
       const appointmentDate = parseISO(app.date);
@@ -245,8 +180,6 @@ watch(
 watch(
   () => props.appointments,
   (newAppointments) => {
-    console.log("appointments changed + " + newAppointments);
-
     appointmentsForTheWeek.value = newAppointments.filter((app) => {
       const appointmentDate = parseISO(app.date);
       return appointmentDate >= start.value && appointmentDate <= end.value;
@@ -254,7 +187,6 @@ watch(
   },
   { immediate: true }
 );
-
 onMounted(async () => {
   if (userDetails.value === null) {
     await fetchUserProfile();
@@ -276,9 +208,12 @@ onMounted(async () => {
         />
       </div>
       <div class="weekdays">
-        <div class="time-slot-block"></div>
-        <div class="time-slot-block"></div>
-        <div class="weekday-header" v-for="day in 5" :key="day">
+        <div
+          class="weekday-header"
+          v-for="day in 5"
+          :key="day"
+          :style="{ gridColumn: `${1 + 2 * day}/ span 1` }"
+        >
           {{ format(addDays(start, day - 1), "dd") }},
           {{ format(addDays(start, day - 1), "EEEE") }}
         </div>
@@ -291,7 +226,6 @@ onMounted(async () => {
             <span> {{ slot.split(":")[0] }}:00 </span>
           </div>
           <div class="median-slot"></div>
-          <div class="time-slot-block" v-if="!slotHasAppointment(slot)"></div>
           <div
             class="between-weekdays"
             :style="{ gridColumn: '4/ span 1 ' }"
@@ -327,14 +261,19 @@ onMounted(async () => {
           </div>
           <div v-else>BUSY</div>
         </div>
-        <!-- <div
-          v-for="(unavailability, index) in props.unavailabilites"
+        <div
+          v-for="(unavailability, index) in unavailabilityForDays"
           :key="index"
           class="appointment-block"
-          :style="getUnavailabilityStyle(unavailability)"
+          :style="{
+            gridRowStart: `${unavailability.fromPosition}`,
+            gridRowEnd: `${unavailability.toPosition}`,
+            gridColumn: `${unavailability.columnPosition}/ span 1`,
+          }"
         >
-          <div>BUSY</div>
-        </div> -->
+          <span v-if="unavailability.wholeDay">Unavailable TODAY</span>
+          <span v-else>UNAVAILABLE</span>
+        </div>
       </div>
     </div>
   </div>

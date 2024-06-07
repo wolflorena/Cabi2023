@@ -56,9 +56,6 @@ const availableWeekDates = computed(() => {
   const startOfWeekDate = startOfWeek(props.selectedDate, { weekStartsOn: 1 });
   const endOfWeekDate = addDays(startOfWeekDate, 4);
 
-  console.log("Start of Week:", startOfWeekDate);
-  console.log("End of Week:", endOfWeekDate);
-
   return availableDates.value.filter((date) => {
     const parsedDate = parseISO(date);
     return parsedDate >= startOfWeekDate && parsedDate <= endOfWeekDate;

@@ -10,8 +10,15 @@ import { createAppointment } from "@/services/appointments_service";
 import { getUserIdAndToken } from "@/services/authentication_service";
 import { useLoadAppointments } from "@/store/useLoadAppointments";
 import { useUserProfile } from "@/store/useUserProfile";
-import { format, formatISO } from "date-fns";
-import { computed, getCurrentInstance, onMounted, ref, watch } from "vue";
+import {
+  addDays,
+  format,
+  formatISO,
+  isWeekend,
+  isWithinInterval,
+} from "date-fns";
+import Swal from "sweetalert2";
+import { Ref, computed, getCurrentInstance, onMounted, ref, watch } from "vue";
 
 const props = defineProps<{
   appointments: AppointmentCalendar[];
@@ -32,6 +39,55 @@ const { userDetails, fetchUserProfile } = useUserProfile();
 const appointmentsForTheDay = ref<AppointmentCalendar[]>([]);
 const date = ref<Date>(props.calendarDate);
 
+const unavailableToday = computed(() => {
+  if (props.unavailabilites) {
+    return props.unavailabilites.some((unavailability) => {
+      console.log(unavailability);
+
+      if (unavailability.startTime === null) {
+        let startOfTheVacation = new Date(
+          addDays(unavailability.startDate, -1)
+        );
+        let endOfTheVacation = new Date(unavailability.endDate);
+        if (
+          isWithinInterval(date.value, {
+            start: startOfTheVacation,
+            end: endOfTheVacation,
+          })
+        )
+          return true;
+      }
+    });
+  }
+});
+
+interface unavailableBetweenHours {
+  exists: boolean;
+  fromPosition: number;
+  toPosition: number;
+}
+const unavailableHoursWithinDay: Ref<unavailableBetweenHours> = computed(
+  (): unavailableBetweenHours => {
+    if (props.unavailabilites) {
+      let unavailabilityArray = props.unavailabilites.filter((unav) => {
+        return (
+          unav.startDate === formatISO(date.value, { representation: "date" })
+        );
+      });
+      if (unavailabilityArray.length > 0) {
+        let unavailabity = unavailabilityArray[0];
+        let [startHour, startMinute] = unavailabity.startTime
+          .split(":")
+          .map(Number);
+        let [endHour, endMinute] = unavailabity.endTime.split(":").map(Number);
+        let fromPos = (startHour - 9) * 6 + 1 + Math.floor(startMinute / 10);
+        let toPos = (endHour - 9) * 6 + 1 + Math.ceil(endMinute / 10);
+        return { exists: true, fromPosition: fromPos, toPosition: toPos };
+      }
+    }
+    return { exists: false, fromPosition: 0, toPosition: 0 }; // 0 is a default to not show anything but it won't because of the exists flag.
+  }
+);
 function createTimeSlots(
   startHour: number,
   endHour: number,
@@ -123,6 +179,18 @@ async function handleAddAppointment(
   serviceId: number
 ) {
   showAppointmentModal.value = false;
+  if (isWeekend(new Date(date))) {
+    console.log("isweekend");
+
+    Swal.fire({
+      position: "top-end",
+      icon: "error",
+      title: "Can not create appointments on weekend.",
+      showConfirmButton: false,
+      timer: 2500,
+    });
+    return;
+  }
   const resp = await createAppointment(date, hour, doctorId, serviceId, userId);
   emits("createdAppointment");
 }
@@ -157,6 +225,18 @@ onMounted(async () => {
     await fetchUserProfile();
   }
 });
+
+function showTimeSlotBlock(slot: string): boolean {
+  console.log(unavailableToday.value);
+
+  if (unavailableToday.value) {
+    return false;
+  } else if (unavailableHoursWithinDay.value.exists) {
+    return false;
+  } else {
+    return !slotHasAppointment(slot);
+  }
+}
 </script>
 <template>
   <div class="customer-daily-calendar">
@@ -178,7 +258,6 @@ onMounted(async () => {
             <span> {{ slot.split(":")[0] }}:00 </span>
           </div>
           <div class="median-slot"></div>
-          <div class="time-slot-block" v-if="!slotHasAppointment(slot)"></div>
         </div>
         <div
           v-for="appointment in appointmentsForTheDay"
@@ -198,6 +277,23 @@ onMounted(async () => {
           </div>
           <div v-else>BUSY</div>
         </div>
+        <div
+          v-if="unavailableToday"
+          class="appointment-block"
+          :style="{ gridRowStart: 1, gridRowEnd: 30 }"
+        >
+          UNAVAILABLE TODAY
+        </div>
+        <div
+          v-if="unavailableHoursWithinDay.exists"
+          class="appointment-block"
+          :style="{
+            gridRowStart: unavailableHoursWithinDay.fromPosition,
+            gridRowEnd: unavailableHoursWithinDay.toPosition,
+          }"
+        >
+          UNAVAILABLE
+        </div>
       </div>
     </div>
   </div>
@@ -209,6 +305,7 @@ onMounted(async () => {
     variant="DAY"
     @close="closeAppointmentModal"
     @addAppointment="handleAddAppointment"
+    :disabled="unavailableToday"
   />
 </template>
 
@@ -248,6 +345,7 @@ onMounted(async () => {
   .calendar-table-container {
     margin: 0px 100px 20px 40px;
     background-color: @light-smoke;
+    margin: 10px;
     overflow-y: scroll;
     max-height: 72vh;
 

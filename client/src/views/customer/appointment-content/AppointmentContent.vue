@@ -76,7 +76,6 @@ function handleCreatedAppointment() {
         @created-appointment="handleCreatedAppointment"
       />
     </div>
-    <div v-else>No Appointments for this day.</div>
   </div>
 </template>
 

@@ -153,7 +153,6 @@ async function addDoctorAccount() {
       }
     });
   } else {
-    console.log("All fields are required"); //create an error message
   }
 }
 
