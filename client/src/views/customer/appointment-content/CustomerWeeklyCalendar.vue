@@ -104,7 +104,14 @@ async function handleAddAppointment(
   serviceId: number
 ) {
   showAppointmentModal.value = false;
+  Swal.fire({
+    icon: "info",
+    title: "Appointing :)",
+    showCancelButton: false,
+  });
   const resp = await createAppointment(date, hour, doctorId, serviceId, userId);
+  if (resp.ok) {
+  }
   emits("createdAppointment");
 }
 function closeAppointmentModal() {
@@ -127,13 +134,8 @@ const unavailabilityForDays = computed((): unavailableForDays[] => {
       });
     });
     return unavailabilitesArray.map((unav) => {
-      console.log("unav" + unav.startDate + " " + unav.startTime);
-
       if (unav.startTime === null) {
         let colPos = getDay(new Date(unav.startDate)) * 2 + 1;
-        // console.log("start date" + unav.startDate);
-        // console.log("day " + getDay(new Date(unav.startDate)));
-        // console.log("col pos " + colPos);
 
         return {
           wholeDay: true,
@@ -160,15 +162,12 @@ const unavailabilityForDays = computed((): unavailableForDays[] => {
   return [];
 });
 
-console.log(unavailabilityForDays.value);
-
 // start si end sunt actualizate atunci cand calendarul se schimba.
 watch(
   () => props.calendarDate,
   (newDate) => {
     start.value = startOfWeek(newDate, { weekStartsOn: 1 });
     end.value = addDays(start.value, 4);
-    console.log("Start " + start.value + " end " + end.value);
 
     appointmentsForTheWeek.value = props.appointments.filter((app) => {
       const appointmentDate = parseISO(app.date);

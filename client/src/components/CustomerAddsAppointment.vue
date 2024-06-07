@@ -12,6 +12,7 @@ import {
   endOfWeek,
   format,
   formatISO,
+  isWeekend,
   parseISO,
   startOfWeek,
 } from "date-fns";
@@ -37,7 +38,7 @@ const modalTitle = `New appointment for Dr. ${props.selectedDoctor?.firstName} $
 const services = ref<Service[]>([]);
 
 const selectedService = ref();
-const selectedDate = ref(formatISO(props.selectedDate).split("T")[0]);
+const selectedDate = ref();
 const selectedHour = ref();
 const availableHours = ref<string[]>([]);
 const availableDates = ref<string[]>([]);
@@ -186,9 +187,10 @@ const hoursFetched = computed(() => {
 
 .selection {
   width: 40vw;
-  height: 20vh;
+  height: 15vh;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 10px;
 
   .option {

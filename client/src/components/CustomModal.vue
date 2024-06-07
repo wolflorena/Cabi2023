@@ -78,7 +78,7 @@ const emits = defineEmits(["button1", "button2"]);
     flex-direction: column;
 
     &.light {
-      background-color: @dark-gray;
+      background-color: @light;
 
       .modal-header {
         h1 {
@@ -97,6 +97,7 @@ const emits = defineEmits(["button1", "button2"]);
       h1 {
         color: @font-gray;
         font-weight: 300;
+        padding-bottom: 25px;
         font-size: 22px;
       }
     }
@@ -104,7 +105,7 @@ const emits = defineEmits(["button1", "button2"]);
     .modal-footer {
       display: flex;
       justify-content: space-between;
-      padding-top: 15px;
+      padding-top: 25px;
 
       button {
         background-color: transparent;
@@ -121,7 +122,7 @@ const emits = defineEmits(["button1", "button2"]);
             font-size: 20px;
             color: @green;
             &:hover {
-              background-color: @darker-gray;
+              background-color: @sugar;
               border-radius: 30px;
             }
           }
@@ -134,7 +135,7 @@ const emits = defineEmits(["button1", "button2"]);
 
             color: @red;
             &:hover {
-              background-color: @darker-gray;
+              background-color: @sugar;
               border-radius: 30px;
             }
           }
