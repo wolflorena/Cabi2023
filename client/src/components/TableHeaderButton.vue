@@ -15,7 +15,7 @@ const props = withDefaults(
 
 const variantClass = computed(() => ({
   "default-button": props.variant === "DEFAULT",
-  "customer-calendar-button": props.variant === "CUSTOMER-CALENDAR",
+  "customer-calendar-button": props.variant === "CUSTOMER_CALENDAR",
   selected: props.active,
 }));
 </script>

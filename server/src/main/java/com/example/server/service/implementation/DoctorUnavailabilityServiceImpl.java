@@ -14,6 +14,7 @@ import com.example.server.service.DoctorUnavailabilityService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.Year;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,6 +44,14 @@ public class DoctorUnavailabilityServiceImpl implements DoctorUnavailabilityServ
     public List<VacationRequestDTO> getAllVacationsForCalendar() {
         List<DoctorUnavailability> doctorUnavailabilities = doctorUnavailabilityRepository.findAll();
         return doctorUnavailabilities.stream()
+                .map(doctorUnavailability -> modelMapper.map(doctorUnavailability, VacationRequestDTO.class))
+                .collect(Collectors.toList());
+    }
+    @Override
+    public List<VacationRequestDTO> getAllVacationsForCalendarForYear(Year year) {
+        List<DoctorUnavailability> doctorUnavailabilities = doctorUnavailabilityRepository.findAll();
+        return doctorUnavailabilities.stream()
+                .filter(doctorUnavailability -> isWithinYear(doctorUnavailability, year))
                 .map(doctorUnavailability -> modelMapper.map(doctorUnavailability, VacationRequestDTO.class))
                 .collect(Collectors.toList());
     }
@@ -104,6 +113,10 @@ public class DoctorUnavailabilityServiceImpl implements DoctorUnavailabilityServ
         return modelMapper.map(doctorUnavailabilityRepository.save(doctorUnavailability), VacationRequestDTO.class);
     }
 
+    private boolean isWithinYear(DoctorUnavailability unavailability, Year year) {
+        return (unavailability.getStartDate().getYear() == year.getValue() ||
+                unavailability.getEndDate().getYear() == year.getValue());
+    }
 
     @Override
     public void deleteUnavailability(Long id) {

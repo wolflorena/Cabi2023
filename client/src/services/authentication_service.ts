@@ -1,4 +1,4 @@
-import { jwtPayload } from "@/data/types/Entities";
+import { RegisterCustomerBody, jwtPayload } from "@/data/types/Entities";
 import { parseJSON } from "date-fns";
 import { jwtDecode } from "jwt-decode";
 
@@ -16,6 +16,27 @@ export async function loginService(email: string, password: string) {
   let responseData;
   if (!response.ok) {
     responseData = await response.json();
+    throw new Error(responseData.message);
+  }
+  return response;
+}
+
+export async function registerCustomer(
+  registerCustomerBody: RegisterCustomerBody
+) {
+  const response = await fetch(`http://localhost:9090/api/customers/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(registerCustomerBody),
+  });
+
+  let responseData;
+
+  if (!response.ok) {
+    responseData = await response.json();
+
     throw new Error(responseData.message);
   }
   return response;

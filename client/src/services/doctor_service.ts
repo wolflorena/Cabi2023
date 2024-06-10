@@ -17,6 +17,7 @@ async function getAvailableDates(doctorId: number, serviceId: number) {
     `${API_URL}/available-dates?doctorId=${doctorId}&serviceId=${serviceId}`
   );
   const json = await response.json();
+
   return json;
 }
 

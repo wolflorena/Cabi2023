@@ -1,6 +1,4 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import SignupView from "../views/SignupView.vue";
-import LoginView from "../views/admin/LoginView.vue";
 import AdminDashboardView from "@/views/admin/AdminDashboardView.vue";
 import AdminAppointmentsView from "@/views/admin/AdminAppointmentsView.vue";
 import AdminPatientsView from "@/views/admin/AdminPatientsView.vue";
@@ -21,6 +19,8 @@ import {
   isAuthenticated,
   isTokenValid,
 } from "@/services/authentication_service";
+import LoginView from "@/views/Login-Register/LoginView.vue";
+import SignupView from "@/views/Login-Register/SignupView.vue";
 
 type RouteMeta = {
   requiresAuth: boolean;

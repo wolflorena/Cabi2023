@@ -96,6 +96,15 @@ export type UserDetails = {
   occupation: string;
 };
 
+export type RegisterCustomerBody = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phoneNo: string;
+  dateOfBirth: string;
+};
+
 export type TreatmentType = {
   serviceName: string;
   count: number;
@@ -116,7 +125,7 @@ export type ChangePasswordBody = {
 export type AppointmentWeekly = {
   week: string;
   count: number;
-}
+};
 
 export type Vacation = HasDoctorIdAndTime & {
   startDate: string;

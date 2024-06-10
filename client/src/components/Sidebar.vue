@@ -3,12 +3,14 @@ import SidebarButton from "./SidebarButton.vue";
 import type { SidebarOptionsWithRole } from "@/data/types/SidebarOptions";
 import { useRouter } from "vue-router";
 import CustomButton from "./CustomButton.vue";
+import { useUserProfile } from "@/store/useUserProfile";
 
 defineProps<{
   options: SidebarOptionsWithRole;
 }>();
 
 const router = useRouter();
+const { userDetails, avatarImage } = useUserProfile();
 
 const handleContentChange = (role: string, newPath: string): void => {
   if (role === "customer") {
@@ -20,6 +22,8 @@ const handleContentChange = (role: string, newPath: string): void => {
 
 function handleLogOut() {
   localStorage.removeItem("jwtToken");
+  userDetails.value = null;
+  avatarImage.value = null;
   router.push("/login");
 }
 </script>

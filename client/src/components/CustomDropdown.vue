@@ -34,7 +34,6 @@ function selectDoctor(doctor: Doctor) {
 
 function toggleDropdown() {
   displayDropdown.value = !displayDropdown.value;
-  console.log(displayDropdown.value);
 }
 </script>
 

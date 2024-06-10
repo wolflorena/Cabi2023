@@ -66,7 +66,6 @@ async function fetchAvailableDates() {
       availableDates.value = res;
     }
   );
-  console.log(availableDates.value);
 }
 
 async function fetchAvailableHours() {

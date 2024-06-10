@@ -6,10 +6,12 @@ const props = withDefaults(
     button1Text?: string;
     button2Text?: string;
     oneButton?: boolean;
+    variant?: string;
   }>(),
   {
     button1Text: "Save",
     button2Text: "Cancel",
+    variant: "DARK",
   }
 );
 
@@ -19,7 +21,13 @@ const emits = defineEmits(["button1", "button2"]);
 <template>
   <Transition name="modal">
     <div v-if="show" class="modal-mask">
-      <div class="modal-container">
+      <div
+        class="modal-container"
+        :class="{
+          light: variant === 'LIGHT',
+          dark: variant === 'DARK',
+        }"
+      >
         <div class="modal-header">
           <h1>{{ title }}</h1>
           <slot></slot>
@@ -69,6 +77,17 @@ const emits = defineEmits(["button1", "button2"]);
     justify-content: center;
     flex-direction: column;
 
+    &.light {
+      background-color: @light;
+
+      .modal-header {
+        h1 {
+          color: @heavy-smoke;
+          font-weight: bold;
+          font-size: 22px;
+        }
+      }
+    }
     .modal-header,
     .modal-footer {
       width: 100%;
@@ -78,6 +97,7 @@ const emits = defineEmits(["button1", "button2"]);
       h1 {
         color: @font-gray;
         font-weight: 300;
+        padding-bottom: 25px;
         font-size: 22px;
       }
     }
@@ -85,7 +105,7 @@ const emits = defineEmits(["button1", "button2"]);
     .modal-footer {
       display: flex;
       justify-content: space-between;
-      padding-top: 15px;
+      padding-top: 25px;
 
       button {
         background-color: transparent;
@@ -94,10 +114,30 @@ const emits = defineEmits(["button1", "button2"]);
 
         &.modal-button {
           &1 {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+
+            font-size: 20px;
             color: @green;
+            &:hover {
+              background-color: @sugar;
+              border-radius: 30px;
+            }
           }
           &2 {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 20px;
+            padding: 6px 10px;
+
             color: @red;
+            &:hover {
+              background-color: @sugar;
+              border-radius: 30px;
+            }
           }
         }
       }

@@ -1,35 +1,38 @@
 <script setup lang="ts">
 import { Doctor } from "@/data/types/Entities";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 const props = defineProps<{
-  doctors: Doctor[];
+  doctors: Doctor[] | null;
   isOpen: boolean;
+  selectedDoctor: Doctor | null;
 }>();
 
 const emits = defineEmits<{
-  onOpenDropdown: [];
   onDoctorSelected: [doctor: Doctor];
 }>();
 
-const selectedDoctor = ref<string>("Select Doctor");
-
-function handleDropdownOpen() {
-  emits("onOpenDropdown");
-}
-
-function handleDoctorSelected(clickedDoctor: Doctor) {
-  const doctorName =
-    "Dr. " + clickedDoctor.firstName + " " + clickedDoctor.lastName;
-  selectedDoctor.value = doctorName;
-
+const displayedDoctor = computed(() => {
+  if (props.selectedDoctor) {
+    return (
+      "Dr. " +
+      props.selectedDoctor.firstName +
+      " " +
+      props.selectedDoctor.lastName
+    );
+  } else {
+    return "Select a doctor";
+  }
+});
+function handleDoctorSelected(event: Event, clickedDoctor: Doctor) {
+  event.stopPropagation();
   emits("onDoctorSelected", clickedDoctor);
 }
 </script>
 <template>
   <div class="doctors-dropdown-container">
-    <span class="selected-doctor-label"> {{ selectedDoctor }}</span>
-    <div class="icon-container" @click="handleDropdownOpen">
+    <span class="selected-doctor-label"> {{ displayedDoctor }}</span>
+    <div class="icon-container">
       <font-awesome-icon
         icon="circle-chevron-down"
         id="dropdown-icon"
@@ -40,11 +43,15 @@ function handleDoctorSelected(clickedDoctor: Doctor) {
       />
     </div>
     <transition name="dropdown">
-      <div class="doctors-dropdown" v-if="isOpen">
-        <div v-for="doctor in doctors" class="doctor-selection">
-          <span class="doctor-label" @click="handleDoctorSelected(doctor)">
-            Dr. {{ doctor.firstName }} {{ doctor.lastName }}</span
-          >
+      <div class="doctors-dropdown" v-if="isOpen && doctors">
+        <div
+          v-for="doctor in doctors"
+          class="doctor-selection"
+          @click="handleDoctorSelected($event, doctor)"
+        >
+          <div class="doctor-label">
+            Dr. {{ doctor.firstName }} {{ doctor.lastName }}
+          </div>
         </div>
       </div>
     </transition>

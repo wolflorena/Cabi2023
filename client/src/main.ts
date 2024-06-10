@@ -1,42 +1,55 @@
-import { createApp } from "vue";
-import "./assets/main.less";
-import App from "./App.vue";
-import router from "./router";
-import VueSweetalert2 from "vue-sweetalert2";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faBars,
+  faCalendarCheck,
+  faCaretLeft,
+  faCaretRight,
+  faCartFlatbed,
+  faCheck,
   faChevronDown,
   faChevronLeft,
   faChevronRight,
   faChevronUp,
-  faCirclePlus,
-  faTableColumns,
-  faCalendarCheck,
-  faHospitalUser,
-  faCartFlatbed,
   faCircleChevronDown,
   faCircleChevronUp,
-  faHighlighter,
+  faCirclePlus,
+  faPlus,
   faEye,
-  faPen,
-  faUser,
-  faKey,
   faEyeSlash,
-  faCheck,
-  faXmark,
+  faHighlighter,
+  faHospitalUser,
   faInfoCircle,
+  faKey,
+  faPen,
+  faTableColumns,
   faTrashCan,
+  faUser,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCircleCheck,
+  faXmarkCircle,
+} from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import "@vuepic/vue-datepicker/dist/main.css";
+import { createApp } from "vue";
+import VueSweetalert2 from "vue-sweetalert2";
+import App from "./App.vue";
+import "./assets/main.less";
+import router from "./router";
 
 library.add(
   faInfoCircle,
+  faXmarkCircle,
   faTableColumns,
+  faCircleCheck,
   faCalendarCheck,
   faHospitalUser,
   faCartFlatbed,
   faHighlighter,
+  faCaretLeft,
+  faCaretRight,
+  faPlus,
   faChevronRight,
   faChevronDown,
   faChevronUp,

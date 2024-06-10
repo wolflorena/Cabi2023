@@ -119,14 +119,39 @@ async function getTotalAppointments(doctorId: number, status: string) {
 }
 
 async function getWeeklyAppointmentsNumber(doctorId: number) {
-  const response = await fetch(
-    API_URL +
-      "/weekly?doctorId=" +
-      doctorId 
-  );
+  const response = await fetch(API_URL + "/weekly?doctorId=" + doctorId);
   const json = await response.json();
   return json;
 }
+
+export async function getDoctorAppointments(
+  token: string,
+  doctorId: number,
+  date: string,
+  viewType: string
+) {
+  const response = await fetch(
+    `${API_URL}/getByDateAndViewType?doctorId=${doctorId}&date=${date}&viewType=${viewType}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to get appointments by date and type");
+  }
+
+  if (response.status === 204) {
+    return [];
+  }
+  const json = await response.json();
+  return json;
+}
+
 export {
   getAppointmentsByDateAndDoctor,
   getAll,

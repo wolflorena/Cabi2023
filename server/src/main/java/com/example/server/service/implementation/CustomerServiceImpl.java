@@ -168,7 +168,7 @@ public class CustomerServiceImpl implements CustomerService {
                     .orElseThrow(() -> new IllegalArgumentException("User not found!"));
             customer.setAvatar(avatar.getBytes());
             customerRepository.save(customer);
-        }catch (Exception e){
+        }catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }

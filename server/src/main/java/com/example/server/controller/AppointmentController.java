@@ -1,8 +1,10 @@
 package com.example.server.controller;
 
+import com.example.server.exception.types.CouldNotRetrieveAppointmentsByDateAndTypeException;
 import com.example.server.repository.DTOs.*;
 import com.example.server.repository.entity.Appointment;
 import com.example.server.service.AppointmentService;
+import org.apache.coyote.Response;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -95,5 +97,22 @@ public class AppointmentController {
     public ResponseEntity<List<WeeklyAppointmentsDTO>> getWeeklyAppointments(@RequestParam Long doctorId) {
         List<WeeklyAppointmentsDTO> weeklyAppointments = appointmentService.getWeeklyAppointments(doctorId);
         return ResponseEntity.ok(weeklyAppointments);
+    }
+
+    @GetMapping("/getByDateAndViewType")
+    public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByDoctorAndViewType(
+            @RequestParam(name = "doctorId") Long doctorId,
+            @RequestParam(name="date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(name = "viewType") String viewType){
+        try{
+            List<AppointmentResponseDTO> appointments = appointmentService.getAppointmentsByDoctorAndViewType(doctorId,date,viewType);
+            if (appointments.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+                return new ResponseEntity<>(appointments, HttpStatus.OK);
+
+        }catch(Exception e){
+            throw new CouldNotRetrieveAppointmentsByDateAndTypeException(e.getMessage());
+        }
     }
 }
