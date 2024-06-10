@@ -24,6 +24,7 @@ const daySelected = ref(new Date());
 const selectedContent = ref("");
 const updateAppointments = ref(false);
 const showAddDoctorModal = ref(false);
+const errorMessage = ref("");
 
 const doctorEmail = ref("");
 const doctorFirstName = ref("");
@@ -144,16 +145,23 @@ async function addDoctorAccount() {
       doctorEmail.value,
       doctorFirstName.value,
       doctorLasttName.value
-    ).then((res) => {
-      if (res) {
+    )
+      .then((res) => {
+        if (res) {
+          Swal.fire({
+            titleText: "An email has been sent to the doctor.",
+            icon: "success",
+          });
+        }
+      })
+      .catch((error) => {
         Swal.fire({
-          titleText: "An email has been sent to the doctor.",
-          icon: "success",
+          titleText: error.message,
+          icon: "error",
         });
-      }
-    });
+      });
   } else {
-    console.log("All fields are required"); //create an error message
+    errorMessage.value = "All fields are required";
   }
 }
 

@@ -46,21 +46,32 @@ const currentMonthYear = computed(() => {
   });
 });
 
+type HasDoctorIdAndTime = {
+  doctorId: number;
+  [key: string]: any;
+};
+
+function filterAndSortByTime<T extends HasDoctorIdAndTime>(
+  data: T[], 
+  selectedDoctors: number[],
+  getTime: (item: T) => string
+): T[] {
+  return data
+    .filter(item => selectedDoctors.includes(item.doctorId))
+    .sort((a, b) => {
+      const timeA = convertTime12to24(getTime(a));
+      const timeB = convertTime12to24(getTime(b));
+
+      return timeA - timeB;
+    });
+}
+
 const selectedAppointments = computed(() => {
   const selectedDoctors = props.selectedCalendars
     .filter((doctor) => doctor.checked)
     .map((doctor) => doctor.id);
 
-  return appointments.value
-    .filter((appointment: AppointmentCalendar) =>
-      selectedDoctors.includes(appointment.doctorId)
-    )
-    .sort((a: AppointmentCalendar, b: AppointmentCalendar) => {
-      const timeA = convertTime12to24(a.time);
-      const timeB = convertTime12to24(b.time);
-
-      return timeA - timeB;
-    });
+  return filterAndSortByTime(appointments.value, selectedDoctors, (item: AppointmentCalendar) => item.time);
 });
 
 const selectedUnavailabilities = computed(() => {
@@ -68,15 +79,9 @@ const selectedUnavailabilities = computed(() => {
     .filter((doctor) => doctor.checked)
     .map((doctor) => doctor.id);
 
-  return vacations.value
-    .filter((vacation: Vacation) => selectedDoctors.includes(vacation.doctorId))
-    .sort((a: Vacation, b: Vacation) => {
-      const timeA = convertTime12to24(a.startTime);
-      const timeB = convertTime12to24(b.startTime);
-
-      return timeA - timeB;
-    });
+  return filterAndSortByTime(vacations.value, selectedDoctors, (item: Vacation) => item.startTime);
 });
+
 
 onMounted(() => {
   loadAppointments();

@@ -265,9 +265,7 @@ async function addAppointment(
                   iconToken="eye"
                   @action-triggered="showInfoModal(appointment.appointmentId)"
                 />
-
                 <ActionButton iconToken="pen" />
-
                 <ActionButton
                   iconToken="trash-can"
                   @action-triggered="showDeleteModal(appointment.appointmentId)"
@@ -283,9 +281,7 @@ async function addAppointment(
                     )
                   "
                 />
-
                 <ActionButton iconToken="pen" />
-
                 <ActionButton
                   iconToken="xmark"
                   @action-triggered="

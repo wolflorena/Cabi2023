@@ -11,7 +11,7 @@ import ToggleButton from "@/components/ToggleButton.vue";
 import { addForm, getForm, updateForm } from "@/services/form_service";
 import { Form } from "@/data/types/Entities";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
-import { is } from "cypress/types/bluebird";
+import Swal from "sweetalert2";
 
 const route = useRoute();
 const title = ref("");
@@ -27,8 +27,20 @@ function goBack() {
 }
 
 async function createForm() {
-  await addForm(title.value, description.value, visibility.value);
-  alert("Form submitted successfully");
+  await addForm(title.value, description.value, visibility.value).then(
+    (res) => {
+      if (res) {
+        Swal.fire({
+          titleText: "Form has been successfully created!",
+          icon: "success",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            goBack();
+          }
+        });
+      }
+    }
+  );
 }
 
 async function getFormDetails(formId: number) {
@@ -43,11 +55,11 @@ async function getFormDetails(formId: number) {
 }
 
 onMounted(() => {
-  if (formId) getFormDetails(+formId.value);
+  if (formId.value) getFormDetails(+formId.value);
 });
 
 async function submitChanges() {
-  if (!formId) {
+  if (!formId.value) {
     createForm();
   } else {
     await updateForm(
@@ -56,7 +68,10 @@ async function submitChanges() {
       description.value,
       visibility.value
     );
-    alert("Form edited successfully");
+    Swal.fire({
+      titleText: "Form has been successfully edited!",
+      icon: "success",
+    });
   }
 }
 
