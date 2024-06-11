@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
-    private static final Long ID_CLIENT_DEFAULT = (long) 1; //used when the admin makes an appointment, but the patient doesn't have an account
+    private static final Long ID_CLIENT_DEFAULT = (long) 11; //used when the admin makes an appointment, but the patient doesn't have an account
     private final AppointmentRepository appointmentRepository;
     private final CustomerRepository customerRepository;
     private final DoctorRepository doctorRepository;

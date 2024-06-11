@@ -1,16 +1,21 @@
 package com.example.server.controller;
 
 import com.example.server.repository.DTOs.*;
+import com.example.server.repository.DTOs.Customers.ChangePasswordBodyDTO;
 import com.example.server.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 import java.time.LocalDate;
 
 import java.time.LocalTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -68,5 +73,10 @@ public class DoctorController {
     @DeleteMapping
     public boolean deleteById(@RequestParam Long doctorId) {
         return doctorService.deleteDoctorById(doctorId);
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestParam Long doctorId, @RequestBody ChangePasswordBodyDTO changePasswordBody){
+        return new ResponseEntity<>(doctorService.changePassword(doctorId, changePasswordBody.getCurrentPassword(), changePasswordBody.getNewPassword()), HttpStatus.OK );
     }
 }

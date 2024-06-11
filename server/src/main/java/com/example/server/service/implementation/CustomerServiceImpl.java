@@ -11,7 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -93,9 +95,11 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerPageDTO getAllCustomersForAdmin(Pageable pageable) {
         CustomerPageDTO customerPageDTO = new CustomerPageDTO();
-        customerPageDTO.setTotal(customerRepository.findAll().size());
-        List<AppointmentDoctorDashboardDTO.CustomerAdminDTO> result = customerRepository
-                .findAll()
+        Page<Customer> customers = customerRepository.findAll(PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
+
+        customerPageDTO.setTotal((int) customers.getTotalElements());
+
+        List<AppointmentDoctorDashboardDTO.CustomerAdminDTO> result = customers.getContent()
                 .stream()
                 .map(customer -> modelMapper.map(customer, AppointmentDoctorDashboardDTO.CustomerAdminDTO.class))
                 .toList();

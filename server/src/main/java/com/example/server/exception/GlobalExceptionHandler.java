@@ -80,4 +80,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleFormEventAlreadyExistsException(FormEventAlreadyExistsException ex, WebRequest request) {
         return buildResponseEntity(HttpStatus.CONFLICT, ex.getMessage());
     }
+
+    @ExceptionHandler(IncorrectPasswordException.class)
+    public ResponseEntity<Object> handleIncorrectPasswordException(IncorrectPasswordException ex, WebRequest request) {
+        return buildResponseEntity(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
 }

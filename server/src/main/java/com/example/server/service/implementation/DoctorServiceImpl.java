@@ -1,6 +1,7 @@
 package com.example.server.service.implementation;
 
 import com.example.server.exception.types.EmailExistsException;
+import com.example.server.exception.types.IncorrectPasswordException;
 import com.example.server.exception.types.NotFoundException;
 import com.example.server.repository.AppointmentRepository;
 import com.example.server.repository.DTOs.*;
@@ -13,6 +14,7 @@ import com.example.server.repository.entity.DoctorUnavailability;
 import com.example.server.service.DoctorService;
 import com.example.server.service.SendEmailService;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,13 +32,15 @@ public class DoctorServiceImpl implements DoctorService {
     private final DoctorUnavailabilityRepository doctorUnavailabilityRepository;
     private final SendEmailService sendEmailService;
     private final ModelMapper modelMapper;
+    private PasswordEncoder passwordEncoder;
 
     public DoctorServiceImpl(DoctorRepository doctorRepository,
                              AppointmentRepository appointmentRepository,
                              ServiceRepository serviceRepository,
                              DoctorUnavailabilityRepository doctorUnavailabilityRepository,
                              SendEmailService sendEmailService,
-                             ModelMapper modelMapper) {
+                             ModelMapper modelMapper,
+                             PasswordEncoder passwordEncoder) {
 
         this.doctorRepository = doctorRepository;
         this.appointmentRepository = appointmentRepository;
@@ -44,6 +48,7 @@ public class DoctorServiceImpl implements DoctorService {
         this.doctorUnavailabilityRepository = doctorUnavailabilityRepository;
         this.sendEmailService = sendEmailService;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -116,7 +121,6 @@ public class DoctorServiceImpl implements DoctorService {
         return availableDates;
     }
 
-
     private boolean isDayAvailable(List<Appointment> bookedAppointments, int appointmentDuration) {
         LocalTime startOfWork = LocalTime.of(9, 0);
         LocalTime endOfWork = LocalTime.of(17, 0);
@@ -170,7 +174,6 @@ public class DoctorServiceImpl implements DoctorService {
     private boolean isTimeAvailable(LocalTime time, int duration, List<Appointment> bookedAppointments, List<DoctorUnavailability> unavailabilities) {
         LocalTime endTime = time.plusMinutes(duration);
 
-        // Verificăm dacă timpul se suprapune cu o programare existentă
         for (Appointment appointment : bookedAppointments) {
             LocalTime appointmentStartTime = appointment.getTime();
             LocalTime appointmentEndTime = appointment.getTime().plusMinutes(appointment.getFinalDuration());
@@ -179,10 +182,8 @@ public class DoctorServiceImpl implements DoctorService {
             }
         }
 
-        // Verificăm dacă timpul se suprapune cu o indisponibilitate
         for (DoctorUnavailability unavailability : unavailabilities) {
             if (unavailability.getStartTime() == null && unavailability.getEndTime() == null) {
-                // Indisponibilitate pentru întreaga zi
                 return false;
             } else if (unavailability.getStartTime() != null && unavailability.getEndTime() != null) {
                 if (time.isBefore(unavailability.getEndTime()) && endTime.isAfter(unavailability.getStartTime())) {
@@ -190,7 +191,6 @@ public class DoctorServiceImpl implements DoctorService {
                 }
             }
         }
-
         return true;
     }
 
@@ -255,6 +255,21 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public boolean deleteDoctorById(Long doctorId) {
         doctorRepository.deleteById(doctorId);
+        return true;
+    }
+
+    @Override
+    public boolean changePassword(Long doctorId, String currentPassword, String newPassword) {
+        Doctor doctor = doctorRepository.findById(doctorId).orElseThrow(() -> new NotFoundException("Doctor not found"));
+
+        if (!passwordEncoder.matches(currentPassword, doctor.getPassword())) {
+            throw new IncorrectPasswordException("Current password is incorrect");
+        }
+
+        String encodedNewPassword = passwordEncoder.encode(newPassword);
+        doctor.setPassword(encodedNewPassword);
+        doctor.setFirstLogin(false);
+        doctorRepository.save(doctor);
         return true;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.server.service;
 
 import com.example.server.repository.DTOs.*;
+import com.example.server.repository.DTOs.Customers.ChangePasswordBodyDTO;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -15,4 +16,5 @@ public interface DoctorService {
     DoctorUpdateDTO updateDoctor(Long doctorId, DoctorUpdateDTO doctorUpdateDTO);
     List<TreatmentTypesDTO> getDoctorServicesInCurrentMonth(Long doctorId);
     boolean deleteDoctorById(Long doctorId);
+    boolean changePassword(Long doctorId, String currentPassword, String newPassword);
 }

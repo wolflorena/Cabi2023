@@ -3,13 +3,19 @@ import Sidebar from "@/components/Sidebar.vue";
 import TableHeaderButton from "@/components/TableHeaderButton.vue";
 import { Doctor } from "@/data/types/Entities";
 import { DoctorSidebarOptions } from "@/data/types/SidebarOptions";
-import { getDoctorById, updateDoctor } from "@/services/doctor_service";
-import { onMounted, ref, watch } from "vue";
+import {
+  changeDoctorPassword,
+  getDoctorById,
+  updateDoctor,
+} from "@/services/doctor_service";
+import { computed, onMounted, ref, watch } from "vue";
 import InfoField from "@/components/InfoField.vue";
 import CustomButton from "@/components/CustomButton.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import Swal from "sweetalert2";
 
 const viewOnly = ref(true);
+const security = ref(false);
 const doctor = ref<Doctor>();
 const firstName = ref();
 const lastName = ref();
@@ -18,6 +24,14 @@ const phoneno = ref();
 const address = ref();
 const dateOfEmployment = ref();
 const isLoading = ref(false);
+
+const currentPassword = ref<string>("");
+const newPassword = ref<string>("");
+const confirmPassword = ref<string>("");
+
+const passwordsMatch = computed(() => {
+  return newPassword.value === confirmPassword.value;
+});
 
 async function getDoctorDetails() {
   isLoading.value = true;
@@ -53,6 +67,37 @@ async function updateProfile() {
     dateOfEmployment.value
   );
 }
+
+async function handlePasswordChange() {
+  if (passwordsMatch.value) {
+    isLoading.value = true;
+    try {
+      await changeDoctorPassword(1, currentPassword.value, newPassword.value);
+      currentPassword.value = "";
+      newPassword.value = "";
+      confirmPassword.value = "";
+      isLoading.value = false;
+      Swal.fire({
+        titleText: "Password changed successfully",
+        icon: "success",
+      });
+    } catch (error: any) {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+      isLoading.value = false;
+    }
+  } else {
+    Swal.fire({
+      titleText: "Passwords doesn't match",
+      icon: "error",
+    });
+    currentPassword.value = "";
+    newPassword.value = "";
+    confirmPassword.value = "";
+  }
+}
 </script>
 
 <template>
@@ -63,16 +108,36 @@ async function updateProfile() {
       <TableHeaderButton
         label="View Profile"
         :active="viewOnly"
-        @click="viewOnly = true"
+        @click="
+          {
+            viewOnly = true;
+            security = false;
+          }
+        "
       />
       <TableHeaderButton
         label="Edit Profile"
-        :active="!viewOnly"
-        @click="viewOnly = false"
+        :active="!viewOnly && !security"
+        @click="
+          {
+            viewOnly = false;
+            security = false;
+          }
+        "
+      />
+      <TableHeaderButton
+        label="Security Settings"
+        :active="security && !viewOnly"
+        @click="
+          {
+            viewOnly = false;
+            security = true;
+          }
+        "
       />
     </div>
 
-    <div v-if="!isLoading" class="details">
+    <div v-if="!isLoading && !security" class="details">
       <img src="../../assets/default-avatar.png" alt="" />
       <div class="doctor-info">
         <InfoField
@@ -125,8 +190,53 @@ async function updateProfile() {
         />
       </div>
     </div>
-    <div v-else class="details" style="width: 85vw; position: relative">
+    <div
+      v-else-if="isLoading"
+      class="details"
+      style="width: 85vw; position: relative"
+    >
       <LoadingSpinner />
+    </div>
+
+    <div v-else class="password-change">
+      <div class="info-fields-group">
+        <InfoField
+          uuid="currentPassword"
+          label="Current Password"
+          v-model:inputValue="currentPassword"
+          :isReadonly="false"
+          font-size="30"
+          type="password"
+          variant="ACCOUNT_INFORMATION"
+        />
+        <InfoField
+          uuid="newPassword"
+          label="New Password"
+          v-model:inputValue="newPassword"
+          :isReadonly="false"
+          font-size="30"
+          type="password"
+          variant="ACCOUNT_INFORMATION"
+        />
+        <InfoField
+          uuid="confirmPassword"
+          label="Confirm Password"
+          v-model:inputValue="confirmPassword"
+          :isReadonly="false"
+          font-size="30"
+          type="password"
+          variant="ACCOUNT_INFORMATION"
+        />
+
+        <CustomButton
+          :isMain="false"
+          text="Save Changes"
+          width="240"
+          height="60"
+          fontSize="18"
+          @click="handlePasswordChange"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -182,6 +292,19 @@ async function updateProfile() {
     .button {
       position: absolute;
       bottom: 50px;
+    }
+  }
+
+  .password-change {
+    margin-left: 10vw;
+    .info-fields-group {
+      width: 70vw;
+      height: 100vh;
+      gap: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: space-between;
+      flex-direction: column;
     }
   }
 }

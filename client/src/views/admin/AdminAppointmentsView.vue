@@ -236,8 +236,8 @@ async function addAppointment(
           <TableHeader
             :columns="
               appointmentStatus == 'COMPLETED'
-                ? ['Patient', 'Date', 'Doctor', 'Status']
-                : ['Patient', 'Date', 'Doctor', 'Actions']
+                ? ['Patient', 'Doctor', 'Date', 'Status']
+                : ['Patient', 'Doctor', 'Date', 'Actions']
             "
             :is-main="false"
             :has-empty-row="false"
@@ -424,6 +424,7 @@ async function addAppointment(
 
       .controls {
         width: 100%;
+        height: 100%;
         display: flex;
         justify-content: space-around;
       }
