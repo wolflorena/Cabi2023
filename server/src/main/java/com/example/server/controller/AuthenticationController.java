@@ -49,14 +49,19 @@ public class AuthenticationController {
                     .collect(Collectors.toSet());
 
             Long user_id = userDetails.getId();
-            String role = "ROLE_ADMIN";  // Default to admin if no other roles are matched
-            if (roles.contains("ROLE_CUSTOMER")) {
+            String role;
+            String jwt = "";
+            if(roles.contains("ROLE_ADMIN")){
+                role = "ROLE_ADMIN";
+                jwt = jwtUtil.generateToken(authRequest.getEmail(), role, user_id);
+            }else if (roles.contains("ROLE_CUSTOMER")) {
                 role = "ROLE_CUSTOMER";
+                jwt = jwtUtil.generateToken(authRequest.getEmail(), role, user_id);
             } else if (roles.contains("ROLE_DOCTOR")) {
                 role = "ROLE_DOCTOR";
+                jwt = jwtUtil.generateToken(authRequest.getEmail(), role, user_id, userDetails.getIsFirstLogin());
             }
 
-            final String jwt = jwtUtil.generateToken(authRequest.getEmail(), role, user_id);
             return new ResponseEntity<>(new AuthenticationResponseDTO(jwt), HttpStatus.OK);
 
         } catch (AuthenticationException e) {

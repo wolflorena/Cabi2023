@@ -63,6 +63,10 @@ async function login() {
     passwordText.value = "";
   }
 }
+
+function redirectToRegister() {
+  router.push("/register");
+}
 </script>
 
 <template>
@@ -97,6 +101,24 @@ async function login() {
           height="30"
           @click.prevent="login"
         />
+        <div class="register-form-container">
+          <span
+            :style="{
+              fontSize: '14px',
+              justifySelf: 'flex-end',
+            }"
+          >
+            No account? we have you covered
+          </span>
+          <CustomButton
+            color="#2c3343"
+            :isMain="false"
+            text="Register"
+            width="200"
+            height="30"
+            @click.prevent="redirectToRegister"
+          />
+        </div>
       </form>
     </div>
   </div>
@@ -139,6 +161,11 @@ async function login() {
       width: 60vw;
       height: 50%;
 
+      .register-form-container {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
       .inputs {
         display: flex;
         flex-direction: column;

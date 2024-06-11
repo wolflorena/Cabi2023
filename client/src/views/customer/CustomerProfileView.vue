@@ -28,6 +28,8 @@ const {
 } = useUserProfile();
 
 onMounted(async () => {
+  console.log("JWT TOKEN IS" + localStorage.getItem("jwtToken"));
+
   if (userDetails.value === null || avatarImage.value === null) {
     SwalLoading.fire();
     await fetchUserProfile();
@@ -65,7 +67,7 @@ onMounted(async () => {
           />
         </div>
       </div>
-      <div class="profile-content" v-if="userDetails">
+      <div class="profile-content" v-if="userDetails && avatarImage">
         <ViewProfile
           v-if="isActivePage('viewProfile').value"
           :userDetails="userDetails"

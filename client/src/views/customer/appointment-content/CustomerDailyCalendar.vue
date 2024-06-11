@@ -8,7 +8,6 @@ import {
 } from "@/data/types/Entities";
 import { createAppointment } from "@/services/appointments_service";
 import { getUserIdAndToken } from "@/services/authentication_service";
-import { useLoadAppointments } from "@/store/useLoadAppointments";
 import { useUserProfile } from "@/store/useUserProfile";
 import {
   addDays,
@@ -42,8 +41,6 @@ const date = ref<Date>(props.calendarDate);
 const unavailableToday = computed(() => {
   if (props.unavailabilites) {
     return props.unavailabilites.some((unavailability) => {
-      console.log(unavailability);
-
       if (unavailability.startTime === null) {
         let startOfTheVacation = new Date(
           addDays(unavailability.startDate, -1)
@@ -74,6 +71,8 @@ const unavailableHoursWithinDay: Ref<unavailableBetweenHours> = computed(
           unav.startDate === formatISO(date.value, { representation: "date" })
         );
       });
+
+      // add a filter method for current day.
       if (unavailabilityArray.length > 0) {
         let unavailabity = unavailabilityArray[0];
         let [startHour, startMinute] = unavailabity.startTime
@@ -180,8 +179,6 @@ async function handleAddAppointment(
 ) {
   showAppointmentModal.value = false;
   if (isWeekend(new Date(date))) {
-    console.log("isweekend");
-
     Swal.fire({
       position: "top-end",
       icon: "error",
@@ -227,8 +224,6 @@ onMounted(async () => {
 });
 
 function showTimeSlotBlock(slot: string): boolean {
-  console.log(unavailableToday.value);
-
   if (unavailableToday.value) {
     return false;
   } else if (unavailableHoursWithinDay.value.exists) {

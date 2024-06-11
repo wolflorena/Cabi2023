@@ -23,8 +23,6 @@ const appointments = ref<AppointmentCalendar[]>([]);
 const appointmentsCache = ref(new Map());
 const unavailabilities = ref<Vacation[] | null>(null);
 
-const { userId, token } = getUserIdAndToken();
-
 function handleClickOnCalendarButton(value: string) {
   calendarViewtype.value = value;
 }
@@ -38,6 +36,8 @@ async function loadDoctors() {
 }
 
 async function fetchAppointments(forceUpdate: boolean = false) {
+  const { userId, token } = getUserIdAndToken();
+
   if (!selectedDoctor.value) return;
 
   const monthName = calendarDate.value.getMonth();
@@ -47,7 +47,7 @@ async function fetchAppointments(forceUpdate: boolean = false) {
   if (!forceUpdate && appointmentsCache.value.has(cacheKey)) {
     appointments.value = appointmentsCache.value.get(cacheKey);
   } else {
-    const date = formatISO(calendarDate.value).split("T")[0];
+    const date = formatISO(calendarDate.value, { representation: "date" });
     SwalLoading.fire({
       titleText: `Waiting for appointments.`,
     });
@@ -61,7 +61,6 @@ async function fetchAppointments(forceUpdate: boolean = false) {
       if (resAppointments) {
         appointments.value = resAppointments;
         appointmentsCache.value.set(cacheKey, resAppointments);
-        console.log("forced appointments " + resAppointments);
       }
 
       if (resUnavailabilities) {

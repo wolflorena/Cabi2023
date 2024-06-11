@@ -34,10 +34,9 @@ const handleClickEvent = () => {
       height: height ? height + 'px' : 'auto',
       width: width ? width + 'px' : 'auto',
       fontSize: fontSize ? fontSize + 'px' : 'inherit',
-      opacity: disabled ? '0.6' : '1',
       cursor: disabled ? 'not-allowed' : 'pointer',
     }"
-    :class="isMain"
+    :class="{ disabled: disabled }"
     @click="handleClickEvent"
   >
     {{ text }}
@@ -54,5 +53,16 @@ button {
   font-size: 15px;
   font-weight: bold;
   color: @sugar;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.disabled {
+  opacity: 0.6;
+  &:hover {
+    opacity: 0.6;
+  }
 }
 </style>

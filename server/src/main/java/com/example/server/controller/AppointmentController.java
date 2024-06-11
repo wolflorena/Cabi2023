@@ -1,5 +1,6 @@
 package com.example.server.controller;
 
+import com.example.server.exception.types.CanNotRetrieveHistory;
 import com.example.server.exception.types.CouldNotRetrieveAppointmentsByDateAndTypeException;
 import com.example.server.repository.DTOs.*;
 import com.example.server.repository.entity.Appointment;
@@ -113,6 +114,28 @@ public class AppointmentController {
 
         }catch(Exception e){
             throw new CouldNotRetrieveAppointmentsByDateAndTypeException(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getHistory")
+    public ResponseEntity<HistoryPageDTO> getHistoryByCustomerId(
+        @RequestParam Long customerId,
+        @RequestParam(required = true) int pageSize,
+        @RequestParam(required = true) int pageNumber
+    ){
+        try{
+
+            HistoryPageDTO historyPage = appointmentService.getHistoryByCustomerId(customerId,PageRequest.of(
+                    pageNumber,
+                    pageSize
+            ));
+            if (historyPage == null) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(historyPage, HttpStatus.OK);
+
+        }catch(Exception e){
+            throw new CanNotRetrieveHistory(e.getMessage());
         }
     }
 }

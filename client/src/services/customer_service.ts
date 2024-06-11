@@ -19,7 +19,11 @@ async function getAllPageable(pageSize: number, pageNumber: number) {
   return json;
 }
 
-async function getAllPatientsForDoctor(pageSize: number, pageNumber:number, doctorId:number) {
+async function getAllPatientsForDoctor(
+  pageSize: number,
+  pageNumber: number,
+  doctorId: number
+) {
   const response = await fetch(
     `${API_URL}/allForDoctor?pageSize=${pageSize}&pageNumber=${pageNumber}&doctorId=${doctorId}`
   );
@@ -42,6 +46,21 @@ async function getById(userId: number, token: string): Promise<UserDetails> {
   const user: UserDetails = await response.json();
   return user;
 }
+
+// async function getHistoryById(userId: number, token: string): Promise<UserHistory> {
+//   const response = await fetch(`${API_URL}/get?id=${userId}`, {
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//       "Content-Type": "application/json",
+//     },
+//   });
+//   if (!response.ok) {
+//     throw new Error("Failed to fetch user data");
+//   }
+
+//   const user: UserDetails = await response.json();
+//   return user;
+// }
 
 async function editStatus(userId: number, newStatusAccount: string) {
   const response = await fetch(

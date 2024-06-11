@@ -53,6 +53,7 @@ span {
     top: 50%;
     transform: translateY(-50%);
     z-index: 99;
+    background-color: transparent;
   }
 }
 </style>

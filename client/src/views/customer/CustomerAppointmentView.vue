@@ -7,6 +7,7 @@ import DoctorsDropdown from "./appointment-content/DoctorsDropdown.vue";
 import AppointmentContent from "./appointment-content/AppointmentContent.vue";
 import { useLoadAppointments } from "@/store/useLoadAppointments";
 import { useUserProfile } from "@/store/useUserProfile";
+import { getUserIdAndToken } from "@/services/authentication_service";
 
 const {
   doctors,

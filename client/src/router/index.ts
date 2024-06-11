@@ -21,6 +21,7 @@ import {
 } from "@/services/authentication_service";
 import LoginView from "@/views/Login-Register/LoginView.vue";
 import SignupView from "@/views/Login-Register/SignupView.vue";
+import HistoryView from "@/views/customer/HistoryView.vue";
 
 type RouteMeta = {
   requiresAuth: boolean;
@@ -107,6 +108,12 @@ const routes: Array<RouteRecordRaw> = [
     path: "/doctor/patients",
     name: "doctorPatients",
     component: DoctorPatientsView,
+    meta: { requiresAuth: true, roles: ["ROLE_DOCTOR"] } as RouteMeta,
+  },
+  {
+    path: "/recovery",
+    name: "recovery",
+    component: LoginView,
   },
   {
     path: "/profile",
@@ -123,7 +130,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/history",
     name: "history",
-    component: CustomerProfileView,
+    component: HistoryView,
     meta: { requiresAuth: true, roles: ["ROLE_CUSTOMER"] } as RouteMeta,
   },
   {
@@ -149,7 +156,7 @@ router.beforeEach((to, from, next) => {
     const routeRoles = to.meta.roles as string[];
 
     if (requiresAuth && !routeRoles.includes(userRole)) {
-      next("/login");
+      next("/404_NOT_FOUND");
     } else {
       next();
     }

@@ -56,7 +56,7 @@ public class MyUserDetailsService implements UserDetailsService {
         Optional<Doctor> doctorOpt = doctorRepository.findByEmail(username);
         if (doctorOpt.isPresent()) {
             Doctor doctor = doctorOpt.get();
-            return new CustomUserDetails(doctor.getId(), doctor.getEmail(), doctor.getPassword(),
+            return new CustomUserDetails(doctor.getId(), doctor.getEmail(), doctor.getPassword(),doctor.isFirstLogin(),
                     Collections.singletonList(new SimpleGrantedAuthority("ROLE_DOCTOR")));
         }
 

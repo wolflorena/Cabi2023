@@ -1,10 +1,11 @@
 import { ref } from "vue";
-import { UserDetails } from "@/data/types/Entities";
+import { Appointment, UserDetails } from "@/data/types/Entities";
 import { getAvatar, getById } from "@/services/customer_service";
 import { getUserIdAndToken } from "@/services/authentication_service";
 
 const userProfile = ref<UserDetails | null>(null);
 const avatarImage = ref<string | null>(null);
+const userHistory = ref<Appointment[] | null>(null);
 
 async function fetchUserProfile() {
   if (!userProfile.value) {
@@ -19,6 +20,20 @@ async function fetchUserProfile() {
     }
   }
 }
+
+// async function fetchUserHistory() {
+//   if (!userProfile.value) {
+//     try {
+//       const { userId, token } = getUserIdAndToken();
+//       const resp = await getHistoryById(userId, token);
+//       if (resp) {
+//         userProfile.value = resp;
+//       }
+//     } catch (err) {
+//       throw new Error("Failed to load user history: " + err);
+//     }
+//   }
+// }
 
 async function retrieveUserAvatar() {
   if (!avatarImage.value) {

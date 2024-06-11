@@ -22,7 +22,7 @@ const inputChange = (event: any) => {
 <template>
   <div class="input-container">
     <div class="input-box">
-      <font-awesome-icon :icon="iconToken" id="icon" />
+      <font-awesome-icon v-if="iconToken" :icon="iconToken" id="icon" />
       <input
         maxlength="12"
         :type="type"

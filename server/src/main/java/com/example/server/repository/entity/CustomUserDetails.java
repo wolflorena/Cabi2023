@@ -12,6 +12,7 @@ public class CustomUserDetails implements UserDetails {
     private Long id;
     private String username;
     private String password;
+    private boolean isFirstLogin;
     private Collection<? extends GrantedAuthority> authorities;
 
     public CustomUserDetails(Long id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
@@ -20,7 +21,13 @@ public class CustomUserDetails implements UserDetails {
         this.password = password;
         this.authorities = authorities;
     }
-
+    public CustomUserDetails(Long id, String username, String password, boolean isFirstLogin, Collection<? extends GrantedAuthority> authorities) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.isFirstLogin = isFirstLogin;
+        this.authorities = authorities;
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
@@ -54,5 +61,13 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public boolean getIsFirstLogin() {
+        return isFirstLogin;
+    }
+
+    public void setIsFirstLogin(boolean firstLogin) {
+        isFirstLogin = firstLogin;
     }
 }

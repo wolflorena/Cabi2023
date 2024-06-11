@@ -2,6 +2,7 @@
 import CustomButton from "@/components/CustomButton.vue";
 import CustomInput from "@/components/CustomInput.vue";
 import CustomPhoneNumberInput from "@/components/CustomPhoneNumberInput.vue";
+import PasswordInput from "@/components/PasswordInput.vue";
 import { registerCustomer } from "@/services/authentication_service";
 import { format, formatISO } from "date-fns";
 import Swal from "sweetalert2";
@@ -131,35 +132,45 @@ function formatPhoneNumber(value: string): string {
 
   return digits;
 }
+
+function handlePasswordChange(newValue: string) {
+  password.value = newValue;
+}
+function handleCheckPasswordChange(newValue: string) {
+  checkPassword.value = newValue;
+}
 </script>
 
 <template>
   <div class="container">
     <div class="signup-container">
       <img src="@/assets/logo.png" alt="" />
-      <div class="form">
+      <form class="form">
         <div class="inputs">
           <CustomInput
             label-text="First name *"
+            type="text"
             v-model:model-value="firstName"
           />
           <CustomInput
             label-text="Last name *"
+            type="text"
             v-model:model-value="lastName"
           />
           <CustomInput label-text="Email *" v-model:model-value="email" />
-          <CustomInput
-            label-text="Password *"
-            type="password"
-            v-model:model-value="password"
+          <PasswordInput
+            labelText="Password *"
+            :value="password"
+            @password-changed="handlePasswordChange"
           />
-          <CustomInput
-            label-text="Check password *"
-            type="password"
-            v-model:model-value="checkPassword"
+          <PasswordInput
+            labelText="Check password *"
+            :value="checkPassword"
+            @password-changed="handleCheckPasswordChange"
           />
           <CustomPhoneNumberInput
             label-text="Phone Number *"
+            type="text"
             v-model:model-value="formattedPhoneNumber"
           />
           <CustomInput
@@ -174,7 +185,7 @@ function formatPhoneNumber(value: string): string {
           height="30"
           @click.prevent="handleRegister"
         />
-      </div>
+      </form>
     </div>
     <div class="img-container">
       <img class="img-right" src="@/assets/form.jpeg" alt="" />

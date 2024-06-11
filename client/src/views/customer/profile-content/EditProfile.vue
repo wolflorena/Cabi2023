@@ -56,15 +56,14 @@ async function handleSaveChanges() {
     editedUserDetails.value
   );
 
-  emits("updateUserDetails", newUserDetails);
-  if (avatarPreview.value !== props.avatarImage && avatarPreview.value) {
-    emits("updateAvatarImage", avatarPreview.value);
-  }
-
   Swal.fire({
     titleText: "Account have been updated successfully",
     icon: "success",
   });
+  emits("updateUserDetails", newUserDetails);
+  if (avatarPreview.value !== props.avatarImage && avatarPreview.value) {
+    emits("updateAvatarImage", avatarPreview.value);
+  }
 }
 </script>
 

@@ -2,7 +2,6 @@ package com.example.server.service;
 
 import com.example.server.repository.DTOs.*;
 import com.example.server.repository.entity.Appointment;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
@@ -24,6 +23,6 @@ public interface AppointmentService {
     List<AppointmentDoctorDashboardDTO> getNextAppointments(Long doctorId);
     int getAppointmentsNumberByStatusAndDoctor(Long doctorId, Appointment.AppointmentStatus appointmentStatus);
     List<WeeklyAppointmentsDTO> getWeeklyAppointments(Long doctorId);
-
+    HistoryPageDTO getHistoryByCustomerId(Long customerId, Pageable pageable);
     List<AppointmentResponseDTO> getAppointmentsByDoctorAndViewType(Long doctorId, LocalDate date, String viewType);
 }

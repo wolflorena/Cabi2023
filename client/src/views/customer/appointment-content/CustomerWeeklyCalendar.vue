@@ -97,6 +97,7 @@ function getAppointmentStyle(appointment: AppointmentCalendar) {
 function handleShowAppointment() {
   showAppointmentModal.value = true;
 }
+
 async function handleAddAppointment(
   date: string,
   hour: string,
@@ -124,13 +125,14 @@ interface unavailableForDays {
   toPosition: number;
   columnPosition: number;
 }
+
 const unavailabilityForDays = computed((): unavailableForDays[] => {
   if (props.unavailabilites) {
     let unavailabilitesArray = props.unavailabilites.filter((unav) => {
       let unavailabilyDate = new Date(unav.startDate);
       return isWithinInterval(unavailabilyDate, {
         start: start.value,
-        end: end.value,
+        end: addDays(end.value, 1),
       });
     });
     return unavailabilitesArray.map((unav) => {

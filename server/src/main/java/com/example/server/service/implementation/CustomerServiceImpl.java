@@ -180,7 +180,6 @@ public class CustomerServiceImpl implements CustomerService {
         return customer.getAvatar();
     }
 
-
     public void changePassword(Long customerId, String currentPassword, String newPassword) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));

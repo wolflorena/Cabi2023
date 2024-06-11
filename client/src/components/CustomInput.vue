@@ -2,7 +2,7 @@
 const props = withDefaults(
   defineProps<{
     labelText: string;
-    type: string;
+    type?: string;
     pattern?: string;
     iconToken?: string;
     modelValue?: string;
@@ -23,7 +23,7 @@ const inputChange = (event: any) => {
 <template>
   <div class="input-container">
     <div class="input-box">
-      <font-awesome-icon :icon="iconToken" id="icon" />
+      <font-awesome-icon v-if="iconToken" :icon="iconToken" id="icon" />
       <input
         :type="type"
         :key="type"

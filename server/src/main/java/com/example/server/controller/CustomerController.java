@@ -2,7 +2,9 @@ package com.example.server.controller;
 
 import com.example.server.exception.types.CanNotDeactivateException;
 import com.example.server.exception.types.CanNotDeleteException;
+import com.example.server.exception.types.CanNotRetrieveHistory;
 import com.example.server.repository.DTOs.Customers.*;
+import com.example.server.repository.entity.Appointment;
 import com.example.server.repository.entity.Customer;
 import com.example.server.service.implementation.CustomerServiceImpl;
 import org.apache.coyote.Response;

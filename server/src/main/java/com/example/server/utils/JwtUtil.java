@@ -28,6 +28,20 @@ public class JwtUtil {
                 .compact();
     }
 
+    public String generateToken(String username, String role, Long user_id, boolean isFirstLogin) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+        claims.put("user_id", user_id);
+        claims.put("is_first_login", isFirstLogin);
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }

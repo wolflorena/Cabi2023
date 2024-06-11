@@ -152,6 +152,36 @@ export async function getDoctorAppointments(
   return json;
 }
 
+export async function getHistoryOfCustomer(
+  token: string,
+  customerId: number,
+  pageSize: number,
+  pageNumber: number
+) {
+  const response = await fetch(
+    `${API_URL}/getHistory?customerId=${customerId}&pageSize=${pageSize}&pageNumber=${pageNumber}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to get history for current customerId");
+  }
+
+  if (response.status === 204) {
+    return [];
+  }
+
+  const json = await response.json();
+
+  return json;
+}
+
 export {
   getAppointmentsByDateAndDoctor,
   getAll,
