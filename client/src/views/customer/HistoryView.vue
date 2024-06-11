@@ -7,12 +7,28 @@ import TableHeader from "@/components/TableHeader.vue";
 import TableRow from "@/components/TableRow.vue";
 import { AppointmentCalendar } from "@/data/types/Entities";
 import { useUserAppointments } from "@/store/useUserAppointments";
+import Pagination from "@/components/Pagination.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
-const { userHistoryAppointments, fetchUserHistoryAppointments } =
-  useUserAppointments();
+const {
+  userHistoryAppointments,
+  totalPages,
+  isLoading,
+  changePage,
+  fetchUserHistoryAppointments,
+} = useUserAppointments();
 
 const currentPage = ref<number>(1);
 const pageNumber = ref<number>(1);
+
+function handleChangePage(pageNumber: number) {
+  currentPage.value = pageNumber;
+  changePage(pageNumber);
+}
+
+function doctorFullName(firstName: string, lastName: string): string {
+  return "Dr. " + firstName + " " + lastName;
+}
 onMounted(async () => {
   await fetchUserHistoryAppointments(pageNumber.value);
 });
@@ -23,7 +39,7 @@ onMounted(async () => {
     <Sidebar :options="CustomerSidebarOptions" />
     <div class="history-container">
       <div class="history-content">
-        <table v-if="userHistoryAppointments.length > 0">
+        <table v-if="userHistoryAppointments.length > 0 && !isLoading">
           <TableHeader
             :columns="['Service', 'Doctor', 'Date', 'Status']"
             :has-empty-row="false"
@@ -34,7 +50,10 @@ onMounted(async () => {
               :columns="[
                 10 * (currentPage - 1) + index + 1,
                 appointment.serviceName,
-                appointment.doctorId,
+                doctorFullName(
+                  appointment.doctorFirstName,
+                  appointment.doctorLastName
+                ),
               ]"
               :date="appointment.date"
               :time="appointment.time"
@@ -43,14 +62,25 @@ onMounted(async () => {
             >
               <span
                 class="status"
-                :class="{ canceled: appointment.status === 'CANCELLED' }"
+                :class="{
+                  canceled: appointment.status === 'CANCELLED',
+                  scheduled: appointment.status === 'SCHEDULED',
+                  requested: appointment.status === 'REQUESTED',
+                  completed: appointment.status === 'COMPLETED',
+                }"
               >
                 {{ appointment.status }}
               </span>
             </TableRow>
           </tbody>
         </table>
+        <LoadingSpinner class="loading-spinner" v-else />
       </div>
+      <Pagination
+        :total-pages="totalPages"
+        :current-page="currentPage"
+        @change-page="handleChangePage"
+      />
     </div>
   </div>
 </template>
@@ -65,17 +95,34 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     width: 90vw;
-    height: 100vh;
+    height: 100%;
   }
 
   .history-content {
-    height: 100%;
     display: flex;
     justify-content: center;
+    margin-left: 35px;
     width: 100%;
-    height: 100vh;
+    height: 90vh;
     position: relative;
 
+    .status {
+      color: white;
+      padding: 10px 10px;
+      border-radius: 15px;
+      &.canceled {
+        background-color: @canceled-appointment;
+      }
+      &.scheduled {
+        background-color: @scheduled-appointment;
+      }
+      &.requested {
+        background-color: @requested-appointment;
+      }
+      &.completed {
+        background-color: @completed-appointment;
+      }
+    }
     table {
       width: 100%;
       border-collapse: separate;

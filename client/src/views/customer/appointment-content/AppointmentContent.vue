@@ -9,6 +9,7 @@ import CustomerCalendarHeader from "./CustomerCalendarHeader.vue";
 import placeholderImage from "@/assets/please-select-a-doctor.jpg";
 import CustomerDailyCalendar from "./CustomerDailyCalendar.vue";
 import CustomerWeeklyCalendar from "./CustomerWeeklyCalendar.vue";
+import { watch } from "vue";
 
 const props = defineProps<{
   selectedDoctor: Doctor | null;
@@ -35,6 +36,15 @@ function handleViewTypeChange(newViewType: string) {
 function handleCreatedAppointment() {
   emits("onAppointmentCreated");
 }
+
+watch(
+  () => props.calendarViewType,
+  () => {
+    if (!(props.appointments.length > 0) && props.selectedDoctor !== null) {
+      handleViewTypeChange("DAY");
+    }
+  }
+);
 </script>
 
 <template>
@@ -69,6 +79,15 @@ function handleCreatedAppointment() {
       v-else-if="appointments.length > 0 && props.calendarViewType === 'WEEK'"
     >
       <CustomerWeeklyCalendar
+        :appointments="appointments"
+        :selectedDoctor="selectedDoctor"
+        :unavailabilites="unavailabilites"
+        :calendarDate="calendarDate"
+        @created-appointment="handleCreatedAppointment"
+      />
+    </div>
+    <div v-else-if="selectedDoctor !== null">
+      <CustomerDailyCalendar
         :appointments="appointments"
         :selectedDoctor="selectedDoctor"
         :unavailabilites="unavailabilites"

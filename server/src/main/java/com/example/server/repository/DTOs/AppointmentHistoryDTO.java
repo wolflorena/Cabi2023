@@ -14,6 +14,7 @@ public class AppointmentHistoryDTO {
     private LocalDate date;
     private LocalTime time;
     private Appointment.AppointmentStatus status;
+    private String serviceName;
     private String doctorFirstName;
     private String doctorLastName;
 }

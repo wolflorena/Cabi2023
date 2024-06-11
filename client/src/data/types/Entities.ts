@@ -31,6 +31,11 @@ export type AppointmentCalendar = AppointmentBasic & {
   customerLastName: string;
   serviceName: string;
 };
+export type HistoryAppointmentCalendar = AppointmentBasic & {
+  doctorFirstName: string;
+  doctorLastName: string;
+  serviceName: string;
+};
 
 export type AppointmentAdmin = AppointmentBasic & {
   customerFirstName: string;
@@ -133,7 +138,7 @@ export type Vacation = HasDoctorIdAndTime & {
   startTime: string;
   endTime: string;
   reason: string;
-}
+};
 
 type HasDoctorIdAndTime = {
   doctorId: number;

@@ -113,9 +113,7 @@ onMounted(async () => {
       align-self: flex-end;
       background-color: @gray;
       min-height: 70px;
-      width: 68vw;
-      min-width: 68vw;
-      max-width: 68vw;
+      width: 75vw;
       border-bottom-left-radius: 40px;
       transition: border-bottom-left-radius 0.3s ease, opacity 0.3s ease;
       display: flex;

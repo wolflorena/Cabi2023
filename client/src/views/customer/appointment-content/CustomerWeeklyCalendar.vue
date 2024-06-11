@@ -142,7 +142,7 @@ const unavailabilityForDays = computed((): unavailableForDays[] => {
         return {
           wholeDay: true,
           fromPosition: 1,
-          toPosition: 12,
+          toPosition: 55,
           columnPosition: colPos,
         };
       } else {
@@ -175,6 +175,7 @@ watch(
       const appointmentDate = parseISO(app.date);
       return appointmentDate >= start.value && appointmentDate <= end.value;
     });
+    console.log(appointmentsForTheWeek.value);
   }
 );
 

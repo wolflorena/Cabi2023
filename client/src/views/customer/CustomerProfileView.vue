@@ -102,8 +102,8 @@ onMounted(async () => {
     .header {
       align-self: flex-end;
       background-color: @gray;
-      height: 70px;
-      width: 80%;
+      min-height: 70px;
+      width: 75vw;
       border-bottom-left-radius: 40px;
 
       display: flex;

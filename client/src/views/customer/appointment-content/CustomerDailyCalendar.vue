@@ -119,6 +119,12 @@ function getAppointmentPosition(
 }
 
 function getAppointmentStyle(appointment: AppointmentCalendar) {
+  if (appointment.status === "CANCELLED") {
+    return { display: "none" };
+  }
+  if (appointment.status === "REQUESTED" && appointment.customerId !== userId) {
+    return { display: "none" };
+  }
   const { start, duration } = getAppointmentPosition(appointment, 9);
   return {
     gridRowStart: start,
@@ -129,43 +135,6 @@ function getAppointmentStyle(appointment: AppointmentCalendar) {
 interface Time {
   hour: number;
   minute: number;
-}
-
-function calculateEndTime(
-  startHour: number,
-  startMinute: number,
-  durationMinutes: number
-): { startTime: Time; endTime: Time } {
-  const startTime: Time = { hour: startHour, minute: startMinute };
-  const totalMinutes = startMinute + durationMinutes;
-  const endHour = startHour + Math.floor(totalMinutes / 60);
-  const endMinute = totalMinutes % 60;
-  const endTime: Time = { hour: endHour, minute: endMinute };
-
-  return { startTime, endTime };
-}
-
-function slotHasAppointment(slot: string): boolean {
-  const [hour, minutes] = slot.split(":").map(Number);
-  const slotTime = new Date();
-  slotTime.setHours(hour, minutes, 0, 0);
-
-  return appointmentsForTheDay.value.some((app) => {
-    const [startHour, startMinutes] = app.time.split(":").map(Number);
-    const { startTime, endTime } = calculateEndTime(
-      startHour,
-      startMinutes,
-      app.finalDuration
-    );
-
-    const appointmentStartTime = new Date();
-    appointmentStartTime.setHours(startTime.hour, startTime.minute, 0, 0);
-
-    const appointmentEndTime = new Date();
-    appointmentEndTime.setHours(endTime.hour, endTime.minute, 0, 0);
-
-    return slotTime >= appointmentStartTime && slotTime < appointmentEndTime;
-  });
 }
 
 function handleShowAppointment() {
@@ -222,16 +191,6 @@ onMounted(async () => {
     await fetchUserProfile();
   }
 });
-
-function showTimeSlotBlock(slot: string): boolean {
-  if (unavailableToday.value) {
-    return false;
-  } else if (unavailableHoursWithinDay.value.exists) {
-    return false;
-  } else {
-    return !slotHasAppointment(slot);
-  }
-}
 </script>
 <template>
   <div class="customer-daily-calendar">
@@ -255,6 +214,7 @@ function showTimeSlotBlock(slot: string): boolean {
           <div class="median-slot"></div>
         </div>
         <div
+          v-if="appointmentsForTheDay.length > 0"
           v-for="appointment in appointmentsForTheDay"
           :key="appointment.appointmentId"
           class="appointment-block"
@@ -273,14 +233,14 @@ function showTimeSlotBlock(slot: string): boolean {
           <div v-else>BUSY</div>
         </div>
         <div
-          v-if="unavailableToday"
+          v-else-if="unavailableToday"
           class="appointment-block"
-          :style="{ gridRowStart: 1, gridRowEnd: 30 }"
+          :style="{ gridRowStart: 1, gridRowEnd: 55 }"
         >
           UNAVAILABLE TODAY
         </div>
         <div
-          v-if="unavailableHoursWithinDay.exists"
+          v-else-if="unavailableHoursWithinDay.exists"
           class="appointment-block"
           :style="{
             gridRowStart: unavailableHoursWithinDay.fromPosition,

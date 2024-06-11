@@ -1,27 +1,50 @@
-import { Appointment, AppointmentCalendar } from "@/data/types/Entities";
+import {
+  Appointment,
+  AppointmentCalendar,
+  HistoryAppointmentCalendar,
+} from "@/data/types/Entities";
 import { getHistoryOfCustomer } from "@/services/appointments_service";
 import { getUserIdAndToken } from "@/services/authentication_service";
 import { ref } from "vue";
 
-const userHistoryAppointments = ref<AppointmentCalendar[]>([]);
+const userHistoryAppointments = ref<HistoryAppointmentCalendar[]>([]);
+const isLoading = ref<boolean>(false);
+const totalPages = ref<number>(0);
+const appointmentsCache = ref(new Map());
 
 async function fetchUserHistoryAppointments(
   pageNumber: number
-): Promise<AppointmentCalendar[]> {
+): Promise<HistoryAppointmentCalendar[]> {
   const { userId, token } = getUserIdAndToken();
+  isLoading.value = true;
+  const cacheKey = `${userId}-page=${pageNumber}`;
+
+  if (appointmentsCache.value.has(cacheKey)) {
+    const cachedData = appointmentsCache.value.get(cacheKey);
+    userHistoryAppointments.value = cachedData.appointments;
+    totalPages.value = cachedData.totalPages;
+    isLoading.value = false;
+    return cachedData.appointments;
+  }
   try {
     const response: any = await getHistoryOfCustomer(
       token,
       userId,
       10,
-      pageNumber
+      pageNumber - 1
     );
     if (response) {
-      const appointments: AppointmentCalendar[] =
+      const appointments: HistoryAppointmentCalendar[] =
         response.pagedAppointments.content;
-      console.log("APPOINTMENTS" + appointments);
       if (appointments.length > 0) {
         userHistoryAppointments.value = appointments;
+        totalPages.value = Math.ceil(response.total / 10);
+
+        appointmentsCache.value.set(cacheKey, {
+          appointments,
+          totalPages: totalPages.value,
+        });
+        isLoading.value = false;
       }
     }
   } catch (error: any) {
@@ -30,9 +53,19 @@ async function fetchUserHistoryAppointments(
   return [];
 }
 
+function changePage(pageNumber: number) {
+  isLoading.value = true;
+  console.log("page nmbr" + pageNumber);
+
+  fetchUserHistoryAppointments(pageNumber);
+}
+
 export function useUserAppointments() {
   return {
     userHistoryAppointments,
+    isLoading,
+    totalPages,
+    changePage,
     fetchUserHistoryAppointments,
   };
 }

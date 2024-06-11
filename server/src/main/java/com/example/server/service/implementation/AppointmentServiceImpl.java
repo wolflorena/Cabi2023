@@ -187,7 +187,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public HistoryPageDTO getHistoryByCustomerId(Long customerId, Pageable pageable){
         HistoryPageDTO historyPageDTO = new HistoryPageDTO();
-        Page<Appointment> appointments = appointmentRepository.findAllByCustomerId(customerId,PageRequest.of(pageable.getPageNumber(),pageable.getPageSize()));
+        Page<Appointment> appointments = appointmentRepository.findAllByCustomerIdOrderByDateTimeDesc(customerId,PageRequest.of(pageable.getPageNumber(),pageable.getPageSize()));
 
         historyPageDTO.setTotal((int) appointments.getTotalElements());
 
