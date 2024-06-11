@@ -59,6 +59,31 @@ async function updateDoctor(
   );
 }
 
+async function changeDoctorPassword(
+  doctorId: number,
+  currentPassword: string,
+  newPassword: string
+) {
+  const response = await fetch(
+    `${API_URL}/change-password?doctorId=${doctorId}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        currentPassword,
+        newPassword,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorMessage = await response.json();
+    throw new Error(errorMessage.message);
+  }
+
+  return response.json();
+}
+
 async function getServicesInCurrentMonth(doctorId: number) {
   const response = await fetch(
     `${API_URL}/services/current-month?doctorId=${doctorId}`
@@ -110,4 +135,5 @@ export {
   updateDoctor,
   getServicesInCurrentMonth,
   createDoctorAccount,
+  changeDoctorPassword,
 };

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import type { Patient, SelectedDoctor, Service } from "@/data/types/Entities";
+import type { AppointmentAdmin, AppointmentDetail, Patient, SelectedDoctor, Service } from "@/data/types/Entities";
 import {
   getAllDoctors,
   getAvailableDates,
@@ -13,13 +13,14 @@ import CustomModal from "./CustomModal.vue";
 const props = withDefaults(
   defineProps<{
     visible: boolean;
+    appointment?: AppointmentAdmin;
   }>(),
   {
     visible: false,
   }
 );
 
-const emit = defineEmits(["close", "addAppointment"]);
+const emit = defineEmits(["close", "addAppointment", "editAppointment"]);
 
 const doctors = ref<SelectedDoctor[]>([]);
 
@@ -38,6 +39,9 @@ onMounted(() => {
   loadServices();
   fetchPatients();
   loadDoctors();
+  if (props.appointment) {
+    prefillAppointmentData();
+  }
 });
 
 async function loadServices() {
@@ -50,6 +54,25 @@ async function fetchPatients() {
   await getAllPatients().then((res) => (patients.value = res));
 }
 
+async function loadDoctors() {
+  await getAllDoctors().then((res: any) => {
+    doctors.value = res.map((doctor: any) => ({ ...doctor, checked: true }));
+  });
+}
+
+function prefillAppointmentData() {
+  if (props.appointment) {
+    selectedDoctor.value = props.appointment.doctorId;
+    selectedService.value = props.appointment.serviceId;
+    selectedDate.value = props.appointment.date;
+    selectedHour.value = props.appointment.time;
+    selectedPatient.value = props.appointment.customerId;
+
+    fetchAvailableDates();
+    fetchAvailableHours();
+  }
+}
+
 function closeModal() {
   selectedDate.value = "";
   selectedHour.value = "";
@@ -59,7 +82,6 @@ function closeModal() {
   emit("close");
 }
 
-//TODO: @wolflorena create a modal date picker for selectig the date for appointment
 async function fetchAvailableDates() {
   await getAvailableDates(selectedDoctor.value, selectedService.value).then(
     (res: any) => {
@@ -95,12 +117,6 @@ function addAppointment() {
   selectedDoctor.value = "";
   selectedService.value = "";
   selectedPatient.value = "";
-}
-
-async function loadDoctors() {
-  await getAllDoctors().then((res: any) => {
-    doctors.value = res.map((doctor: any) => ({ ...doctor, checked: true }));
-  });
 }
 </script>
 

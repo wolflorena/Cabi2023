@@ -49,7 +49,6 @@ const pagesToShow = computed(() => {
       <li class="page__btn" @click="goToPage(currentPage - 1)">
         <font-awesome-icon id="icon" icon="chevron-left" />
       </li>
-
       <li
         v-for="page in pagesToShow"
         :key="page"

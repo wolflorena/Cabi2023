@@ -9,6 +9,7 @@ const props = withDefaults(
     inputValue?: string;
     isReadonly?: boolean;
     type?: string;
+    fontSize?: string;
   }>(),
   {
     isReadonly: true,
@@ -137,6 +138,7 @@ watch(
       :value="inputValue"
       :readonly="isReadonly"
       :class="wrongFormat ? 'bad-format' : ''"
+      :style="{fontSize: fontSize ? fontSize +'px' : '' }"
       @input="inputChange"
       @focus="handleFocus"
       @blur="handleBlur"
