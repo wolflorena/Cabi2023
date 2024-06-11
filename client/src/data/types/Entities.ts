@@ -127,11 +127,14 @@ export type AppointmentWeekly = {
   count: number;
 };
 
-export type Vacation = {
+export type Vacation = HasDoctorIdAndTime & {
   startDate: string;
   endDate: string;
   startTime: string;
   endTime: string;
   reason: string;
+}
+
+type HasDoctorIdAndTime = {
   doctorId: number;
 };

@@ -1,0 +1,123 @@
+@startuml
+class com.example.server.repository.entity.Customer {
+- String phoneNo
+- String occupation
+- LocalDate dateOfBirth
+- byte[] avatar
+- AccountStatus accountStatus
+- Set<Appointment> appointments
+- Set<FormEvent> formEvents
+}
+
+enum com.example.server.repository.entity.AccountStatus {
++  ACTIVE
++  INACTIVE
++  SUSPENDED
+}
+
+class com.example.server.repository.entity.Doctor {
+- String address
+- String phoneNo
+- byte[] avatar
+- LocalDate dateOfEmployment
+- boolean isFirstLogin
+- Set<Appointment> appointments
+- Set<DoctorUnavailability> unavailabilities
+}
+
+class com.example.server.repository.entity.Form {
+- Long formId
+- String title
+- String description
+- Boolean visibility
+- LocalDate editedDate
+- LocalTime editedTime
+- Set<FormEvent> formEvents
+}
+
+class com.example.server.repository.entity.DoctorUnavailability {
+- Long unavailabilityId
+- LocalDate startDate
+- LocalDate endDate
+- LocalTime startTime
+- LocalTime endTime
+- String reason
+- Doctor doctor
+}
+
+class com.example.server.repository.entity.Admin {
+}
+class com.example.server.repository.entity.Inventory {
+- Long inventoryId
+- String product
+- int quantity
+}
+
+class com.example.server.repository.entity.Service {
+- Long serviceId
+- int duration
+- String name
+- float price
+}
+
+class com.example.server.repository.entity.CustomUserDetails {
+- Long id
+- String username
+- String password
+- Collection<? extends GrantedAuthority> authorities
++ Collection<? extends GrantedAuthority> getAuthorities()
++ String getPassword()
++ String getUsername()
++ boolean isAccountNonExpired()
++ boolean isAccountNonLocked()
++ boolean isCredentialsNonExpired()
++ boolean isEnabled()
+}
+
+
+class com.example.server.repository.entity.FormEvent {
+- Long id
+- FormEventType formEventType
+- LocalDate timestamp
+- Form form
+- Customer customer
+}
+
+enum com.example.server.repository.entity.FormEventType {
++  VIEWED
++  SIGNED
+}
+
+abstract class com.example.server.repository.entity.User {
+- Long id
+- String firstName
+- String lastName
+- String email
+- String password
+}
+
+class com.example.server.repository.entity.Appointment {
+- Long appointmentId
+- LocalDate date
+- LocalTime time
+- int finalDuration
+- AppointmentStatus status
+- Customer customer
+- Doctor doctor
+- Service service
+}
+
+enum com.example.server.repository.entity.AppointmentStatus {
++  REQUESTED
++  SCHEDULED
++  COMPLETED
++  CANCELLED
+}
+
+
+
+com.example.server.repository.entity.User <|-- com.example.server.repository.entity.Customer
+com.example.server.repository.entity.User <|-- com.example.server.repository.entity.Doctor
+com.example.server.repository.entity.User <|-- com.example.server.repository.entity.Admin
+org.springframework.security.core.userdetails.UserDetails <|.. com.example.server.repository.entity.CustomUserDetails
+@enduml

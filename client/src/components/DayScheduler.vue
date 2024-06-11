@@ -8,7 +8,6 @@ import { ref, computed, watch, onMounted } from "vue";
 import { getAllForCalendar } from "@/services/appointments_service";
 import LoadingSpinner from "./LoadingSpinner.vue";
 import { getVacationsForCalendar } from "@/services/doctor_unavailability_service";
-import { formatTime } from "@/utils/helpers";
 
 const props = withDefaults(
   defineProps<{
@@ -82,65 +81,88 @@ const currentDay = computed(() => {
   return formattedDay;
 });
 
-function getAppointmentStyle(appointment: DayCalendarAppointment) {
-  const startHour = parseInt(appointment.time.split(":")[0]);
-  const startMinutes = parseInt(appointment.time.split(":")[1]);
-  const endHour = parseInt(appointment.endTime.split(":")[0]);
-  const endMinutes = parseInt(appointment.endTime.split(":")[1]);
+function calculatePosition(startTime: string, endTime: string) {
+  const startHour = parseInt(startTime.split(":")[0]);
+  const startMinutes = parseInt(startTime.split(":")[1]);
+  const endHour = parseInt(endTime.split(":")[0]);
+  const endMinutes = parseInt(endTime.split(":")[1]);
 
   const startPosition = (startHour - 9) * 60 + startMinutes;
-
   const endPosition = (endHour - 9) * 60 + endMinutes;
-
   const duration = endPosition - startPosition;
+
   return {
     top: `${((startPosition - 60 * (startHour - 9)) * 100) / 60}%`,
     height: `${(duration / 60) * (88 / 5)}vh`,
   };
 }
 
-function getVacationStyle(vacation: Vacation) {
+function getAppointmentPosition(appointment: DayCalendarAppointment) {
+  return calculatePosition(appointment.time, appointment.endTime);
+}
+
+function getVacationPosition(vacation: Vacation) {
   if (!vacation.startTime || !vacation.endTime) {
     return { height: "100%", top: "0" };
   }
-
-  const startHour = parseInt(vacation.startTime.split(":")[0]);
-  const startMinutes = parseInt(vacation.startTime.split(":")[1]);
-  const endHour = parseInt(vacation.endTime.split(":")[0]);
-  const endMinutes = parseInt(vacation.endTime.split(":")[1]);
-
-  const startPosition = (startHour - 9) * 60 + startMinutes;
-
-  const endPosition = (endHour - 9) * 60 + endMinutes;
-
-  const duration = endPosition - startPosition;
-  return {
-    top: `${((startPosition - 60 * (startHour - 9)) * 100) / 60}%`,
-    height: `${(duration / 60) * (88 / 5)}vh`,
-  };
+  return calculatePosition(vacation.startTime, vacation.endTime);
 }
 
-function computeStyle(item: DayCalendarAppointment, slot: string) {
-  const startHour = parseInt(item.time.split(":")[0]);
+function computeItemStyle<T>(
+  item: T,
+  slot: string,
+  getTime: (item: T) => string | undefined,
+  getPosition: (item: T) => Record<string, any>
+): Record<string, any> {
+  const itemTime = getTime(item);
+  const startHour = itemTime ? parseInt(itemTime.split(":")[0]) : 0;
   const slotStartHour = parseInt(slot.split(":")[0]);
 
-  if (startHour !== slotStartHour) {
+  if (itemTime && startHour !== slotStartHour) {
     return { display: "none" };
   }
-  return getAppointmentStyle(item);
+  return getPosition(item);
+}
+
+function computeAppointmentStyle(item: DayCalendarAppointment, slot: string) {
+  return computeItemStyle(
+    item,
+    slot,
+    (appointment) => appointment.time,
+    getAppointmentPosition
+  );
 }
 
 function computeVacationStyle(vacation: Vacation, slot: string) {
-  const startHour = vacation.startTime
-    ? parseInt(vacation.startTime.split(":")[0])
-    : 0;
-  const slotStartHour = parseInt(slot.split(":")[0]);
-
-  if (vacation.startTime && startHour !== slotStartHour) {
-    return { display: "none" };
-  }
-  return getVacationStyle(vacation);
+  return computeItemStyle(
+    vacation,
+    slot,
+    (vacation) => vacation.startTime,
+    getVacationPosition
+  );
 }
+
+// function computeAppointmentStyle(item: DayCalendarAppointment, slot: string) {
+//   const startHour = parseInt(item.time.split(":")[0]);
+//   const slotStartHour = parseInt(slot.split(":")[0]);
+
+//   if (startHour !== slotStartHour) {
+//     return { display: "none" };
+//   }
+//   return getAppointmentStyle(item);
+// }
+
+// function computeVacationStyle(vacation: Vacation, slot: string) {
+//   const startHour = vacation.startTime
+//     ? parseInt(vacation.startTime.split(":")[0])
+//     : 0;
+//   const slotStartHour = parseInt(slot.split(":")[0]);
+
+//   if (vacation.startTime && startHour !== slotStartHour) {
+//     return { display: "none" };
+//   }
+//   return getVacationStyle(vacation);
+// }
 
 function navigate(dayIncrement: number): void {
   const current = currentDate.value;
@@ -152,7 +174,7 @@ function navigate(dayIncrement: number): void {
   );
 }
 
-function getAppointmentsForCalendar(calendar: number) {
+function getAppointmentsForDayScheduler(calendar: number) {
   const filteredAppointments = appointments.value.filter((appointment) => {
     const condition =
       appointment.date === toLocalISOString(currentDate.value) &&
@@ -163,8 +185,11 @@ function getAppointmentsForCalendar(calendar: number) {
   return filteredAppointments;
 }
 
-function getAllDayVacationsForCalendar(calendar: number) {
-  return vacationsAllDay.value.filter((vacation) => {
+function getVacationsForDayScheduler(
+  vacations: Vacation[],
+  calendar: number
+): Vacation[] {
+  return vacations.filter((vacation) => {
     return (
       vacation.startDate <= toLocalISOString(currentDate.value) &&
       vacation.endDate >= toLocalISOString(currentDate.value) &&
@@ -174,15 +199,12 @@ function getAllDayVacationsForCalendar(calendar: number) {
   });
 }
 
-function getTimedVacationsForCalendar(calendar: number) {
-  return vacationsTimed.value.filter((vacation) => {
-    return (
-      vacation.startDate <= toLocalISOString(currentDate.value) &&
-      vacation.endDate >= toLocalISOString(currentDate.value) &&
-      selectedDoctors.value.includes(vacation.doctorId) &&
-      vacation.doctorId === calendar
-    );
-  });
+function getAllDayVacationsForCalendar(calendar: number): Vacation[] {
+  return getVacationsForDayScheduler(vacationsAllDay.value, calendar);
+}
+
+function getTimedVacationsForCalendar(calendar: number): Vacation[] {
+  return getVacationsForDayScheduler(vacationsTimed.value, calendar);
 }
 
 // Dacă currentDate.value este setată la 2024-02-20 01:00 în fusul orar UTC-3, atunci currentDate.value.toISOString() va returna 2024-02-19T04:00:00.000Z
@@ -223,10 +245,8 @@ async function loadAppointments() {
     const updatedAppointments = res.map(
       (appointment: DayCalendarAppointment) => {
         let [hour, minute] = appointment.time.split(":").map(Number);
-        // Adaugă durata la minute
         minute += appointment.finalDuration;
 
-        // Verifică dacă suma minutelor depășește 59 și ajustează orele și minutele corespunzător
         while (minute >= 60) {
           hour += 1;
           minute -= 60;
@@ -339,11 +359,13 @@ function backgroundColorStyle(calendarId: number) {
                 <span>{{ vacation.reason }}</span>
               </div>
               <div
-                v-for="appointment in getAppointmentsForCalendar(calendar.id)"
+                v-for="appointment in getAppointmentsForDayScheduler(
+                  calendar.id
+                )"
                 :key="appointment.appointmentId"
                 class="appointment"
                 :style="[
-                  computeStyle(appointment, slot),
+                  computeAppointmentStyle(appointment, slot),
                   backgroundColorStyle(calendar.id),
                 ]"
               >
@@ -457,6 +479,7 @@ function backgroundColorStyle(calendarId: number) {
         width: 90%;
         overflow: hidden;
         border-radius: 5px;
+       box-shadow: 0 2px 8px rgba(0, 0, 0, 1);
 
         display: flex;
         flex-direction: column;
