@@ -71,6 +71,7 @@ function handleDoctorSelected(event: Event, clickedDoctor: Doctor) {
     color: @white;
     font-size: 22px;
   }
+
   .icon-container {
     display: flex;
     margin-right: 12vw;

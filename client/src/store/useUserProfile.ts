@@ -21,20 +21,6 @@ async function fetchUserProfile() {
   }
 }
 
-// async function fetchUserHistory() {
-//   if (!userProfile.value) {
-//     try {
-//       const { userId, token } = getUserIdAndToken();
-//       const resp = await getHistoryById(userId, token);
-//       if (resp) {
-//         userProfile.value = resp;
-//       }
-//     } catch (err) {
-//       throw new Error("Failed to load user history: " + err);
-//     }
-//   }
-// }
-
 async function retrieveUserAvatar() {
   if (!avatarImage.value) {
     const { userId, token } = getUserIdAndToken();

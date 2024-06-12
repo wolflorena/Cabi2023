@@ -14,4 +14,6 @@ public interface FormService {
     FormResponseDTO getFormById(Long formId);
     boolean deleteForm(Long formId);
     FormResponseDTO updateForm(Long formId, FormRequestDTO formRequestDTO);
+
+    List<FormResponseDTO> getAllFormsForCustomer();
 }

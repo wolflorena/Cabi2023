@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import Sidebar from "@/components/Sidebar.vue";
 import { CustomerSidebarOptions } from "@/data/types/SidebarOptions";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 import TableHeader from "@/components/TableHeader.vue";
 import TableRow from "@/components/TableRow.vue";
-import { AppointmentCalendar } from "@/data/types/Entities";
+import {
+  AppointmentCalendar,
+  HistoryAppointmentCalendar,
+} from "@/data/types/Entities";
 import { useUserAppointments } from "@/store/useUserAppointments";
 import Pagination from "@/components/Pagination.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import Swal from "sweetalert2";
+import { updateStatus } from "@/services/appointments_service";
+import { SwalLoading } from "@/utils/helpers";
 
 const {
   userHistoryAppointments,
@@ -29,6 +35,59 @@ function handleChangePage(pageNumber: number) {
 function doctorFullName(firstName: string, lastName: string): string {
   return "Dr. " + firstName + " " + lastName;
 }
+
+function handleClickOnAppointment(appointment: HistoryAppointmentCalendar) {
+  if (
+    appointment.status === "SCHEDULED" ||
+    appointment.status === "REQUESTED"
+  ) {
+    Swal.fire({
+      html: `<span style="color: #84ce95">${
+        appointment.serviceName
+      }</span> on <span style="color: #84ce95">${
+        appointment.date
+      }</span>, at <span style="color: #84ce95">${
+        appointment.time
+      }</span></br> with <span style="color: #84ce95">${doctorFullName(
+        appointment.doctorFirstName,
+        appointment.doctorLastName
+      )}</span>`,
+      title: "Do you want to cancel your appointment?",
+      icon: "question",
+      showCancelButton: true,
+    }).then(async (res) => {
+      if (res.isConfirmed) {
+        SwalLoading.fire();
+        await updateStatus(appointment.appointmentId, "CANCELLED");
+        await fetchUserHistoryAppointments(pageNumber.value, true);
+        handleChangePage(1);
+        SwalLoading.close();
+      }
+    });
+  } else {
+    Swal.fire({
+      html: `<span style="color: #84ce95">${
+        appointment.serviceName
+      }</span> on <span style="color: #84ce95">${
+        appointment.date
+      }</span>, at <span style="color: #84ce95">${
+        appointment.time
+      }</span></br> with <span style="color: #84ce95">${doctorFullName(
+        appointment.doctorFirstName,
+        appointment.doctorLastName
+      )}</span>`,
+      titleText: "Your appointment",
+      icon: "info",
+    });
+  }
+}
+
+watch(
+  () => userHistoryAppointments.value,
+  () => {
+    console.log(userHistoryAppointments.value);
+  }
+);
 onMounted(async () => {
   await fetchUserHistoryAppointments(pageNumber.value);
 });
@@ -58,6 +117,7 @@ onMounted(async () => {
               :date="appointment.date"
               :time="appointment.time"
               :index="index"
+              @click="handleClickOnAppointment(appointment)"
               highlight="odd"
             >
               <span

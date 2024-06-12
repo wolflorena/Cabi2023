@@ -13,12 +13,16 @@ const totalPages = ref<number>(0);
 const appointmentsCache = ref(new Map());
 
 async function fetchUserHistoryAppointments(
-  pageNumber: number
+  pageNumber: number,
+  forceUpdate: boolean = false
 ): Promise<HistoryAppointmentCalendar[]> {
   const { userId, token } = getUserIdAndToken();
   isLoading.value = true;
   const cacheKey = `${userId}-page=${pageNumber}`;
 
+  if (forceUpdate) {
+    appointmentsCache.value = new Map();
+  }
   if (appointmentsCache.value.has(cacheKey)) {
     const cachedData = appointmentsCache.value.get(cacheKey);
     userHistoryAppointments.value = cachedData.appointments;

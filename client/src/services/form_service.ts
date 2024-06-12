@@ -1,3 +1,5 @@
+import { Form, FormWithStatus } from "@/data/types/Entities";
+
 const API_URL = "http://localhost:9090/api/form";
 
 async function addForm(
@@ -79,4 +81,30 @@ async function updateForm(
     }),
   });
 }
-export { getAllForms, addForm, getForm, deleteForm, getFormEvents, updateForm };
+
+async function getVisibleForms(
+  token: string,
+  customerId: number
+): Promise<FormWithStatus[]> {
+  const response = await fetch(
+    `${API_URL}/getVisibleForms?customerId=${customerId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  return response.json();
+}
+export {
+  getVisibleForms,
+  getAllForms,
+  addForm,
+  getForm,
+  deleteForm,
+  getFormEvents,
+  updateForm,
+};

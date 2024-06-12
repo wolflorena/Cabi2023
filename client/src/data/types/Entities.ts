@@ -86,6 +86,10 @@ export type Form = {
   visibility: boolean;
 };
 
+export type FormWithStatus = Form & {
+  formEventType: string;
+};
+
 export type FormEvent = {
   customerFirstName: string;
   customerLastName: string;

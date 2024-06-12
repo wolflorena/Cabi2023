@@ -15,4 +15,10 @@ public interface FormEventRepository extends JpaRepository<FormEvent, Long> {
 
     @Query("SELECT fe FROM FormEvent fe WHERE fe.form.formId = :formId AND fe.customer.id = :customerId AND fe.formEventType = :formEventType")
     Optional<FormEvent> findByFormIdAndCustomerIdAndFormEventType(Long formId, Long customerId, FormEvent.FormEventType formEventType);
+
+    List<FormEvent> findByCustomerId(Long customerId);
+
+    @Query("SELECT fe FROM FormEvent fe WHERE fe.form.formId = :formId AND fe.customer.id = :customerId")
+    FormEvent findByFormIdAndCustomerId(Long formId, Long customerId);
+
 }

@@ -1,9 +1,6 @@
 package com.example.server.controller;
 
-import com.example.server.repository.DTOs.FormAdminListDTO;
-import com.example.server.repository.DTOs.FormDetailsDTO;
-import com.example.server.repository.DTOs.FormRequestDTO;
-import com.example.server.repository.DTOs.FormResponseDTO;
+import com.example.server.repository.DTOs.*;
 import com.example.server.repository.entity.Customer;
 import com.example.server.repository.entity.Form;
 import com.example.server.repository.entity.FormEvent;
@@ -78,5 +75,14 @@ public class FormController {
     @PatchMapping("/update-form")
     public FormResponseDTO updateForm(@RequestParam Long formId, @RequestBody FormRequestDTO formRequestDTO) {
         return formService.updateForm(formId, formRequestDTO);
+    }
+
+    @GetMapping("/getVisibleForms")
+    public ResponseEntity<List<FormStatusViewDTO>> getAllVisibleFormsForCustomer(@RequestParam Long customerId){
+        try{
+            return new ResponseEntity<>(formEventService.getFormsWithStatus(customerId),HttpStatus.OK);
+        } catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }

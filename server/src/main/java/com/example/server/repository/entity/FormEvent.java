@@ -35,6 +35,6 @@ public class FormEvent {
     private Customer customer;
 
     public enum FormEventType {
-        VIEWED, SIGNED
+        VIEWED, SIGNED, NEW
     }
 }

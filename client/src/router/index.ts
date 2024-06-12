@@ -22,6 +22,7 @@ import {
 import LoginView from "@/views/Login-Register/LoginView.vue";
 import SignupView from "@/views/Login-Register/SignupView.vue";
 import HistoryView from "@/views/customer/HistoryView.vue";
+import FormsView from "@/views/customer/FormsView.vue";
 
 type RouteMeta = {
   requiresAuth: boolean;
@@ -135,8 +136,8 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/forms",
-    name: "formsCustomer",
-    component: CustomerProfileView,
+    name: "forms",
+    component: FormsView,
     meta: { requiresAuth: true, roles: ["ROLE_CUSTOMER"] } as RouteMeta,
   },
 ];

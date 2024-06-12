@@ -8,6 +8,8 @@ import EditProfile from "./profile-content/EditProfile.vue";
 import SecuritySettings from "./profile-content/SecuritySettings.vue";
 import { useUserProfile } from "@/store/useUserProfile";
 import { SwalLoading } from "@/utils/helpers";
+import { useUserAppointments } from "@/store/useUserAppointments";
+import { useLoadAppointments } from "@/store/useLoadAppointments";
 
 const profilePage = ref<string>("viewProfile");
 
@@ -27,14 +29,15 @@ const {
   updateAvatarImage,
 } = useUserProfile();
 
-onMounted(async () => {
-  console.log("JWT TOKEN IS" + localStorage.getItem("jwtToken"));
+const { loadDoctors } = useLoadAppointments();
 
+onMounted(async () => {
   if (userDetails.value === null || avatarImage.value === null) {
     SwalLoading.fire();
     await fetchUserProfile();
     await retrieveUserAvatar();
-    SwalLoading.close();
+    await loadDoctors();
+    await SwalLoading.close();
   }
 });
 </script>
@@ -94,16 +97,18 @@ onMounted(async () => {
 .container {
   display: flex;
   justify-content: space-between;
+
   .profile-container {
     display: flex;
     flex-direction: column;
     width: 90vw;
     height: 100vh;
+
     .header {
       align-self: flex-end;
       background-color: @gray;
       min-height: 70px;
-      width: 75vw;
+      width: 1450px;
       border-bottom-left-radius: 40px;
 
       display: flex;

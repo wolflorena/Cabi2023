@@ -4,6 +4,7 @@ import com.example.server.exception.types.FormEventAlreadyExistsException;
 import com.example.server.exception.types.NotFoundException;
 import com.example.server.repository.CustomerRepository;
 import com.example.server.repository.DTOs.FormDetailsDTO;
+import com.example.server.repository.DTOs.FormStatusViewDTO;
 import com.example.server.repository.FormEventRepository;
 import com.example.server.repository.FormRepository;
 import com.example.server.repository.entity.Customer;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,7 +45,7 @@ public class FormEventServiceImpl implements FormEventService {
             throw new FormEventAlreadyExistsException("The form has been already " + formEventType);
         }
 
-        FormEvent formEvent = new FormEvent();
+        FormEvent formEvent = formEventRepository.findByFormIdAndCustomerId(form.getFormId(), customerId);
         formEvent.setFormEventType(formEventType);
         formEvent.setCustomer(customer);
         formEvent.setForm(form);
@@ -58,5 +60,14 @@ public class FormEventServiceImpl implements FormEventService {
                 .map(formEvent -> modelMapper.map(formEvent, FormDetailsDTO.class))
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<FormStatusViewDTO> getFormsWithStatus(Long customerId){
+        List<FormEvent> formEvents = formEventRepository.findByCustomerId(customerId);
+
+        return formEvents.stream()
+                .map(event-> new FormStatusViewDTO(event.getForm().getTitle(), event.getFormEventType()))
+                .toList();
     }
 }
