@@ -23,6 +23,7 @@ import LoginView from "@/views/Login-Register/LoginView.vue";
 import SignupView from "@/views/Login-Register/SignupView.vue";
 import HistoryView from "@/views/customer/HistoryView.vue";
 import FormsView from "@/views/customer/FormsView.vue";
+import DoctorPatientDetailsView from "@/views/doctor/DoctorPatientDetailsView.vue";
 
 type RouteMeta = {
   requiresAuth: boolean;
@@ -72,7 +73,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/admin/forms",
-    name: "forms",
+    name: "adminForms",
     component: AdminFormsView,
   },
   {
@@ -109,7 +110,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/doctor/patients",
     name: "doctorPatients",
     component: DoctorPatientsView,
-    meta: { requiresAuth: true, roles: ["ROLE_DOCTOR"] } as RouteMeta,
+  },
+  {
+    path: "/doctor/patients/:id",
+    name: "patientDetails",
+    component: DoctorPatientDetailsView,
   },
   {
     path: "/recovery",

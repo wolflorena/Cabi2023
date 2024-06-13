@@ -8,6 +8,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -38,6 +40,9 @@ public class Customer extends User {
     @OneToMany(mappedBy = "customer")
     @JsonManagedReference(value = "customer-formEvents")
     private Set<FormEvent> formEvents;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    private List<PdfDocument> pdfDocumentList;
 
     public Customer(RegisterCustomerDTO registerCustomerDTO){
         super.setFirstName(registerCustomerDTO.getFirstName());

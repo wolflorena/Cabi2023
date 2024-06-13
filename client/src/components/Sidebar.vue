@@ -60,7 +60,7 @@ function handleLogOut() {
 
 .sidebar {
   height: 100vh;
-  min-width: 15vw;
+  width: 15vw;
   background-color: @blue;
   border-top-right-radius: 100px;
   transition: transform 0.3s ease;

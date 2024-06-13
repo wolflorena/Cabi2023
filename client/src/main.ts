@@ -25,6 +25,8 @@ import {
   faTrashCan,
   faUser,
   faXmark,
+  faFilePdf,
+  faDownload,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faCircleCheck,
@@ -65,7 +67,9 @@ library.add(
   faKey,
   faCheck,
   faCircleChevronUp,
-  faXmark
+  faXmark,
+  faFilePdf,
+  faDownload
 );
 
 createApp(App)

@@ -20,9 +20,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                                                        Long doctorId,
                                                        Appointment.AppointmentStatus status);
     List<Appointment> findByDateAndDoctorId(LocalDate date, Long doctorId);
-
     Page<Appointment> findAll(Pageable pageable);
-
     @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.date BETWEEN :startDate AND :endDate")
     List<Appointment> findByDoctorIdAndDateRange(Long doctorId, LocalDate startDate, LocalDate endDate);
     Page<Appointment> findAllByStatusIn(List<Appointment.AppointmentStatus> statuses, Pageable pageable);
@@ -32,9 +30,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findPastDueAppointments(LocalDate today, LocalTime now);
     @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.date = :date AND a.status != 'CANCELLED'")
     List<Appointment> findBookedTimesAndDurationsByDoctorIdAndDate(Long doctorId, LocalDate date);
+
     List<Appointment> findByDoctorIdAndDateBetween(Long doctorId, LocalDate startOfMonth, LocalDate endOfMonth);
+
     @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.date = :date AND a.time > :time AND a.status = 'SCHEDULED'")
     Optional<List<Appointment>> findNextAppointmentsByDoctorId(Long doctorId, LocalDate date, LocalTime time);
+
     @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.status = :status " +
             "AND a.date >= :startOfMonth AND a.date <= :endOfMonth")
     List<Appointment> findAllByDoctorIdAndStatusAndDateBetween(@Param("doctorId") Long doctorId,
@@ -49,11 +50,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findAllByStatusIn(@Param("statuses") List<Appointment.AppointmentStatus> statuses);
 
     List<Appointment> findByCustomerId(@Param("customerId") Long customerId);
-<<<<<<< Updated upstream
     @Query("SELECT a FROM Appointment a WHERE a.customer.id = :customerId ORDER BY a.date DESC, a.time DESC")
     Page<Appointment> findAllByCustomerIdOrderByDateTimeDesc(@Param("customerId") Long customerId, Pageable pageable);
-=======
+
     Page<Appointment> findAllByCustomerId(Long customerId, Pageable pageable);
+
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END " +
             "FROM Appointment a " +
             "WHERE a.date = :date AND a.time = :time AND a.doctor.id = :doctorId " +
@@ -65,5 +66,4 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("status") Appointment.AppointmentStatus status,
             @Param("appointmentId") Long appointmentId
     );
->>>>>>> Stashed changes
 }
