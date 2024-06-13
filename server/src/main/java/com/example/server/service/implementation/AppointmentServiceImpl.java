@@ -286,5 +286,56 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public AppointmentResponseDTO rescheduleAppointment(Long appointmentId, UpdateAppointmentDTO updateAppointmentDTO) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new NotFoundException("Appointment not found"));
+
+        if (appointmentRepository.existsByDateAndTimeAndDoctorIdAndStatusNotAndAppointmentIdNot(
+                updateAppointmentDTO.getDate(),
+                updateAppointmentDTO.getTime(),
+                updateAppointmentDTO.getDoctorId(),
+                Appointment.AppointmentStatus.CANCELLED,
+                appointmentId
+        )) {
+            throw new AppointmentExistsException("An appointment already exists at this date and time.");
+        }
+
+        List<DoctorUnavailability> unavailabilities = doctorUnavailabilityRepository.findByDoctorId(updateAppointmentDTO.getDoctorId());
+        LocalDate appointmentDate = updateAppointmentDTO.getDate();
+        LocalTime appointmentTime = updateAppointmentDTO.getTime();
+
+        for (DoctorUnavailability unavailability : unavailabilities) {
+            boolean isDateConflict = !appointmentDate.isBefore(unavailability.getStartDate()) &&
+                    !appointmentDate.isAfter(unavailability.getEndDate());
+
+            if (isDateConflict) {
+                if (unavailability.getStartTime() == null && unavailability.getEndTime() == null) {
+                    throw new DoctorUnavailableException("Doctor is unavailable for the entire day.");
+                } else if (unavailability.getStartTime() != null && unavailability.getEndTime() != null) {
+                    boolean isTimeConflict = !appointmentTime.isBefore(unavailability.getStartTime()) &&
+                            !appointmentTime.isAfter(unavailability.getEndTime());
+
+                    if (isTimeConflict) {
+                        throw new DoctorUnavailableException("Doctor is unavailable at the requested time.");
+                    }
+                }
+            }
+        }
+
+        Doctor doctor = doctorRepository.findById(updateAppointmentDTO.getDoctorId())
+                .orElseThrow(() -> new NotFoundException("Doctor not found"));
+        com.example.server.repository.entity.Service service = serviceRepository.findById(updateAppointmentDTO.getServiceId())
+                .orElseThrow(() -> new NotFoundException("Service not found"));
+
+        appointment.setDoctor(doctor);
+        appointment.setService(service);
+        appointment.setDate(updateAppointmentDTO.getDate());
+        appointment.setTime(updateAppointmentDTO.getTime());
+        appointment.setFinalDuration(service.getDuration());
+        appointment.setStatus(Appointment.AppointmentStatus.REQUESTED);
+
+        return modelMapper.map(appointmentRepository.save(appointment), AppointmentResponseDTO.class);
+    }
 
 }

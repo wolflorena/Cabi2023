@@ -49,6 +49,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findAllByStatusIn(@Param("statuses") List<Appointment.AppointmentStatus> statuses);
 
     List<Appointment> findByCustomerId(@Param("customerId") Long customerId);
+<<<<<<< Updated upstream
     @Query("SELECT a FROM Appointment a WHERE a.customer.id = :customerId ORDER BY a.date DESC, a.time DESC")
     Page<Appointment> findAllByCustomerIdOrderByDateTimeDesc(@Param("customerId") Long customerId, Pageable pageable);
+=======
+    Page<Appointment> findAllByCustomerId(Long customerId, Pageable pageable);
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END " +
+            "FROM Appointment a " +
+            "WHERE a.date = :date AND a.time = :time AND a.doctor.id = :doctorId " +
+            "AND a.status <> :status AND a.id <> :appointmentId")
+    boolean existsByDateAndTimeAndDoctorIdAndStatusNotAndAppointmentIdNot(
+            @Param("date") LocalDate date,
+            @Param("time") LocalTime time,
+            @Param("doctorId") Long doctorId,
+            @Param("status") Appointment.AppointmentStatus status,
+            @Param("appointmentId") Long appointmentId
+    );
+>>>>>>> Stashed changes
 }

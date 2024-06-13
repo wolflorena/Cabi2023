@@ -5,7 +5,7 @@ import MonthScheduler from "@/components/MonthScheduler.vue";
 import DayScheduler from "@/components/DayScheduler.vue";
 import CustomCheckbox from "@/components/CustomCheckbox.vue";
 import CustomDropdown from "@/components/CustomDropdown.vue";
-import AddAppointmentModal from "@/components/AddAppointmentModal.vue";
+import AddOrUpdateAppointmentModal from "@/components/AddOrUpdateAppointmentModal.vue";
 import DatePicker from "@/components/DatePicker.vue";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 import { createDoctorAccount, getAllDoctors } from "@/services/doctor_service";
@@ -239,7 +239,7 @@ onMounted(() => {
     />
   </div>
 
-  <AddAppointmentModal
+  <AddOrUpdateAppointmentModal
     :visible="showModal"
     @add-appointment="addAppointment"
     @close="closeModal"

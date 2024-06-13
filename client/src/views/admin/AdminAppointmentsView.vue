@@ -6,7 +6,7 @@ import TableHeader from "@/components/TableHeader.vue";
 import CustomCheckbox from "@/components/CustomCheckbox.vue";
 import Pagination from "@/components/Pagination.vue";
 import CustomModal from "@/components/CustomModal.vue";
-import AddAppointmentModal from "@/components/AddAppointmentModal.vue";
+import AddOrUpdateAppointmentModal from "@/components/AddOrUpdateAppointmentModal.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
 import TableRow from "@/components/TableRow.vue";
@@ -31,8 +31,11 @@ import Swal from "sweetalert2";
 const showModal = ref(false);
 const showInfo = ref(false);
 const showDelete = ref(false);
+const showUpdate = ref(false);
 const isLoading = ref(false);
+const doctorsAreLoading = ref(false);
 const appointmentDetails = ref<AppointmentDetail>();
+const appointmentIdForUpdateModal = ref<number>();
 
 const doctors = ref<SelectedDoctor[]>([]);
 const doctorIds = ref<number[]>([]);
@@ -44,11 +47,11 @@ const currentPage = ref(1);
 const totalPages = ref(0);
 
 async function loadDoctors() {
-  isLoading.value = true;
+  doctorsAreLoading.value = true;
   await getAllDoctors().then((res: any) => {
     if (res) {
       doctors.value = res.map((doctor: any) => ({ ...doctor, checked: true }));
-      isLoading.value = false;
+      doctorsAreLoading.value = false;
     }
   });
 }
@@ -65,6 +68,7 @@ async function loadAppointments() {
     appointments.value = res.pagedAppointments.content;
     totalPages.value = Math.ceil(res.total / 10);
     isLoading.value = false;
+    console.log(isLoading.value);
   });
 }
 
@@ -154,8 +158,15 @@ function prepareAddAppointmentModal() {
   showModal.value = true;
 }
 
+function showUpdateModal(appointmentId: number) {
+  showUpdate.value = true;
+
+  appointmentIdForUpdateModal.value = appointmentId;
+}
+
 function closeModal() {
   showModal.value = false;
+  showUpdate.value = false;
 }
 
 async function addAppointment(
@@ -194,7 +205,7 @@ async function addAppointment(
         <div class="title">
           <h4>Select doctors</h4>
         </div>
-        <div v-if="!isLoading">
+        <div v-if="!doctorsAreLoading">
           <div v-for="doctor in doctors" :key="doctor.id">
             <CustomCheckbox
               v-model="doctor.checked"
@@ -232,7 +243,7 @@ async function addAppointment(
         class="appointments-container"
         :class="{ empty: appointments.length === 0 }"
       >
-        <table v-if="appointments.length > 0">
+        <table v-if="!isLoading">
           <TableHeader
             :columns="
               appointmentStatus == 'COMPLETED'
@@ -265,7 +276,10 @@ async function addAppointment(
                   iconToken="eye"
                   @action-triggered="showInfoModal(appointment.appointmentId)"
                 />
-                <ActionButton iconToken="pen" />
+                <ActionButton
+                  iconToken="pen"
+                  @action-triggered="showUpdateModal(appointment.appointmentId)"
+                />
                 <ActionButton
                   iconToken="trash-can"
                   @action-triggered="showDeleteModal(appointment.appointmentId)"
@@ -281,7 +295,10 @@ async function addAppointment(
                     )
                   "
                 />
-                <ActionButton iconToken="pen" />
+                <ActionButton
+                  iconToken="pen"
+                  @action-triggered="showUpdateModal(appointment.appointmentId)"
+                />
                 <ActionButton
                   iconToken="xmark"
                   @action-triggered="
@@ -302,12 +319,13 @@ async function addAppointment(
             </TableRow>
           </tbody>
         </table>
+        <LoadingSpinner v-else />
+
         <img
           src="../../assets/nodata.svg"
           alt=""
-          v-else-if="appointments.length === 0 && isLoading === false"
+          v-if="appointments.length === 0 && !isLoading"
         />
-        <LoadingSpinner v-else />
 
         <Pagination
           :total-pages="totalPages"
@@ -370,10 +388,17 @@ async function addAppointment(
     </div>
   </div>
 
-  <AddAppointmentModal
+  <AddOrUpdateAppointmentModal
     :visible="showModal"
     @add-appointment="addAppointment"
     @close="closeModal"
+  />
+
+  <AddOrUpdateAppointmentModal
+    :visible="showUpdate"
+    :appointment-id="appointmentIdForUpdateModal"
+    @close="closeModal"
+    @delete-successfully="loadAppointments"
   />
 </template>
 

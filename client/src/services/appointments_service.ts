@@ -182,6 +182,35 @@ export async function getHistoryOfCustomer(
   return json;
 }
 
+async function updateAppointment(
+  appointmentId: number,
+  date: string,
+  time: string,
+  doctorId: number,
+  serviceId: number
+) {
+  try {
+    const response = await fetch(`${API_URL}?appointmentId=${appointmentId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ date, time, doctorId, serviceId }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message);
+    }
+
+    const updatedAppointment = await response.json();
+    return updatedAppointment;
+  } catch (error) {
+    console.error("Error updating appointment:", error);
+    throw error;
+  }
+}
+
 export {
   getAppointmentsByDateAndDoctor,
   getAll,
@@ -194,4 +223,5 @@ export {
   getUpcomingAppointments,
   getTotalAppointments,
   getWeeklyAppointmentsNumber,
+  updateAppointment,
 };

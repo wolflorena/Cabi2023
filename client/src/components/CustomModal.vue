@@ -76,6 +76,7 @@ const emits = defineEmits(["button1", "button2"]);
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    position: relative;
 
     &.light {
       background-color: @light;
