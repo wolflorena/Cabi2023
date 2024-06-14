@@ -19,5 +19,6 @@ public class AppointmentDetailDTO {
     private Long doctorId;
     private String doctorFirstName;
     private String doctorLastName;
+    private Long serviceId;
     private String serviceName;
 }

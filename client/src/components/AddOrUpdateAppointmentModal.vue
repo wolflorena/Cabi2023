@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import type { AppointmentAdmin, AppointmentDetail, Patient, SelectedDoctor, Service } from "@/data/types/Entities";
+import { nextTick, onMounted, ref, watch } from "vue";
+import type { Patient, SelectedDoctor, Service } from "@/data/types/Entities";
 import {
   getAllDoctors,
   getAvailableDates,
@@ -8,19 +8,22 @@ import {
 } from "@/services/doctor_service";
 import { getAllServices } from "@/services/service_service";
 import { getAllPatients } from "@/services/customer_service";
+import { getById, updateAppointment } from "@/services/appointments_service";
 import CustomModal from "./CustomModal.vue";
+import Swal from "sweetalert2";
+import LoadingSpinner from "./LoadingSpinner.vue";
 
 const props = withDefaults(
   defineProps<{
     visible: boolean;
-    appointment?: AppointmentAdmin;
+    appointmentId?: number; //only if the component is used for editing
   }>(),
   {
     visible: false,
   }
 );
 
-const emit = defineEmits(["close", "addAppointment", "editAppointment"]);
+const emit = defineEmits(["close", "addAppointment", "deleteSuccessfully"]);
 
 const doctors = ref<SelectedDoctor[]>([]);
 
@@ -30,19 +33,33 @@ const services = ref<Service[]>([]);
 const selectedDoctor = ref();
 const selectedService = ref();
 const availableDates = ref<string[]>([]);
-const selectedDate = ref();
-const selectedHour = ref();
+const selectedDate = ref("");
+const selectedHour = ref("");
 const selectedPatient = ref();
 const availableHours = ref<string[]>([]);
+
+const isLoading = ref(false);
 
 onMounted(() => {
   loadServices();
   fetchPatients();
   loadDoctors();
-  if (props.appointment) {
-    prefillAppointmentData();
+  if (props.visible && props.appointmentId) {
+    fetchAppointmentDetails(props.appointmentId);
   }
 });
+
+async function fetchAppointmentDetails(appointmentId: number) {
+  isLoading.value = true;
+  const res = await getById(appointmentId);
+  selectedDoctor.value = res.doctorId;
+  selectedService.value = res.serviceId;
+  selectedDate.value = res.date;
+  selectedHour.value = res.time;
+  await fetchAvailableDates();
+  await fetchAvailableHours();
+  isLoading.value = false;
+}
 
 async function loadServices() {
   await getAllServices().then((res: any) => {
@@ -60,19 +77,6 @@ async function loadDoctors() {
   });
 }
 
-function prefillAppointmentData() {
-  if (props.appointment) {
-    selectedDoctor.value = props.appointment.doctorId;
-    selectedService.value = props.appointment.serviceId;
-    selectedDate.value = props.appointment.date;
-    selectedHour.value = props.appointment.time;
-    selectedPatient.value = props.appointment.customerId;
-
-    fetchAvailableDates();
-    fetchAvailableHours();
-  }
-}
-
 function closeModal() {
   selectedDate.value = "";
   selectedHour.value = "";
@@ -83,26 +87,36 @@ function closeModal() {
 }
 
 async function fetchAvailableDates() {
-  await getAvailableDates(selectedDoctor.value, selectedService.value).then(
-    (res: any) => {
-      availableDates.value = res;
-    }
-  );
+  if (selectedDoctor.value && selectedService.value) {
+    await getAvailableDates(selectedDoctor.value, selectedService.value).then(
+      (res: any) => {
+        availableDates.value = res;
+      }
+    );
+  }
 }
 
 async function fetchAvailableHours() {
-  await getAvailableHours(
-    selectedDoctor.value,
-    selectedService.value,
-    selectedDate.value
-  ).then((res: any) => {
-    availableHours.value = res;
-  });
+  if (selectedDoctor.value && selectedService.value && selectedDate.value) {
+    await getAvailableHours(
+      selectedDoctor.value,
+      selectedService.value,
+      selectedDate.value
+    ).then((res: any) => {
+      availableHours.value = res;
+    });
+  }
+}
+
+function addOrUpdateAppointment() {
+  if (props.appointmentId) {
+    rescheduleAppointment(props.appointmentId);
+  } else {
+    addAppointment();
+  }
 }
 
 function addAppointment() {
-  closeModal();
-
   emit(
     "addAppointment",
     selectedDate.value,
@@ -112,22 +126,59 @@ function addAppointment() {
     selectedPatient.value
   );
 
+  closeModal();
+
   selectedDate.value = "";
   selectedHour.value = "";
   selectedDoctor.value = "";
   selectedService.value = "";
   selectedPatient.value = "";
 }
+
+async function rescheduleAppointment(appointmentId: number) {
+  try {
+    await updateAppointment(
+      appointmentId,
+      selectedDate.value,
+      selectedHour.value,
+      selectedDoctor.value,
+      selectedService.value
+    );
+    closeModal();
+    Swal.fire({
+      title: "Appointment updated successfully.",
+      icon: "success",
+      confirmButtonText: "OK",
+    });
+    emit("deleteSuccessfully");
+  } catch (error: any) {
+    Swal.fire({
+      title: "Error!",
+      text: error.message,
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+  }
+}
+
+watch(
+  () => props.visible,
+  (newVal) => {
+    if (newVal && props.appointmentId) {
+      fetchAppointmentDetails(props.appointmentId);
+    }
+  }
+);
 </script>
 
 <template>
   <CustomModal
     :show="visible"
     @button2="closeModal"
-    @button1="addAppointment"
-    title="New appointment"
+    @button1="addOrUpdateAppointment"
+    :title="props.appointmentId ? 'Edit Appointment' : 'New Appointment'"
   >
-    <div class="selection">
+    <div class="selection" v-if="!isLoading">
       <div class="option">
         <label>Select doctor *</label>
         <select v-model="selectedDoctor">
@@ -172,7 +223,7 @@ function addAppointment() {
         </select>
       </div>
 
-      <div class="option">
+      <div class="option" v-if="!appointmentId">
         <label>Select patient name</label>
         <select v-model="selectedPatient">
           <option disabled value="">Select patient</option>
@@ -186,6 +237,7 @@ function addAppointment() {
         </select>
       </div>
     </div>
+    <LoadingSpinner v-else color="#84ce95" />
   </CustomModal>
 </template>
 

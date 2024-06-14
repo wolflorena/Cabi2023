@@ -67,9 +67,11 @@ onMounted(() => {
               ]"
               :index="index"
             >
-            <div class="actions">
-                <ActionButton icon-token="eye"/>
-            </div>
+              <div class="actions">
+                <router-link :to="'patients/' + patient.customerId">
+                  <ActionButton icon-token="eye" />
+                </router-link>
+              </div>
             </TableRow>
           </tbody>
         </table>

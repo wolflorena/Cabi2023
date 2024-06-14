@@ -138,4 +138,15 @@ public class AppointmentController {
             throw new CanNotRetrieveHistory(e.getMessage());
         }
     }
+
+    @PatchMapping
+    public ResponseEntity<AppointmentResponseDTO> updateAppointment(
+            @RequestParam("appointmentId") Long appointmentId,
+            @RequestBody UpdateAppointmentDTO updateAppointmentRequestDTO) {
+        if (appointmentId == null) {
+            throw new IllegalArgumentException("Appointment ID must not be null!");
+        }
+        AppointmentResponseDTO updatedAppointment = appointmentService.rescheduleAppointment(appointmentId, updateAppointmentRequestDTO);
+        return new ResponseEntity<>(updatedAppointment, HttpStatus.OK);
+    }
 }

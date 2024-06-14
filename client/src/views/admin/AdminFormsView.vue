@@ -157,9 +157,6 @@ async function deleteFormById(formId: number | undefined) {
         width: 70%;
       }
     }
-    .delete-text {
-      color: @white;
-    }
 
     .add-button-container {
       display: flex;
@@ -176,6 +173,10 @@ async function deleteFormById(formId: number | undefined) {
         font-size: 20px;
       }
     }
+  }
+
+  .delete-text {
+    color: @white;
   }
 }
 </style>

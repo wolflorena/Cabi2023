@@ -25,4 +25,5 @@ public interface AppointmentService {
     List<WeeklyAppointmentsDTO> getWeeklyAppointments(Long doctorId);
     HistoryPageDTO getHistoryByCustomerId(Long customerId, Pageable pageable);
     List<AppointmentResponseDTO> getAppointmentsByDoctorAndViewType(Long doctorId, LocalDate date, String viewType);
+    AppointmentResponseDTO rescheduleAppointment(Long appointmentId, UpdateAppointmentDTO updateAppointmentDTO);
 }

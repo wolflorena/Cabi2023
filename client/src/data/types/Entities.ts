@@ -147,3 +147,9 @@ export type Vacation = HasDoctorIdAndTime & {
 type HasDoctorIdAndTime = {
   doctorId: number;
 };
+
+export type PdfDocument = {
+  fileId: number;
+  fileName: string;
+  data: any;
+};
