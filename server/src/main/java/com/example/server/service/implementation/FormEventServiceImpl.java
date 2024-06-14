@@ -67,7 +67,37 @@ public class FormEventServiceImpl implements FormEventService {
         List<FormEvent> formEvents = formEventRepository.findByCustomerId(customerId);
 
         return formEvents.stream()
-                .map(event-> new FormStatusViewDTO(event.getForm().getTitle(), event.getFormEventType()))
+                .map(event-> new FormStatusViewDTO(event.getForm().getFormId(), event.getForm().getTitle(), event.getForm().getDescription(), event.getFormEventType()))
                 .toList();
+    }
+
+    @Override
+    public void setFormViewed(Long formId, Long customerId) {
+        Form form = formRepository.findById(formId)
+                .orElseThrow(() -> new IllegalArgumentException("Form not found"));
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+
+        FormEvent formEvent = formEventRepository.findByFormIdAndCustomerId(formId, customerId);
+        formEvent.setFormEventType(FormEvent.FormEventType.VIEWED);
+        formEvent.setTimestamp(LocalDate.now());
+
+        formEventRepository.save(formEvent);
+    }
+
+    @Override
+    public void setFormSigned(Long formId, Long customerId) {
+        Form form = formRepository.findById(formId)
+                .orElseThrow(() -> new IllegalArgumentException("Form not found"));
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+
+        FormEvent formEvent = formEventRepository.findByFormIdAndCustomerId(formId, customerId);
+        formEvent.setFormEventType(FormEvent.FormEventType.SIGNED);
+        formEvent.setTimestamp(LocalDate.now());
+
+        formEventRepository.save(formEvent);
     }
 }

@@ -4,12 +4,58 @@ import { CustomerSidebarOptions } from "@/data/types/SidebarOptions";
 import { onMounted, ref } from "vue";
 import TableHeader from "@/components/TableHeader.vue";
 import TableRow from "@/components/TableRow.vue";
-import { Form, FormWithStatus } from "@/data/types/Entities";
-import { getVisibleForms } from "@/services/form_service";
+import { FormWithStatus } from "@/data/types/Entities";
+import {
+  getVisibleForms,
+  setSignedForm,
+  setViewedForm,
+} from "@/services/form_service";
 import { getUserIdAndToken } from "@/services/authentication_service";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import FormDescription from "./form-content/FormDescription.vue";
+import Swal from "sweetalert2";
+import { mountComponent } from "./form-content/MountComponent";
 
 const forms = ref<FormWithStatus[]>([]);
+const checkboxChecked = ref<boolean>(false);
+
+async function handleOpenForm(form: FormWithStatus) {
+  const formDescriptionElement = mountComponent(FormDescription, {
+    description: form.description,
+  });
+
+  try {
+    const { userId, token } = getUserIdAndToken();
+
+    if (form.formEventType === "NEW") {
+      await setViewedForm(form.formId, userId).then((res) => {
+        form.formEventType = "VIEWED";
+      });
+    }
+
+    Swal.fire({
+      title: form.title,
+      html: formDescriptionElement,
+      input: "checkbox",
+      inputPlaceholder: "I agree",
+      confirmButtonText: "Confirm",
+      showCancelButton: true,
+      inputValidator: (result) => {
+        return result ? null : "You need to agree to proceed!";
+      },
+      preConfirm: async () => {
+        try {
+          await setSignedForm(form.formId, userId);
+          form.formEventType = "SIGNED";
+        } catch (error) {
+          console.error("Error signing form", error);
+        }
+      },
+    });
+  } catch (error: any) {
+    console.error("Error setting form as viewed", error.message);
+  }
+}
 
 onMounted(async () => {
   const { userId, token } = getUserIdAndToken();
@@ -34,10 +80,16 @@ onMounted(async () => {
           <tbody>
             <TableRow
               v-for="(form, index) in forms"
-              :columns="[index + 1, form.title, form.formEventType, `expand`]"
+              :columns="[index + 1, form.title]"
+              :status-column="form.formEventType"
               :index="index"
               highlight="odd"
+              :style="{ cursor: 'pointer' }"
+              @click="handleOpenForm(form)"
             >
+              <div :style="{ fontSize: '32px' }">
+                <font-awesome-icon id="icon" icon="caret-down" />
+              </div>
             </TableRow>
           </tbody>
         </table>
@@ -80,24 +132,6 @@ onMounted(async () => {
     height: 100%;
     position: relative;
 
-    .status {
-      color: white;
-      padding: 10px 10px;
-      border-radius: 15px;
-      &.canceled {
-        background-color: @canceled-appointment;
-      }
-      &.scheduled {
-        background-color: @scheduled-appointment;
-      }
-      &.requested {
-        background-color: @requested-appointment;
-      }
-      &.completed {
-        background-color: @completed-appointment;
-      }
-    }
-
     .no-form-container {
       width: 75vw;
       position: relative;
@@ -118,4 +152,4 @@ onMounted(async () => {
   }
 }
 </style>
-@/data/types/SidebarOptions
+@/data/types/SidebarOptions./form-content/FormDescription.vue

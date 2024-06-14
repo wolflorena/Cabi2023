@@ -6,6 +6,7 @@ const props = withDefaults(
   defineProps<{
     index: number;
     columns: any[];
+    statusColumn?: string;
     date?: string;
     time?: string;
     highlight?: string; // 'even' or 'odd'
@@ -34,6 +35,16 @@ const rowClass = computed(() => {
     <td v-for="column in columns">
       {{ column }}
     </td>
+    <td
+      v-if="statusColumn"
+      :class="{
+        new: statusColumn === 'NEW',
+        viewed: statusColumn === 'VIEWED',
+        signed: statusColumn === 'SIGNED',
+      }"
+    >
+      {{ statusColumn }} <span v-if="statusColumn === 'NEW'">*</span>
+    </td>
     <td v-if="date && time">
       <DateAndTimeSpan :date="date" :time="time" />
     </td>
@@ -52,11 +63,28 @@ tr {
   font-size: 20px;
   td {
     text-align: center;
+    position: relative;
     &:first-child {
       border-top-left-radius: 20px;
       border-bottom-left-radius: 20px;
     }
+
+    &.new {
+      color: @new-form;
+      font-weight: bolder;
+    }
+
+    &.signed {
+      color: @signed-form;
+      font-weight: bolder;
+    }
+
+    &.viewed {
+      font-weight: bolder;
+      color: @viewed-form;
+    }
   }
+
   &:hover {
     background-color: @sugar;
   }

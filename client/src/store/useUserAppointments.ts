@@ -59,7 +59,6 @@ async function fetchUserHistoryAppointments(
 
 function changePage(pageNumber: number) {
   isLoading.value = true;
-  console.log("page nmbr" + pageNumber);
 
   fetchUserHistoryAppointments(pageNumber);
 }

@@ -49,8 +49,10 @@ async function getVacationsForCalendar() {
   return json;
 }
 
-async function getVacationsForCalendarForYear() {
-  const response = await fetch(`${API_URL}/forCalendarForYear`);
+async function getVacationsForCalendarForYear(doctorId: number) {
+  const response = await fetch(
+    `${API_URL}/forCalendarForYear?doctorId=${doctorId}`
+  );
   const json = await response.json();
   return json;
 }

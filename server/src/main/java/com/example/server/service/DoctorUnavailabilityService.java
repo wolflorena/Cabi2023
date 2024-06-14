@@ -10,7 +10,7 @@ import java.util.List;
 public interface DoctorUnavailabilityService {
     List<DoctorUnavailability> getUnavailabilitiesByDoctorId(Long doctorId);
     List<VacationRequestDTO> getAllVacationsForCalendar();
-    List<VacationRequestDTO> getAllVacationsForCalendarForYear(Year year);
+    List<VacationRequestDTO> getAllVacationsForCalendarForYear(Year year, Long doctorId);
     VacationRequestDTO createUnavailability(VacationRequestDTO unavailability);
     void deleteUnavailability(Long id);
 }

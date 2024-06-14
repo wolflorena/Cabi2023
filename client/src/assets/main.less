@@ -1,3 +1,4 @@
+@import (reference) "@/assets/styles.less";
 body {
   margin: 0;
   padding: 0;
@@ -32,6 +33,23 @@ button.swal2-confirm.swal2-styled {
 
 #swal2-html-container {
   color: white;
+}
+
+.swal2-validation-message {
+  background-color: @heavy-smoke;
+  color: white;
+}
+.swal2-checkbox {
+  background-color: transparent !important;
+
+  #swal2-checkbox {
+    width: 25px;
+    height: 25px;
+  }
+  .swal2-label {
+    font-size: 24px;
+    color: white;
+  }
 }
 
 button.swal2-cancel.swal2-styled {

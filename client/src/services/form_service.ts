@@ -80,6 +80,38 @@ async function updateForm(
       visibility,
     }),
   });
+
+  if (!response.ok) {
+    throw new Error("Failed to set form as viewed");
+  }
+}
+
+export async function setViewedForm(formId: number, customerId: number) {
+  const response = await fetch(
+    `${API_URL}/formViewed?formId=${formId}&customerId=${customerId}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to set form as viewed");
+  }
+}
+
+export async function setSignedForm(formId: number, customerId: number) {
+  const response = await fetch(
+    `${API_URL}/formSigned?formId=${formId}&customerId=${customerId}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to set form as viewed");
+  }
 }
 
 async function getVisibleForms(

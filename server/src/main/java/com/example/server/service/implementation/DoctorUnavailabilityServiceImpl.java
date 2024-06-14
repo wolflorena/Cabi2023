@@ -48,9 +48,10 @@ public class DoctorUnavailabilityServiceImpl implements DoctorUnavailabilityServ
                 .collect(Collectors.toList());
     }
     @Override
-    public List<VacationRequestDTO> getAllVacationsForCalendarForYear(Year year) {
+    public List<VacationRequestDTO> getAllVacationsForCalendarForYear(Year year, Long doctorId) {
         List<DoctorUnavailability> doctorUnavailabilities = doctorUnavailabilityRepository.findAll();
         return doctorUnavailabilities.stream()
+                .filter(doctorUnavailability -> doctorUnavailability.getDoctor().getId().equals(doctorId))
                 .filter(doctorUnavailability -> isWithinYear(doctorUnavailability, year))
                 .map(doctorUnavailability -> modelMapper.map(doctorUnavailability, VacationRequestDTO.class))
                 .collect(Collectors.toList());

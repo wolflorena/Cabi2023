@@ -78,6 +78,8 @@ function getAppointmentPosition(
 }
 
 function getAppointmentStyle(appointment: AppointmentCalendar) {
+  console.log("app style" + appointment.customerFirstName);
+
   if (appointment.status === "CANCELLED") {
     return { display: "none" };
   }
@@ -175,7 +177,6 @@ watch(
       const appointmentDate = parseISO(app.date);
       return appointmentDate >= start.value && appointmentDate <= end.value;
     });
-    console.log(appointmentsForTheWeek.value);
   }
 );
 
@@ -183,13 +184,19 @@ watch(
   () => props.appointments,
   (newAppointments) => {
     appointmentsForTheWeek.value = newAppointments.filter((app) => {
+      console.log("new app " + app.date);
+
       const appointmentDate = parseISO(app.date);
       return appointmentDate >= start.value && appointmentDate <= end.value;
     });
   },
   { immediate: true }
 );
+
 onMounted(async () => {
+  console.log(props.appointments);
+  console.log(props.unavailabilites);
+
   if (userDetails.value === null) {
     await fetchUserProfile();
   }

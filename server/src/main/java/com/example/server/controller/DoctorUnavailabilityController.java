@@ -33,9 +33,9 @@ public class DoctorUnavailabilityController {
     }
 
     @GetMapping("/forCalendarForYear")
-    public List<VacationRequestDTO> getVacationsForCalendarForYear() {
+    public List<VacationRequestDTO> getVacationsForCalendarForYearForDoctor(@RequestParam Long doctorId) {
         Year selectedYear = Year.of(LocalDate.now().getYear());
-        return doctorUnavailabilityService.getAllVacationsForCalendarForYear(selectedYear);
+        return doctorUnavailabilityService.getAllVacationsForCalendarForYear(selectedYear, doctorId);
     }
 
     @PostMapping

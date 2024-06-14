@@ -6,7 +6,7 @@ import {
   Vacation,
 } from "@/data/types/Entities";
 import CustomerCalendarHeader from "./CustomerCalendarHeader.vue";
-import placeholderImage from "@/assets/please-select-a-doctor.jpg";
+import placeholderGif from "@/assets/doctor-gif-placeholder.gif";
 import CustomerDailyCalendar from "./CustomerDailyCalendar.vue";
 import CustomerWeeklyCalendar from "./CustomerWeeklyCalendar.vue";
 import { watch } from "vue";
@@ -58,9 +58,9 @@ watch(
     <div class="placeholder-image-container" v-if="selectedDoctor === null">
       <img
         id="placeholder-image"
-        alt="placeholderImage"
+        alt="placeholderGif"
         class="placeholder-image"
-        :src="placeholderImage"
+        :src="placeholderGif"
       />
       <span id="placeholder-text" class="placeholder-text"
         >Select a Doctor...</span
@@ -117,15 +117,16 @@ watch(
     width: 100%;
     overflow: hidden;
     .placeholder-text {
+      color: @heavy-smoke;
       font-size: 4rem;
       font-weight: bold;
       font-family: cursive, Haettenschweiler, "Arial Narrow Bold", sans-serif;
       position: absolute;
-      top: 10rem;
-      left: 10rem;
+      top: 5rem;
+      left: 5rem;
     }
     .placeholder-image {
-      object-fit: fill;
+      width: 100%;
     }
   }
 }

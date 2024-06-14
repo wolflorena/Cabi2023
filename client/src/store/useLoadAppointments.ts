@@ -53,7 +53,7 @@ async function fetchAppointments(forceUpdate: boolean = false) {
     try {
       const [resAppointments, resUnavailabilities] = await Promise.all([
         getDoctorAppointments(token, selectedDoctor.value.id, date, "MONTH"),
-        getVacationsForCalendarForYear(),
+        getVacationsForCalendarForYear(selectedDoctor.value.id),
       ]);
 
       if (resAppointments) {

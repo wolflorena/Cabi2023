@@ -85,4 +85,16 @@ public class FormController {
             throw new RuntimeException(e.getMessage());
         }
     }
+    @PatchMapping("/formViewed")
+    public ResponseEntity<?> setFormViewed(@RequestParam Long formId, @RequestParam Long customerId) {
+        formEventService.setFormViewed(formId, customerId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/formSigned")
+    public ResponseEntity<?> setFormSigned(@RequestParam Long formId, @RequestParam Long customerId) {
+        formEventService.setFormSigned(formId, customerId);
+        return ResponseEntity.ok().build();
+    }
+
 }

@@ -13,4 +13,8 @@ public interface FormEventService {
     List<FormDetailsDTO> getCustomersByFormEvent(Long formId, FormEvent.FormEventType formEventType);
 
     List<FormStatusViewDTO> getFormsWithStatus(Long customerId);
+
+    void setFormViewed(Long formId, Long customerId);
+
+    void setFormSigned(Long formId, Long customerId);
 }
