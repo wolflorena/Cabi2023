@@ -14,4 +14,5 @@ public interface PdfDocumentService {
     Optional<PdfDocument> getPdfDocument(Long fileId);
     List<PdfInfoDTO> getDocumentsByCustomer(Long customerId);
     ByteArrayResource viewPdfDocument(Long fileId);
+    boolean deletePdfDocument(Long fileId);
 }

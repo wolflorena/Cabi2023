@@ -7,6 +7,7 @@ import com.example.server.repository.entity.Admin;
 import com.example.server.service.AdminService;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,19 +15,24 @@ import java.util.Optional;
 public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    private AdminServiceImpl(AdminRepository adminRepository, ModelMapper modelMapper){
+    public AdminServiceImpl(AdminRepository adminRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.adminRepository = adminRepository;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
+
     @Override
     public AdminResponseDTO createAdmin(String email, String password) {
-        if(adminRepository.findByEmail(email) != null) {
+        Optional<Admin> optionalAdmin = adminRepository.findByEmail(email);
+        if(optionalAdmin.isPresent()) {
             throw new EmailExistsException("Email already exists");
         }
         Admin admin = new Admin();
         admin.setEmail(email);
-        admin.setPassword(password);
+        String encodedPassword = passwordEncoder.encode(password);
+        admin.setPassword(encodedPassword);
         adminRepository.save(admin);
         return modelMapper.map(admin, AdminResponseDTO.class);
     }

@@ -66,4 +66,14 @@ public class PdfDocumentController {
         response.getOutputStream().write(pdfDocument.getByteArray());
     }
 
+    @DeleteMapping("/delete/{fileId}")
+    public ResponseEntity<Void> deletePdfDocument(@PathVariable Long fileId) {
+        boolean isDeleted = pdfDocumentService.deletePdfDocument(fileId);
+
+        if (isDeleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

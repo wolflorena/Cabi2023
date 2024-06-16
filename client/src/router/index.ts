@@ -24,6 +24,7 @@ import SignupView from "@/views/Login-Register/SignupView.vue";
 import HistoryView from "@/views/customer/HistoryView.vue";
 import FormsView from "@/views/customer/FormsView.vue";
 import DoctorPatientDetailsView from "@/views/doctor/DoctorPatientDetailsView.vue";
+import NotFoundView from "@/views/NotFoundView.vue";
 
 type RouteMeta = {
   requiresAuth: boolean;
@@ -45,76 +46,91 @@ const routes: Array<RouteRecordRaw> = [
     path: "/admin/dashboard",
     name: "dashboard",
     component: AdminDashboardView,
+    meta: { requiresAuth: true, roles: ["ROLE_ADMIN"] } as RouteMeta,
   },
   {
     path: "/admin/appointments",
     name: "appointments",
     component: AdminAppointmentsView,
+    meta: { requiresAuth: true, roles: ["ROLE_ADMIN"] } as RouteMeta,
   },
   {
     path: "/admin/patients",
     name: "patients",
     component: AdminPatientsView,
+    meta: { requiresAuth: true, roles: ["ROLE_ADMIN"] } as RouteMeta,
   },
   {
     path: "/admin/patients/:id",
     name: "patientsDetails",
     component: AdminPatientDetailsView,
+    meta: { requiresAuth: true, roles: ["ROLE_ADMIN"] } as RouteMeta,
   },
   {
     path: "/admin/patients/edit/:id",
     name: "editPatientsDetails",
     component: AdminEditPatientView,
+    meta: { requiresAuth: true, roles: ["ROLE_ADMIN"] } as RouteMeta,
   },
   {
     path: "/admin/inventory",
     name: "inventory",
     component: AdminInventoryView,
+    meta: { requiresAuth: true, roles: ["ROLE_ADMIN"] } as RouteMeta,
   },
   {
     path: "/admin/forms",
     name: "adminForms",
     component: AdminFormsView,
+    meta: { requiresAuth: true, roles: ["ROLE_ADMIN"] } as RouteMeta,
   },
   {
     path: "/admin/forms/create",
     name: "formsAddition",
     component: AdminFormView,
+    meta: { requiresAuth: true, roles: ["ROLE_ADMIN"] } as RouteMeta,
   },
   {
     path: "/admin/forms/edit/:id",
     name: "editForm",
     component: AdminFormView,
+    meta: { requiresAuth: true, roles: ["ROLE_ADMIN"] } as RouteMeta,
   },
   {
     path: "/admin/forms/:id",
     name: "viewForm",
     component: AdminFormEventsView,
+    meta: { requiresAuth: true, roles: ["ROLE_ADMIN"] } as RouteMeta,
   },
   {
     path: "/doctor/profile",
     name: "doctorProfile",
     component: DoctorProfileView,
+    meta: { requiresAuth: true, roles: ["ROLE_DOCTOR"] } as RouteMeta,
   },
   {
     path: "/doctor/dashboard",
     name: "doctorDashboard",
     component: DoctorDashboardView,
+    meta: { requiresAuth: true, roles: ["ROLE_DOCTOR"] } as RouteMeta,
   },
   {
     path: "/doctor/calendar",
     name: "doctorCalendar",
     component: DoctorCalendarView,
+    meta: { requiresAuth: true, roles: ["ROLE_DOCTOR"] } as RouteMeta,
   },
   {
     path: "/doctor/patients",
     name: "doctorPatients",
     component: DoctorPatientsView,
+    meta: { requiresAuth: true, roles: ["ROLE_DOCTOR"] } as RouteMeta,
   },
   {
     path: "/doctor/patients/:id",
     name: "patientDetails",
     component: DoctorPatientDetailsView,
+    meta: { requiresAuth: true, roles: ["ROLE_DOCTOR"] } as RouteMeta,
   },
   {
     path: "/recovery",
@@ -144,6 +160,11 @@ const routes: Array<RouteRecordRaw> = [
     name: "forms",
     component: FormsView,
     meta: { requiresAuth: true, roles: ["ROLE_CUSTOMER"] } as RouteMeta,
+  },
+  {
+    path: "/404_NOT_FOUND",
+    name: "notFound",
+    component: NotFoundView,
   },
 ];
 

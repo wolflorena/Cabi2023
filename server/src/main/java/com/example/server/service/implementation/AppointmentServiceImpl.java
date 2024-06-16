@@ -71,10 +71,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
             if (isDateConflict) {
                 if (unavailability.getStartTime() == null && unavailability.getEndTime() == null) {
-                    // All day unavailability
                     throw new DoctorUnavailableException("Doctor is unavailable for the entire day.");
                 } else if (unavailability.getStartTime() != null && unavailability.getEndTime() != null) {
-                    // Time slot unavailability
                     boolean isTimeConflict = !appointmentTime.isBefore(unavailability.getStartTime()) &&
                             !appointmentTime.isAfter(unavailability.getEndTime());
 
@@ -90,6 +88,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (appointmentRequestDTO.getCustomerId() == null) {
             appointmentRequestDTO.setCustomerId(ID_CLIENT_DEFAULT);
         }
+
         Customer customer = customerRepository.findById(appointmentRequestDTO.getCustomerId()).orElseThrow(() -> new NotFoundException("Patient not found"));
         Doctor doctor = doctorRepository.findById(appointmentRequestDTO.getDoctorId()).orElseThrow(() -> new NotFoundException("Doctor not found"));
         com.example.server.repository.entity.Service service = serviceRepository.findById(appointmentRequestDTO.getServiceId()).orElseThrow(() -> new NotFoundException("Service not found"));
@@ -221,7 +220,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         LocalDate today = now.toLocalDate();
         LocalTime currentTime = now.toLocalTime();
 
-        List<Appointment> appointments = appointmentRepository.findNextAppointmentsByDoctorId(doctorId,today, currentTime).orElseThrow(() -> new NotFoundException("There are no upcoming appointments for today"));
+        List<Appointment> appointments = appointmentRepository.findNextAppointmentsByDoctorId(doctorId,today, currentTime).
+                orElseThrow(() -> new NotFoundException("There are no upcoming appointments for today"));
 
         return appointments.stream()
                 .map(appointment -> modelMapper.map(appointment, AppointmentDoctorDashboardDTO.class))
@@ -235,7 +235,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         LocalDate startOfMonth = currentMonth.atDay(1);
         LocalDate endOfMonth = currentMonth.atEndOfMonth();
 
-        List<Appointment> appointments = appointmentRepository.findAllByDoctorIdAndStatusAndDateBetween(doctorId, appointmentStatus, startOfMonth, endOfMonth);
+        List<Appointment> appointments = appointmentRepository.findAllByDoctorIdAndStatusAndDateBetween(doctorId,
+                appointmentStatus,
+                startOfMonth,
+                endOfMonth);
         return appointments.size();
     }
 
@@ -245,7 +248,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         LocalDate startOfMonth = currentMonth.atDay(1);
         LocalDate endOfMonth = currentMonth.atEndOfMonth();
 
-        List<Appointment> appointments = appointmentRepository.findAllByDoctorIdAndStatusAndDateBetween(doctorId, Appointment.AppointmentStatus.COMPLETED, startOfMonth, endOfMonth);
+        List<Appointment> appointments = appointmentRepository.findAllByDoctorIdAndStatusAndDateBetween(doctorId,
+                Appointment.AppointmentStatus.COMPLETED,
+                startOfMonth,
+                endOfMonth);
 
         Map<Integer, Long> weeklyCounts = appointments.stream()
                 .collect(Collectors.groupingBy(appointment -> appointment.getDate().get(ChronoField.ALIGNED_WEEK_OF_MONTH), Collectors.counting()));

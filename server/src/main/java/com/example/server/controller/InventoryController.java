@@ -20,7 +20,7 @@ public class InventoryController {
         }
 
         @PostMapping
-        public ResponseEntity<Object> addService(@RequestBody Inventory inventory){
+        public ResponseEntity<Object> addProduct(@RequestBody Inventory inventory){
                 return new ResponseEntity<>(inventoryService.addProduct(inventory), HttpStatus.OK);
         }
 
