@@ -23,7 +23,7 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["close", "addAppointment", "deleteSuccessfully"]);
+const emit = defineEmits(["close", "addAppointment", "updateSuccessfully"]);
 
 const doctors = ref<SelectedDoctor[]>([]);
 
@@ -150,7 +150,7 @@ async function rescheduleAppointment(appointmentId: number) {
       icon: "success",
       confirmButtonText: "OK",
     });
-    emit("deleteSuccessfully");
+    emit("updateSuccessfully");
   } catch (error: any) {
     Swal.fire({
       title: "Error!",
@@ -182,7 +182,7 @@ watch(
       <div class="option">
         <label>Select doctor *</label>
         <select v-model="selectedDoctor">
-          <option disabled value="">Select doctor</option>
+          <option disabled value="">Doctor</option>
           <option v-for="doctor in doctors" :key="doctor.id" :value="doctor.id">
             Dr. {{ doctor.firstName }} {{ doctor.lastName }}
           </option>
@@ -192,7 +192,7 @@ watch(
       <div class="option">
         <label>Select type of treatment *</label>
         <select v-model="selectedService" @change="fetchAvailableDates">
-          <option disabled value="">Select type of treatment</option>
+          <option disabled value="">Type of treatment</option>
           <option
             v-for="service in services"
             :key="service.serviceId"
@@ -206,7 +206,7 @@ watch(
       <div class="option">
         <label>Select date *</label>
         <select v-model="selectedDate" @change="fetchAvailableHours">
-          <option disabled value="">Select date</option>
+          <option disabled value="">Date</option>
           <option v-for="date in availableDates" :key="date" :value="date">
             {{ date }}
           </option>
@@ -216,7 +216,7 @@ watch(
       <div class="option">
         <label>Select hour *</label>
         <select v-model="selectedHour">
-          <option disabled value="">Select hour</option>
+          <option disabled value="">Hour</option>
           <option v-for="hour in availableHours" :key="hour" :value="hour">
             {{ hour }}
           </option>
@@ -226,7 +226,7 @@ watch(
       <div class="option" v-if="!appointmentId">
         <label>Select patient name</label>
         <select v-model="selectedPatient">
-          <option disabled value="">Select patient</option>
+          <option disabled value="">Patient</option>
           <option
             v-for="patient in patients"
             :key="patient.customerId"

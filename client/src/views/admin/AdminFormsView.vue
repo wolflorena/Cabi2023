@@ -51,7 +51,10 @@ async function deleteFormById(formId: number | undefined) {
         }
       })
       .catch((error) => {
-        console.log(error);
+        Swal.fire({
+          titleText: error.message,
+          icon: "error",
+        });
       });
   } else return;
 }

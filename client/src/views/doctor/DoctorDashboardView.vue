@@ -33,6 +33,7 @@ const treatmentsAreLoading = ref(false);
 const upcomingIsLoading = ref(false);
 const barChartIsLoading = ref(false);
 const numbersAreLoading = ref(false);
+const doctorId = ref(26);
 
 onMounted(() => {
   getTreatmentTypes();
@@ -43,7 +44,7 @@ onMounted(() => {
 
 async function getTreatmentTypes() {
   treatmentsAreLoading.value = true;
-  await getServicesInCurrentMonth(26).then((res) => {
+  await getServicesInCurrentMonth(doctorId.value).then((res) => {
     treatments.value = res;
     treatmentsAreLoading.value = false;
   });
@@ -51,12 +52,10 @@ async function getTreatmentTypes() {
 
 async function loadUpcomingAppointments() {
   upcomingIsLoading.value = true;
-  await getUpcomingAppointments(1)
-    .then((res) => {
-      appointments.value = res;
-      upcomingIsLoading.value = false;
-    })
-    .catch((e) => console.log(e));
+  await getUpcomingAppointments(doctorId.value).then((res) => {
+    appointments.value = res;
+    upcomingIsLoading.value = false;
+  });
 }
 
 async function loadScheduledAppointments() {
@@ -69,13 +68,13 @@ async function loadScheduledAppointments() {
 }
 
 async function getScheduledAppointmentsNumber(status: string): Promise<number> {
-  const res = await getTotalAppointments(1, status);
+  const res = await getTotalAppointments(doctorId.value, status);
   return res;
 }
 
 async function getDataForBarChart() {
   barChartIsLoading.value = true;
-  await getWeeklyAppointmentsNumber(3).then((res) => {
+  await getWeeklyAppointmentsNumber(doctorId.value).then((res) => {
     appointmentsWeekly.value = res;
     barChartIsLoading.value = false;
   });

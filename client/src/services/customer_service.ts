@@ -32,7 +32,7 @@ async function getAllPatientsForDoctor(
   return json;
 }
 
-async function getById(userId: number, token: string): Promise<UserDetails> {
+async function getById(userId: number, token: string) {
   const response = await fetch(`${API_URL}/get?id=${userId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -43,8 +43,17 @@ async function getById(userId: number, token: string): Promise<UserDetails> {
     throw new Error("Failed to fetch user data");
   }
 
-  const user: UserDetails = await response.json();
-  return user;
+  return response.json();
+}
+
+async function getByIdForAdmin(userId: number) {
+  const response = await fetch(`${API_URL}/get?id=${userId}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch user data");
+  }
+
+  return response.json();
 }
 
 // async function getHistoryById(userId: number, token: string): Promise<UserHistory> {
@@ -170,6 +179,7 @@ async function deactivateAccount(userId: number, token: string) {
     throw new Error("Failed to deactivate account");
   }
 }
+
 async function deleteAccount(userId: number, token: string) {
   const response = await fetch(
     `${API_URL}/delete-account?customerId=${userId}`,
@@ -199,4 +209,5 @@ export {
   deactivateAccount,
   deleteAccount,
   getAllPatientsForDoctor,
+  getByIdForAdmin,
 };

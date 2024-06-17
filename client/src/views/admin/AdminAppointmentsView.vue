@@ -398,7 +398,7 @@ async function addAppointment(
     :visible="showUpdate"
     :appointment-id="appointmentIdForUpdateModal"
     @close="closeModal"
-    @delete-successfully="loadAppointments"
+    @update-successfully="loadAppointments"
   />
 </template>
 

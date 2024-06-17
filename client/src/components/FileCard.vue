@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ActionButton from "./ActionButton.vue";
+import { deleteDocument } from "@/services/pdf_document_service";
 
 const props = withDefaults(
   defineProps<{
@@ -24,6 +25,10 @@ function viewFile() {
     "_blank"
   );
 }
+
+async function deleteFile() {
+  await deleteDocument(props.fileId);
+}
 </script>
 
 <template>
@@ -40,6 +45,7 @@ function viewFile() {
     <div class="buttons">
       <ActionButton icon-token="download" @action-triggered="downloadFile" />
       <ActionButton icon-token="eye" @action-triggered="viewFile" />
+      <ActionButton icon-token="trash-can" @action-triggered="deleteFile" />
     </div>
   </div>
 </template>

@@ -18,12 +18,7 @@ public class AdminController {
     }
 
     @PostMapping
-    public ResponseEntity<AdminResponseDTO> createAdmin(@RequestParam(name="email") String email, @RequestParam(name="password") String password) {
+    public ResponseEntity<AdminResponseDTO> createAdmin(@RequestParam(name="email") String email, @RequestParam String password) {
         return new ResponseEntity<>(adminService.createAdmin(email,password), HttpStatus.CREATED);
-    }
-
-    @PostMapping("/login")
-    public AdminResponseDTO login(@RequestBody AdminRequestDTO adminRequestDTO) {
-        return adminService.loginAdmin(adminRequestDTO.getEmail(), adminRequestDTO.getPassword());
     }
 }

@@ -64,4 +64,14 @@ public class PdfDocumentServiceImpl implements PdfDocumentService {
 
         return new ByteArrayResource(pdfDocument.getData());
     }
+
+    @Override
+    public boolean deletePdfDocument(Long fileId) {
+        if (pdfDocumentRepository.existsById(fileId)) {
+            pdfDocumentRepository.deleteById(fileId);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

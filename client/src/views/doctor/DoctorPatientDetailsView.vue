@@ -3,9 +3,7 @@ import Sidebar from "@/components/Sidebar.vue";
 import DragAndDropFile from "@/components/DragAndDropFile.vue";
 import { DoctorSidebarOptions } from "@/data/types/SidebarOptions";
 import { useRoute } from "vue-router";
-import { onMounted, ref } from "vue";
-import { Patient, PdfDocument } from "@/data/types/Entities";
-import { getFilesByPatient } from "@/services/pdf_document_service";
+import { ref } from "vue";
 import router from "@/router";
 
 const route = useRoute();

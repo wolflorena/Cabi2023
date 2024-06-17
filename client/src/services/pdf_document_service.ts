@@ -35,4 +35,11 @@ async function getFilesByPatient(customerId: number) {
   return json;
 }
 
-export { uploadFile, getFilesByPatient };
+async function deleteDocument(formId: number) {
+  const response = fetch(API_URL + "/" + formId, {
+    method: "DELETE",
+  });
+  return response;
+}
+
+export { uploadFile, getFilesByPatient, deleteDocument };

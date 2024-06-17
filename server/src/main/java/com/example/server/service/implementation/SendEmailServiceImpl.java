@@ -11,7 +11,6 @@ import com.example.server.utils.PasswordGenerator;
 import freemarker.template.TemplateException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
@@ -23,8 +22,6 @@ import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +32,6 @@ public class SendEmailServiceImpl implements SendEmailService {
     private final DoctorRepository doctorRepository;
     private final CustomerRepository customerRepository;
     private final JavaMailSender emailSender;
-
     private final Configuration configuration;
     private final PasswordEncoder passwordEncoder;
 
@@ -52,7 +48,7 @@ public class SendEmailServiceImpl implements SendEmailService {
     }
 
     private String adminEmail = "dentify2023@gmail.com";
-    private final String companyName = "Cabi 2023";
+    private final String companyName = "DentiSync";
 
     @Override
     public void sendPasswordToDoctor(Long doctorId) {
@@ -97,7 +93,6 @@ public class SendEmailServiceImpl implements SendEmailService {
         mapUser.put("companyName", companyName);
         mapUser.put("password", password);
         mapUser.put("date", new Date().toString());
-        mapUser.put("imageUrl", "./welcome.jpg");
         try {
             Template template  = configuration.getTemplate(fileName);
             String htmlTemplate = FreeMarkerTemplateUtils.processTemplateIntoString(template, mapUser);
@@ -127,6 +122,7 @@ public class SendEmailServiceImpl implements SendEmailService {
             System.out.println(exception.getMessage());
         }
     }
+
 
 
     private void sendEmail(String emailTo, String subject, String text) {

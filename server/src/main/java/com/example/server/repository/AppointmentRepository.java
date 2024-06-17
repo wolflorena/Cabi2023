@@ -1,6 +1,5 @@
 package com.example.server.repository;
 
-import com.example.server.repository.DTOs.AppointmentTimeDTO;
 import com.example.server.repository.entity.Appointment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
