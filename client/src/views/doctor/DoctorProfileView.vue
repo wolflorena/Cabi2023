@@ -5,8 +5,10 @@ import { Doctor } from "@/data/types/Entities";
 import { DoctorSidebarOptions } from "@/data/types/SidebarOptions";
 import {
   changeDoctorPassword,
+  getDoctorAvatarById,
   getDoctorById,
   updateDoctor,
+  uploadAvatar,
 } from "@/services/doctor_service";
 import { computed, onMounted, ref, watch } from "vue";
 import InfoField from "@/components/InfoField.vue";
@@ -14,7 +16,7 @@ import CustomButton from "@/components/CustomButton.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import Swal from "sweetalert2";
 
-const viewOnly = ref(true);
+const viewOnly = ref(false);
 const security = ref(false);
 const doctor = ref<Doctor>();
 const firstName = ref();
@@ -29,6 +31,9 @@ const currentPassword = ref<string>("");
 const newPassword = ref<string>("");
 const confirmPassword = ref<string>("");
 
+const avatarFile = ref<File | undefined>();
+const avatarPreview = ref<string | undefined>();
+
 const passwordsMatch = computed(() => {
   return newPassword.value === confirmPassword.value;
 });
@@ -37,8 +42,15 @@ async function getDoctorDetails() {
   isLoading.value = true;
   await getDoctorById(1).then((res) => {
     doctor.value = res;
-    isLoading.value = false;
   });
+  const blob = await getDoctorAvatarById(1);
+
+  if (blob.size > 0) {
+    avatarPreview.value = URL.createObjectURL(blob);
+  } else {
+    avatarPreview.value = undefined;
+  }
+  isLoading.value = false;
 }
 
 watch(doctor, (newDoctor) => {
@@ -57,6 +69,9 @@ onMounted(() => {
 });
 
 async function updateProfile() {
+  if (avatarFile.value) {
+    await uploadAvatar(1, avatarFile.value);
+  }
   await updateDoctor(
     1,
     firstName.value,
@@ -96,6 +111,29 @@ async function handlePasswordChange() {
     currentPassword.value = "";
     newPassword.value = "";
     confirmPassword.value = "";
+  }
+}
+
+function handleFileChange(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    const file = target.files[0];
+    if (file.size > 500 * 1024) {
+      alert("File size exceeds 500KB");
+      return;
+    }
+    const fileReader = new FileReader();
+    fileReader.onload = () => {
+      avatarPreview.value = fileReader.result as string;
+    };
+    fileReader.readAsDataURL(file);
+    avatarFile.value = file;
+  }
+}
+function triggerFileInput() {
+  const fileInput = document.getElementById("fileInput");
+  if (fileInput) {
+    fileInput.click();
   }
 }
 </script>
@@ -138,7 +176,29 @@ async function handlePasswordChange() {
     </div>
 
     <div v-if="!isLoading && !security" class="details">
-      <img src="../../assets/default-avatar.png" alt="" />
+      <img :src="avatarPreview" alt="" v-if="viewOnly" />
+      <div v-if="!viewOnly" class="avatar-change">
+        <img :src="avatarPreview" alt="" />
+        <input
+          type="file"
+          id="fileInput"
+          @change="handleFileChange"
+          accept=".jpg,.png"
+          style="display: none"
+        />
+        <CustomButton
+          type="input"
+          text="Choose a file"
+          :isMain="false"
+          color="#30619b"
+          font-size="18"
+          height="40"
+          :style="{
+            width: '100%',
+          }"
+          @click="triggerFileInput"
+        />
+      </div>
       <div class="doctor-info">
         <InfoField
           uuid="first-name"
@@ -276,6 +336,12 @@ async function handlePasswordChange() {
     justify-content: center;
     align-items: center;
     gap: 9vh;
+
+    .avatar-change {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
     img {
       height: 200px;

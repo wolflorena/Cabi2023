@@ -56,21 +56,6 @@ async function getByIdForAdmin(userId: number) {
   return response.json();
 }
 
-// async function getHistoryById(userId: number, token: string): Promise<UserHistory> {
-//   const response = await fetch(`${API_URL}/get?id=${userId}`, {
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//       "Content-Type": "application/json",
-//     },
-//   });
-//   if (!response.ok) {
-//     throw new Error("Failed to fetch user data");
-//   }
-
-//   const user: UserDetails = await response.json();
-//   return user;
-// }
-
 async function editStatus(userId: number, newStatusAccount: string) {
   const response = await fetch(
     `${API_URL}/accountStatus?customerId=${userId}&status=${newStatusAccount}`,

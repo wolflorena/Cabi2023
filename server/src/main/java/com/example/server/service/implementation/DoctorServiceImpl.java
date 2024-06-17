@@ -9,14 +9,19 @@ import com.example.server.repository.DoctorRepository;
 import com.example.server.repository.DoctorUnavailabilityRepository;
 import com.example.server.repository.ServiceRepository;
 import com.example.server.repository.entity.Appointment;
+import com.example.server.repository.entity.Customer;
 import com.example.server.repository.entity.Doctor;
 import com.example.server.repository.entity.DoctorUnavailability;
 import com.example.server.service.DoctorService;
 import com.example.server.service.SendEmailService;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -60,11 +65,31 @@ public class DoctorServiceImpl implements DoctorService {
             doctor.setEmail(doctorAdminRequestDTO.getEmail());
             doctor.setFirstLogin(true);
 
+            byte[] defaultAvatar = new byte[0];
+
+            try {
+                defaultAvatar = loadDefaultAvatar();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            doctor.setAvatar(defaultAvatar);
+
             doctorRepository.save(doctor);
             sendEmailService.sendPasswordToDoctor(doctor.getId());
             return modelMapper.map(doctor, DoctorResponseDTO.class);
         } else {
             throw new EmailExistsException("Email already exists");
+        }
+    }
+
+    public void uploadAvatar(Long doctorId, MultipartFile avatar) {
+        try{
+            Doctor doctor = doctorRepository.findById(doctorId)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+            doctor.setAvatar(avatar.getBytes());
+            doctorRepository.save(doctor);
+        }catch (Exception e) {
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -80,6 +105,14 @@ public class DoctorServiceImpl implements DoctorService {
         return doctors.stream()
                 .map(doctor -> modelMapper.map(doctor, DoctorResponseDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public byte[] getDoctorAvatarById(Long doctorId){
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        return doctor.getAvatar();
     }
 
     @Override
@@ -271,5 +304,10 @@ public class DoctorServiceImpl implements DoctorService {
         doctor.setFirstLogin(false);
         doctorRepository.save(doctor);
         return true;
+    }
+
+    private byte[] loadDefaultAvatar() throws IOException {
+        ClassPathResource imgFile = new ClassPathResource("images/default-avatar.png");
+        return Files.readAllBytes(imgFile.getFile().toPath());
     }
 }

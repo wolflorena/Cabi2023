@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
@@ -51,10 +52,8 @@ public class CustomerServiceImpl implements CustomerService {
         registerCustomerDto.setPassword(encodedPassword);
 
         Customer customerToBeSaved = new Customer(registerCustomerDto);
-        //add a default profile picture for every new user.
         byte[] defaultAvatar = new byte[0];
 
-        //getFile() method needs this try catch check.
         try {
             defaultAvatar = loadDefaultAvatar();
         } catch (IOException e) {
@@ -197,11 +196,12 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(customer);
     }
 
+    @Transactional
     public void deleteAccount(Long customerId) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        customerRepository.deleteById(customerId);
+        customerRepository.delete(customer);
     }
 
     public void deactivateAccount(Long customerId){

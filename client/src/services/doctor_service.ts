@@ -12,6 +12,11 @@ async function getDoctorById(doctorId: number) {
   return json;
 }
 
+async function getDoctorAvatarById(doctorId: number) {
+  const response = await fetch(`${API_URL}/getAvatar?doctorId=${doctorId}`);
+  return response.blob();
+}
+
 async function getAvailableDates(doctorId: number, serviceId: number) {
   const response = await fetch(
     `${API_URL}/available-dates?doctorId=${doctorId}&serviceId=${serviceId}`
@@ -57,6 +62,22 @@ async function updateDoctor(
       }),
     }
   );
+}
+
+async function uploadAvatar(doctorId: number, avatar: File) {
+  const formData = new FormData();
+  formData.append("avatar", avatar);
+  const response = await fetch(
+    `${API_URL}/upload-avatar?doctorId=${doctorId}`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to upload avatar");
+  }
 }
 
 async function changeDoctorPassword(
@@ -128,6 +149,7 @@ async function createDoctorAccount(
 }
 
 export {
+  getDoctorAvatarById,
   getAllDoctors,
   getDoctorById,
   getAvailableDates,
@@ -136,4 +158,5 @@ export {
   getServicesInCurrentMonth,
   createDoctorAccount,
   changeDoctorPassword,
+  uploadAvatar,
 };

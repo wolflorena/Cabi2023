@@ -6,8 +6,10 @@ import com.example.server.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -37,6 +39,19 @@ public class DoctorController {
     public ResponseEntity<Object> getDoctorById(@RequestParam Long doctorId) {
         DoctorResponseDTO doctor = doctorService.getDoctorById(doctorId);
         return ResponseEntity.ok(doctor);
+    }
+
+    @GetMapping("/getAvatar")
+    public ResponseEntity<byte[]> getDoctorAvatarById(@RequestParam Long doctorId) {
+        byte[] doctorAvatar = doctorService.getDoctorAvatarById(doctorId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(doctorAvatar);
+    }
+    @PostMapping("/upload-avatar")
+    public ResponseEntity<String> uploadAvatar(@RequestParam Long doctorId, @RequestBody MultipartFile avatar){
+        doctorService.uploadAvatar(doctorId, avatar);
+        return new ResponseEntity<>("Avatar uploaded successfully",HttpStatus.OK);
     }
 
     @GetMapping("/getAll")

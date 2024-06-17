@@ -24,14 +24,14 @@ public class FormEvent {
     @Column(name = "timestamp")
     private LocalDate timestamp;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "form_id")
-    @JsonBackReference(value="formEvents-form")
+    @JsonBackReference(value = "formEvents-form")
     private Form form;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
-    @JsonBackReference(value="formEvents-customer")
+    @JsonBackReference(value = "formEvents-customer")
     private Customer customer;
 
     public enum FormEventType {

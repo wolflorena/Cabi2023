@@ -8,8 +8,6 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -24,25 +22,24 @@ public class Customer extends User {
 
     private String phoneNo;
     private String occupation;
-    //LocalDate from Java 8 only has the date not the time too.
     private LocalDate dateOfBirth;
     @Lob
     private byte[] avatar;
 
-    //@Enumerated(EnumType.STRING) is best used for storing the enum values as strings and not as numbers.
     @Enumerated(EnumType.STRING)
     private AccountStatus accountStatus;
 
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "customer-appointments")
     private Set<Appointment> appointments;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "customer-formEvents")
     private Set<FormEvent> formEvents;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
-    private List<PdfDocument> pdfDocumentList;
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "customer-pdfDocuments")
+    private Set<PdfDocument> pdfDocumentList;
 
     public Customer(RegisterCustomerDTO registerCustomerDTO) {
         super.setFirstName(registerCustomerDTO.getFirstName());
@@ -54,4 +51,3 @@ public class Customer extends User {
         this.accountStatus = AccountStatus.ACTIVE;
     }
 }
-

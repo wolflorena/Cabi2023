@@ -1,5 +1,6 @@
 package com.example.server.repository.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,5 +21,6 @@ public class PdfDocument {
 
     @ManyToOne
     @JoinColumn(name="customer_id")
+    @JsonBackReference(value = "pdfDocuments-customer")
     private Customer customer;
 }
