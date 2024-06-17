@@ -46,6 +46,8 @@ export function getUserIdAndToken(): { userId: number; token: string } {
   const token = localStorage.getItem("jwtToken");
   if (!token) {
     // throw new Error("No JWT token found");
+    console.log("asasa");
+
     return { userId: 1, token: "2" };
   }
   const decodedToken: jwtPayload = jwtDecode(token);

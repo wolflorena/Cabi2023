@@ -76,6 +76,7 @@ public class FormServiceImpl implements FormService {
     }
 
     @Override
+    @Transactional
     public boolean deleteForm(Long formId) {
         formRepository.deleteById(formId);
         return true;

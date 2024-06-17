@@ -7,14 +7,21 @@ import { Patient } from "@/data/types/Entities";
 import { getById } from "@/services/customer_service";
 import router from "@/router";
 import InfoField from "@/components/InfoField.vue";
+import { getUserIdAndToken } from "@/services/authentication_service";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
 const route = useRoute();
 const patientId = ref(route.params.id);
 const patient = ref<Patient>();
+const isLoading = ref<boolean>(false);
 
 async function getPatientDetails(patientId: number) {
-  await getById(patientId).then((res) => {
+  isLoading.value = true;
+  const { userId, token } = getUserIdAndToken();
+
+  await getById(patientId, token).then((res: any) => {
     patient.value = res;
+    isLoading.value = false;
   });
 }
 
@@ -41,7 +48,7 @@ function goBack() {
       <span>View Patient Profile</span>
     </div>
 
-    <div class="details">
+    <div class="details" v-if="!isLoading">
       <img src="../../assets/default-avatar.png" alt="" />
       <div class="patient-info">
         <InfoField
@@ -72,6 +79,8 @@ function goBack() {
         />
       </div>
     </div>
+
+    <LoadingSpinner v-else />
   </div>
 </template>
 

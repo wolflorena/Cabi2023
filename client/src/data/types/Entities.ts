@@ -64,6 +64,7 @@ export type PatientAdmin = {
 export type Patient = PatientAdmin & {
   occupation: string;
   dateOfBirth: string;
+  accountStatus: string;
 };
 
 export type Service = {

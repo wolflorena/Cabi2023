@@ -203,12 +203,11 @@ watch(isLoading, (newValue) => console.log(newValue));
         }
       }
     }
-
-    #submitButton {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-    }
+  }
+  #submitButton {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
   }
 }
 </style>

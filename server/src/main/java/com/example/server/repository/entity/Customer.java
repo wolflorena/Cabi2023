@@ -37,14 +37,14 @@ public class Customer extends User {
     @JsonManagedReference(value = "customer-appointments")
     private Set<Appointment> appointments;
 
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     @JsonManagedReference(value = "customer-formEvents")
     private Set<FormEvent> formEvents;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<PdfDocument> pdfDocumentList;
 
-    public Customer(RegisterCustomerDTO registerCustomerDTO){
+    public Customer(RegisterCustomerDTO registerCustomerDTO) {
         super.setFirstName(registerCustomerDTO.getFirstName());
         super.setLastName(registerCustomerDTO.getLastName());
         super.setEmail(registerCustomerDTO.getEmail());
@@ -53,6 +53,5 @@ public class Customer extends User {
         this.dateOfBirth = registerCustomerDTO.getDateOfBirth();
         this.accountStatus = AccountStatus.ACTIVE;
     }
-
 }
 

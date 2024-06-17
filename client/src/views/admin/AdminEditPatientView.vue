@@ -8,19 +8,28 @@ import { getById, editStatus } from "@/services/customer_service";
 import router from "@/router";
 import CustomButton from "@/components/CustomButton.vue";
 import InfoField from "@/components/InfoField.vue";
+import { getUserIdAndToken } from "@/services/authentication_service";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import Swal from "sweetalert2";
 
 const route = useRoute();
 const patientId = ref(route.params.id);
 const patient = ref<Patient>();
+const isLoading = ref<boolean>(false);
 
-async function getPatientDetails(patientId: number) {
-  await getById(patientId).then((res) => {
+async function getPatientDetails() {
+  isLoading.value = true;
+  const { userId, token } = getUserIdAndToken();
+
+  await getById(+patientId.value, token).then((res: any) => {
     patient.value = res;
+    console.log(patient.value?.accountStatus);
+    isLoading.value = false;
   });
 }
 
 onMounted(() => {
-  getPatientDetails(+patientId.value);
+  getPatientDetails();
 });
 
 function goBack() {
@@ -29,13 +38,43 @@ function goBack() {
 
 async function deactivateAccount() {
   await editStatus(+patientId.value, "INACTIVE").then((res) => {
-    console.log(res);
+    Swal.fire({
+      title: "Account successfully deactivated.",
+      icon: "success",
+      confirmButtonText: "OK",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        getPatientDetails();
+      }
+    });
+  });
+}
+
+async function reactivateAccount() {
+  await editStatus(+patientId.value, "ACTIVE").then((res) => {
+    Swal.fire({
+      title: "Account successfully reactivated.",
+      icon: "success",
+      confirmButtonText: "OK",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        getPatientDetails();
+      }
+    });
   });
 }
 
 async function deleteAccount() {
   await editStatus(+patientId.value, "SUSPENDED").then((res) => {
-    console.log(res);
+    Swal.fire({
+      title: "Account successfully suspended.",
+      icon: "success",
+      confirmButtonText: "OK",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        goBack();
+      }
+    });
   });
 }
 </script>
@@ -54,7 +93,7 @@ async function deleteAccount() {
       <span>Edit Patient Profile</span>
     </div>
 
-    <div class="options">
+    <div class="options" v-if="!isLoading">
       <div class="details">
         <h1>Account Information</h1>
         <div class="patient-info">
@@ -91,6 +130,7 @@ async function deleteAccount() {
         <div class="patient-info">
           <div class="info-field">
             <CustomButton
+              v-if="patient?.accountStatus === 'ACTIVE'"
               text="Deactivate Account"
               :is-main="false"
               height="70"
@@ -98,10 +138,19 @@ async function deleteAccount() {
               font-size="20"
               @action-triggered="deactivateAccount()"
             />
+            <CustomButton
+              v-else
+              text="Reactivate Account"
+              :is-main="false"
+              height="70"
+              width="300"
+              font-size="20"
+              @action-triggered="reactivateAccount()"
+            />
           </div>
           <div class="info-field">
             <CustomButton
-              text="Delete Account"
+              text="Suspend Account"
               height="70"
               width="300"
               font-size="20"
@@ -111,6 +160,7 @@ async function deleteAccount() {
         </div>
       </div>
     </div>
+    <LoadingSpinner v-else />
   </div>
 </template>
 

@@ -36,18 +36,4 @@ public class AdminServiceImpl implements AdminService {
         adminRepository.save(admin);
         return modelMapper.map(admin, AdminResponseDTO.class);
     }
-    @Override
-    public AdminResponseDTO loginAdmin(String email, String password) {
-        Optional<Admin> optionalAdmin = adminRepository.findByEmail(email);
-        if (optionalAdmin.isPresent()) {
-            Admin admin = optionalAdmin.get();
-            if (password.equals(admin.getPassword())) {
-                return modelMapper.map(
-                        admin,
-                        AdminResponseDTO.class
-                );
-            }
-        }
-        throw new BadCredentialsException("Bad credentials");
-    }
 }

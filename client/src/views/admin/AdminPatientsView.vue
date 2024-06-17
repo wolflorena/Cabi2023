@@ -16,6 +16,7 @@ import ActionButton from "@/components/ActionButton.vue";
 import TableHeader from "@/components/TableHeader.vue";
 import TableRow from "@/components/TableRow.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import { getUserIdAndToken } from "@/services/authentication_service";
 
 const showDelete = ref(false);
 const isLoading = ref(false);
@@ -48,8 +49,10 @@ async function changePage(pageNumber: number) {
 }
 
 async function showDeleteModal(patientId: number) {
+  const { userId, token } = getUserIdAndToken();
+
   showDelete.value = true;
-  await getById(patientId).then((res) => {
+  await getById(patientId, token).then((res: any) => {
     patientDetails.value = res;
   });
 }
@@ -130,7 +133,7 @@ onMounted(() => {
         @button1="deletePatient(patientDetails?.customerId)"
       >
         <span class="delete-text">{{
-          "Are you sure you want to delete the account for " +
+          "Are you sure you want to suspend the account for " +
           patientDetails?.firstName +
           " " +
           patientDetails?.lastName +

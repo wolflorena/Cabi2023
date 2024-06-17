@@ -95,7 +95,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerPageDTO getAllCustomersForAdmin(Pageable pageable) {
         CustomerPageDTO customerPageDTO = new CustomerPageDTO();
-        Page<Customer> customers = customerRepository.findAll(PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
+        Page<Customer> customers = customerRepository.findAllByStatusNot(Customer.AccountStatus.SUSPENDED, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
 
         customerPageDTO.setTotal((int) customers.getTotalElements());
 
