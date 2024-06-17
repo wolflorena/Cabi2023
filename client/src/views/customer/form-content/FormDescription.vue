@@ -8,13 +8,8 @@ const props = defineProps<{
 }>();
 const editorRef = ref();
 
-const emit = defineEmits(["onCheckValue"]);
 const checkValue = ref<boolean>(false);
 
-function handleCheckboxValue() {
-  console.log("Checkbox value before emitting:", checkValue.value);
-  emit("onCheckValue", checkValue.value);
-}
 onMounted(() => {
   editorRef.value?.togglePreviewOnly(true);
 });

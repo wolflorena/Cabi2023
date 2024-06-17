@@ -68,6 +68,8 @@ export type Patient = PatientAdmin & {
 
 export type Service = {
   serviceId: number;
+  duration: number;
+  price: number;
   name: string;
 };
 

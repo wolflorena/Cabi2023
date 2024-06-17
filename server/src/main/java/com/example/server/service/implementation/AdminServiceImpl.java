@@ -21,7 +21,8 @@ public class AdminServiceImpl implements AdminService {
     }
     @Override
     public AdminResponseDTO createAdmin(String email, String password) {
-        if(adminRepository.findByEmail(email) != null) {
+        Optional<Admin> optionalAdmin = adminRepository.findByEmail(email);
+        if(optionalAdmin.isPresent()) {
             throw new EmailExistsException("Email already exists");
         }
         Admin admin = new Admin();

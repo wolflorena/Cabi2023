@@ -37,7 +37,7 @@ onMounted(async () => {
     await fetchUserProfile();
     await retrieveUserAvatar();
     await loadDoctors();
-    await SwalLoading.close();
+    SwalLoading.close();
   }
 });
 </script>

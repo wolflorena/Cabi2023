@@ -109,6 +109,7 @@ watch(
   color: @white;
 
   .placeholder-image-container {
+    z-index: 2;
     position: relative;
     display: flex;
     justify-content: center;

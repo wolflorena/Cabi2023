@@ -15,9 +15,9 @@ import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import FormDescription from "./form-content/FormDescription.vue";
 import Swal from "sweetalert2";
 import { mountComponent } from "./form-content/MountComponent";
+import { useUserProfile } from "@/store/useUserProfile";
 
-const forms = ref<FormWithStatus[]>([]);
-const checkboxChecked = ref<boolean>(false);
+const { forms, getVisibleFormsStore } = useUserProfile();
 
 async function handleOpenForm(form: FormWithStatus) {
   const formDescriptionElement = mountComponent(FormDescription, {
@@ -58,12 +58,7 @@ async function handleOpenForm(form: FormWithStatus) {
 }
 
 onMounted(async () => {
-  const { userId, token } = getUserIdAndToken();
-  await getVisibleForms(token, userId).then((res) => {
-    if (res.length > 0) {
-      forms.value = res;
-    }
-  });
+  await getVisibleFormsStore();
 });
 </script>
 

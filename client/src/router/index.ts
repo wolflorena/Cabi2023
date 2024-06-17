@@ -19,11 +19,12 @@ import {
   isAuthenticated,
   isTokenValid,
 } from "@/services/authentication_service";
-import LoginView from "@/views/Login-Register/LoginView.vue";
-import SignupView from "@/views/Login-Register/SignupView.vue";
 import HistoryView from "@/views/customer/HistoryView.vue";
 import FormsView from "@/views/customer/FormsView.vue";
 import DoctorPatientDetailsView from "@/views/doctor/DoctorPatientDetailsView.vue";
+import HomePage from "@/views/Login-Register-Home/HomePage.vue";
+import SignupView from "@/views/Login-Register-Home/SignupView.vue";
+import LoginView from "@/views/Login-Register-Home/LoginView.vue";
 
 type RouteMeta = {
   requiresAuth: boolean;
@@ -145,6 +146,11 @@ const routes: Array<RouteRecordRaw> = [
     component: FormsView,
     meta: { requiresAuth: true, roles: ["ROLE_CUSTOMER"] } as RouteMeta,
   },
+  {
+    path: "/home",
+    name: "home",
+    component: HomePage,
+  },
 ];
 
 const router = createRouter({
@@ -154,6 +160,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  console.log(to.path + " " + from.path);
 
   if (requiresAuth && !isAuthenticated()) {
     next("/login");
