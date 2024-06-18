@@ -244,7 +244,9 @@ public class DoctorServiceImpl implements DoctorService {
                 doctor.setEmail(doctorUpdateDTO.getEmail());
             }
             else {
-                throw new EmailExistsException("Email is already in use");
+                if(!doctor.getEmail().equals(doctorUpdateDTO.getEmail()))  {
+                    throw new EmailExistsException("Email is already in use");
+                }
             }
         }
 

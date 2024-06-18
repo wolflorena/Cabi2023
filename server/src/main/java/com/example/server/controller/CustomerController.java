@@ -56,11 +56,6 @@ public class CustomerController {
         return ResponseEntity.ok(customersList);
     }
 
-    @DeleteMapping("/delete")
-    public void deleteById(@RequestParam Long customerId){
-        customerServiceImpl.deleteById(customerId);
-    }
-
     @GetMapping("/allPage")
     public ResponseEntity<CustomerPageDTO> getPatientsForAdmin(@RequestParam(required = true) int pageSize,
                                                                @RequestParam(required = true) int pageNumber) {
