@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -18,12 +20,14 @@ public class Form {
     private Long formId;
 
     private String title;
+    @Lob
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
     private Boolean visibility;
     private LocalDate editedDate;
     private LocalTime editedTime;
 
     @OneToMany(mappedBy = "form", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "form-formEvents")
-    private Set<FormEvent> formEvents;
+    @JsonManagedReference(value="form-formEvents")
+    private List<FormEvent> formEvents;
 }

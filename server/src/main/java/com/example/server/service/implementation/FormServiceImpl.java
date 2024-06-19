@@ -75,10 +75,14 @@ public class FormServiceImpl implements FormService {
         return modelMapper.map(form, FormResponseDTO.class);
     }
 
-    @Override
     @Transactional
+    @Override
     public boolean deleteForm(Long formId) {
-        formRepository.deleteById(formId);
+        Form form = formRepository.findById(formId)
+                .orElseThrow(() -> new NotFoundException("Form not found"));
+
+        formEventRepository.deleteAll(form.getFormEvents());
+        formRepository.delete(form);
         return true;
     }
 

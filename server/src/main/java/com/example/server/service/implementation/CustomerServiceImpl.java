@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
@@ -80,10 +81,6 @@ public class CustomerServiceImpl implements CustomerService {
                 .stream()
                 .map( user -> modelMapper.map(user, ResponseCustomerDTO.class))
                 .toList();
-    }
-
-    public void deleteById(Long id){
-        customerRepository.deleteById(id);
     }
 
     public boolean emailExists(String email) {
@@ -197,6 +194,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Transactional
+    @Override
     public void deleteAccount(Long customerId) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
