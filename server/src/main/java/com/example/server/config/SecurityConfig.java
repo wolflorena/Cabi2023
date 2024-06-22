@@ -30,21 +30,21 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // This method sets up the rules to secure the application.
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors().and()
-                .csrf().disable()  // Disable CSRF as we are using JWT
+                .csrf().disable()  // Have to disable CSRF as we are using JWT
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Make the session stateless
                 .and()
-                .authorizeRequests()  // Manage authorization requests
+                .authorizeRequests()
+                .antMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
                 .antMatchers("/api/auth/login").permitAll()  // Allow unauthenticated access to login
                 .antMatchers("/api/**").permitAll()
 //                .antMatchers("/api/customers/**").hasRole("CUSTOMER")
 //                .antMatchers("/api/admin/**").hasRole("ADMIN")
 //                .antMatchers("/api/doctor/**").hasRole("DOCTOR")
 //                .antMatchers("/api/**").permitAll()
-                .anyRequest().authenticated()  // Require authentication for any other request
+                .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);  // Add JWT filter
 
@@ -55,7 +55,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.addAllowedOriginPattern("*"); // Adjust this as per your requirements
+        configuration.addAllowedOriginPattern("*");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
 
