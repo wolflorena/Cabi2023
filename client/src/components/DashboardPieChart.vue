@@ -57,12 +57,13 @@ const colors = computed(
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
+  gap: 10px;
 
   overflow-y: scroll;
   h1 {
     text-align: center;
     color: @gray;
+    margin-bottom: 0;
   }
 
   .legend {

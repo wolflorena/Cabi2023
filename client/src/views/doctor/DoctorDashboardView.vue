@@ -255,7 +255,7 @@ const formattedDate = computed(() => {
       gap: 3vw;
 
       .treatments {
-        height: 33vw;
+        height: 30vw;
         border: 1px solid @gray;
         border-radius: 20px;
         padding: 30px;
@@ -264,6 +264,7 @@ const formattedDate = computed(() => {
       }
 
       .right-side {
+        height: calc(50vh + 40px);
         width: 53vw;
         display: flex;
         flex-direction: column;
