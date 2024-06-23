@@ -7,6 +7,7 @@ import TableHeader from "@/components/TableHeader.vue";
 import TableRow from "@/components/TableRow.vue";
 import { PatientAdmin } from "@/data/types/Entities";
 import { DoctorSidebarOptions } from "@/data/types/SidebarOptions";
+import { getUserIdAndToken } from "@/services/authentication_service";
 import { getAllPatientsForDoctor } from "@/services/customer_service";
 import { onMounted, ref } from "vue";
 
@@ -16,31 +17,38 @@ const currentPage = ref(1);
 const totalPages = ref(0);
 
 const patients = ref<PatientAdmin[]>([]);
+const loggedDoctorId = ref<number>(-1);
 
 async function loadPatients() {
   isLoading.value = true;
-  await getAllPatientsForDoctor(10, currentPage.value - 1, 1).then(
-    (res: any) => {
-      patients.value = res.pagedCustomers.content;
-      totalPages.value = Math.ceil(res.total / 10);
-      isLoading.value = false;
-    }
-  );
+  await getAllPatientsForDoctor(
+    10,
+    currentPage.value - 1,
+    loggedDoctorId.value
+  ).then((res: any) => {
+    patients.value = res.pagedCustomers.content;
+    totalPages.value = Math.ceil(res.total / 10);
+    isLoading.value = false;
+  });
 }
 
 async function changePage(pageNumber: number) {
   isLoading.value = true;
   currentPage.value = pageNumber;
-  await getAllPatientsForDoctor(10, currentPage.value - 1, 1).then(
-    (res: any) => {
-      patients.value = res.pagedCustomers.content;
-      totalPages.value = Math.ceil(res.total / 10);
-      isLoading.value = false;
-    }
-  );
+  await getAllPatientsForDoctor(
+    10,
+    currentPage.value - 1,
+    loggedDoctorId.value
+  ).then((res: any) => {
+    patients.value = res.pagedCustomers.content;
+    totalPages.value = Math.ceil(res.total / 10);
+    isLoading.value = false;
+  });
 }
 
 onMounted(() => {
+  const { userId, token } = getUserIdAndToken();
+  loggedDoctorId.value = userId;
   loadPatients();
 });
 </script>

@@ -17,6 +17,7 @@ import {
 import { formatDate, formatTime } from "@/utils/helpers";
 import BarChart from "@/components/BarChart.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import { getUserIdAndToken } from "@/services/authentication_service";
 
 const treatments = ref<TreatmentType[]>();
 const appointments = ref<AppointmentDetail[]>();
@@ -33,9 +34,11 @@ const treatmentsAreLoading = ref(false);
 const upcomingIsLoading = ref(false);
 const barChartIsLoading = ref(false);
 const numbersAreLoading = ref(false);
-const doctorId = ref(26);
+const loggedDoctorId = ref<number>(-1);
 
 onMounted(() => {
+  const { userId, token } = getUserIdAndToken();
+  loggedDoctorId.value = userId;
   getTreatmentTypes();
   loadUpcomingAppointments();
   loadScheduledAppointments();
@@ -44,7 +47,7 @@ onMounted(() => {
 
 async function getTreatmentTypes() {
   treatmentsAreLoading.value = true;
-  await getServicesInCurrentMonth(doctorId.value).then((res) => {
+  await getServicesInCurrentMonth(loggedDoctorId.value).then((res) => {
     treatments.value = res;
     treatmentsAreLoading.value = false;
   });
@@ -52,7 +55,7 @@ async function getTreatmentTypes() {
 
 async function loadUpcomingAppointments() {
   upcomingIsLoading.value = true;
-  await getUpcomingAppointments(doctorId.value).then((res) => {
+  await getUpcomingAppointments(loggedDoctorId.value).then((res) => {
     appointments.value = res;
     upcomingIsLoading.value = false;
   });
@@ -68,13 +71,13 @@ async function loadScheduledAppointments() {
 }
 
 async function getScheduledAppointmentsNumber(status: string): Promise<number> {
-  const res = await getTotalAppointments(doctorId.value, status);
+  const res = await getTotalAppointments(loggedDoctorId.value, status);
   return res;
 }
 
 async function getDataForBarChart() {
   barChartIsLoading.value = true;
-  await getWeeklyAppointmentsNumber(doctorId.value).then((res) => {
+  await getWeeklyAppointmentsNumber(loggedDoctorId.value).then((res) => {
     appointmentsWeekly.value = res;
     barChartIsLoading.value = false;
   });

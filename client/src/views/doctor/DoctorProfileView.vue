@@ -15,6 +15,7 @@ import InfoField from "@/components/InfoField.vue";
 import CustomButton from "@/components/CustomButton.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import Swal from "sweetalert2";
+import { getUserIdAndToken } from "@/services/authentication_service";
 
 const viewOnly = ref(false);
 const security = ref(false);
@@ -26,6 +27,7 @@ const phoneno = ref();
 const address = ref();
 const dateOfEmployment = ref();
 const isLoading = ref(false);
+const loggedDoctorId = ref<number>(-1);
 
 const currentPassword = ref<string>("");
 const newPassword = ref<string>("");
@@ -40,10 +42,10 @@ const passwordsMatch = computed(() => {
 
 async function getDoctorDetails() {
   isLoading.value = true;
-  await getDoctorById(1).then((res) => {
+  await getDoctorById(loggedDoctorId.value).then((res) => {
     doctor.value = res;
   });
-  const blob = await getDoctorAvatarById(1);
+  const blob = await getDoctorAvatarById(loggedDoctorId.value);
 
   if (blob.size > 0) {
     avatarPreview.value = URL.createObjectURL(blob);
@@ -65,15 +67,17 @@ watch(doctor, (newDoctor) => {
 });
 
 onMounted(() => {
+  const { userId, token } = getUserIdAndToken();
+  loggedDoctorId.value = userId;
   getDoctorDetails();
 });
 
 async function updateProfile() {
   if (avatarFile.value) {
-    await uploadAvatar(1, avatarFile.value);
+    await uploadAvatar(loggedDoctorId.value, avatarFile.value);
   }
   await updateDoctor(
-    1,
+    loggedDoctorId.value,
     firstName.value,
     lastName.value,
     email.value,
@@ -87,7 +91,11 @@ async function handlePasswordChange() {
   if (passwordsMatch.value) {
     isLoading.value = true;
     try {
-      await changeDoctorPassword(1, currentPassword.value, newPassword.value);
+      await changeDoctorPassword(
+        loggedDoctorId.value,
+        currentPassword.value,
+        newPassword.value
+      );
       currentPassword.value = "";
       newPassword.value = "";
       confirmPassword.value = "";

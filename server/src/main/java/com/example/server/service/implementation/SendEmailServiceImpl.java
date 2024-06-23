@@ -123,8 +123,6 @@ public class SendEmailServiceImpl implements SendEmailService {
         }
     }
 
-
-
     private void sendEmail(String emailTo, String subject, String text) {
         try {
             MimeMessage message = emailSender.createMimeMessage();

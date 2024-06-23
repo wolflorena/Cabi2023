@@ -8,17 +8,19 @@ import { SelectedDoctor } from "@/data/types/Entities";
 import { getDoctorById } from "@/services/doctor_service";
 import CustomButton from "@/components/CustomButton.vue";
 import DoctorUnavailability from "@/components/DoctorUnavailability.vue";
+import { getUserIdAndToken } from "@/services/authentication_service";
 
 const daySelected = ref(new Date());
 const updateAppointments = ref(false);
 const showMonthCalendar = ref(true);
 const showUnavailability = ref(false);
 const buttonText = ref("Set unavailability");
+const loggedDoctorId = ref<number>(-1);
 
 const selectedDoctor = ref<SelectedDoctor[]>([]);
 
 async function getDoctorDetails() {
-  await getDoctorById(1).then((res) => {
+  await getDoctorById(loggedDoctorId.value).then((res) => {
     selectedDoctor.value.push({ ...res, checked: true });
   });
 }
@@ -39,6 +41,8 @@ function setShowUnavailability() {
 }
 
 onMounted(() => {
+  const { userId, token } = getUserIdAndToken();
+  loggedDoctorId.value = userId;
   getDoctorDetails();
 });
 </script>
