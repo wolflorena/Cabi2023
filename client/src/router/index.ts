@@ -26,6 +26,7 @@ import HomePage from "@/views/Login-Register-Home/HomePage.vue";
 import SignupView from "@/views/Login-Register-Home/SignupView.vue";
 import LoginView from "@/views/Login-Register-Home/LoginView.vue";
 import NotFoundView from "@/views/NotFoundView.vue";
+import ForgotPassword from "@/views/Login-Register-Home/ForgotPassword.vue";
 
 type RouteMeta = {
   requiresAuth: boolean;
@@ -136,7 +137,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/recovery",
     name: "recovery",
-    component: LoginView,
+    component: ForgotPassword,
   },
   {
     path: "/profile",
@@ -172,6 +173,11 @@ const routes: Array<RouteRecordRaw> = [
     name: "notFound",
     component: NotFoundView,
   },
+  {
+    path: "/:catchAll(.*)",
+    name: "catchAll",
+    component: NotFoundView,
+  },
 ];
 
 const router = createRouter({
@@ -181,7 +187,6 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-  console.log(to.path + " " + from.path);
 
   if (requiresAuth && !isAuthenticated()) {
     next("/login");

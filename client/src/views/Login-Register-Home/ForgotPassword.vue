@@ -13,11 +13,7 @@ const error = ref("");
 
 const router = useRouter();
 
-function handlePasswordTextChanged(password: string) {
-  passwordText.value = password;
-}
-
-async function login() {
+async function sendPassword() {
   try {
     if (emailText.value && passwordText.value) {
       const response = await loginService(emailText.value, passwordText.value);
@@ -74,32 +70,25 @@ function redirectToRegister() {
     <div class="img-container">
       <img class="img-right" src="@/assets/form.jpeg" alt="" />
     </div>
-    <div class="login-container">
+    <div class="recover-container">
       <img src="@/assets/logo.png" alt="" />
-      <form class="form" @submit.prevent="login">
+      <form class="form" @submit.prevent="sendPassword">
         <div class="inputs">
+          <span>
+            Enter your email and we'll send you a link to reset your password
+          </span>
           <CustomInput
             label-text="Email"
             icon-token="user"
             v-model:model-value="emailText"
             type="text"
           />
-          <PasswordInput
-            label-text="Password"
-            :value="passwordText"
-            @password-changed="handlePasswordTextChanged"
-          />
-          <div class="forgot-password">
-            <router-link to="/recovery" id="forgot">
-              Forgot password?
-            </router-link>
-          </div>
         </div>
         <CustomButton
-          text="Login"
+          text="Send email"
           width="200"
           height="30"
-          @click.prevent="login"
+          @click.prevent="sendPassword"
         />
         <div class="register-form-container">
           <span
@@ -139,7 +128,7 @@ function redirectToRegister() {
     }
   }
 
-  .login-container {
+  .recover-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -174,7 +163,14 @@ function redirectToRegister() {
         justify-content: center;
 
         height: 50%;
-        gap: 3rem;
+        gap: 1rem;
+
+        span {
+          width: 200px;
+          font-size: 10px;
+          color: rgb(184, 184, 184);
+          text-align: center;
+        }
 
         .forgot-password {
           width: 100%;

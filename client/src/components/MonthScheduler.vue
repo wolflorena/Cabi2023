@@ -24,13 +24,12 @@ const props = withDefaults(
 
 const isLoading = ref(false);
 
-// Types for the data used in the component
 type Day = {
   date: number;
   fullDate: string;
+  isToday: boolean;
 };
 
-// Reactive state of the component: the current date and the list of appointments
 const currentDate = ref(new Date());
 const appointments = ref<AppointmentCalendar[]>([]);
 const vacations = ref<Vacation[]>([]);
@@ -38,7 +37,6 @@ const vacations = ref<Vacation[]>([]);
 // A list of the days of the week, used for displaying the calendar header
 const weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
-// A computed property that formats the current month and year for display
 const currentMonthYear = computed(() => {
   return currentDate.value.toLocaleString("default", {
     month: "long",
@@ -52,12 +50,12 @@ type HasDoctorIdAndTime = {
 };
 
 function filterAndSortByTime<T extends HasDoctorIdAndTime>(
-  data: T[], 
+  data: T[],
   selectedDoctors: number[],
   getTime: (item: T) => string
 ): T[] {
   return data
-    .filter(item => selectedDoctors.includes(item.doctorId))
+    .filter((item) => selectedDoctors.includes(item.doctorId))
     .sort((a, b) => {
       const timeA = convertTime12to24(getTime(a));
       const timeB = convertTime12to24(getTime(b));
@@ -71,7 +69,11 @@ const selectedAppointments = computed(() => {
     .filter((doctor) => doctor.checked)
     .map((doctor) => doctor.id);
 
-  return filterAndSortByTime(appointments.value, selectedDoctors, (item: AppointmentCalendar) => item.time);
+  return filterAndSortByTime(
+    appointments.value,
+    selectedDoctors,
+    (item: AppointmentCalendar) => item.time
+  );
 });
 
 const selectedUnavailabilities = computed(() => {
@@ -79,9 +81,12 @@ const selectedUnavailabilities = computed(() => {
     .filter((doctor) => doctor.checked)
     .map((doctor) => doctor.id);
 
-  return filterAndSortByTime(vacations.value, selectedDoctors, (item: Vacation) => item.startTime);
+  return filterAndSortByTime(
+    vacations.value,
+    selectedDoctors,
+    (item: Vacation) => item.startTime
+  );
 });
-
 
 onMounted(() => {
   loadAppointments();
@@ -92,6 +97,7 @@ onMounted(() => {
 function weeksInMonth(date: Date): Day[][] {
   const month = date.getMonth();
   const year = date.getFullYear();
+  const today = new Date();
 
   const firstDayOfMonth = new Date(year, month, 0).getDay();
 
@@ -99,16 +105,21 @@ function weeksInMonth(date: Date): Day[][] {
   let weekIndex = 0;
 
   for (let i = 0; i < firstDayOfMonth; i++) {
-    days[weekIndex].push({ date: 0, fullDate: "" });
+    days[weekIndex].push({ date: 0, fullDate: "", isToday: false });
   }
 
   const lastDay = new Date(year, month + 1, 0).getDate();
   for (let date = 1; date <= lastDay; date++) {
-    const fullDate = new Date(year, month, date + 1);
+    const fullDate = new Date(year, month, date);
+    const isToday =
+      fullDate.toDateString() === today.toDateString() &&
+      fullDate.getMonth() === today.getMonth() &&
+      fullDate.getFullYear() === today.getFullYear();
 
     const dayObj: Day = {
       date,
       fullDate: fullDate.toISOString().split("T")[0],
+      isToday,
     };
 
     if (days[weekIndex].length === 7) {
@@ -120,7 +131,7 @@ function weeksInMonth(date: Date): Day[][] {
   }
 
   while (days[weekIndex] && days[weekIndex].length < 7) {
-    days[weekIndex].push({ date: 0, fullDate: "" });
+    days[weekIndex].push({ date: 0, fullDate: "", isToday: false });
   }
   return days;
 }
@@ -225,7 +236,11 @@ watch(
               :class="{ outer: day.date === 0 }"
             >
               <div class="day-header">
-                <span class="date-number" v-show="day.date !== 0">
+                <span
+                  class="date-number"
+                  :class="{ today: day.isToday }"
+                  v-show="day.date !== 0"
+                >
                   {{ day.date }}
                 </span>
               </div>
@@ -383,6 +398,10 @@ watch(
           color: @font-gray;
           font-weight: bold;
           user-select: none;
+
+          &.today {
+            color: @green;
+          }
         }
       }
       &.outer {
