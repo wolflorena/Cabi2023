@@ -479,7 +479,7 @@ function backgroundColorStyle(calendarId: number) {
         width: 90%;
         overflow: hidden;
         border-radius: 5px;
-       box-shadow: 0 2px 8px rgba(0, 0, 0, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 1);
 
         display: flex;
         flex-direction: column;
@@ -503,14 +503,20 @@ function backgroundColorStyle(calendarId: number) {
       }
     }
   }
-  &&::-webkit-scrollbar {
-    width: 4px;
-    background-color: @light-gray;
+  &::-webkit-scrollbar {
+    width: 5px;
   }
 
-  &&::-webkit-scrollbar-thumb {
-    background-color: @blue;
-    border-radius: 10px;
+  &::-webkit-scrollbar-thumb {
+    background: #424d65;
+    border-radius: 5px;
   }
+
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  scrollbar-width: thin;
+  scrollbar-color: #424d65 transparent;
 }
 </style>

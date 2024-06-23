@@ -42,25 +42,47 @@ async function createAppointment(
 async function getById(appointmentId: number) {
   const response = await fetch(`${API_URL}?appointmentId=${appointmentId}`);
   const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
+
   return json;
 }
 
 async function deleteAppointment(appointmentId: number) {
-  const response = fetch(API_URL + "?appointmentId=" + appointmentId, {
+  const response = await fetch(API_URL + "?appointmentId=" + appointmentId, {
     method: "DELETE",
   });
-  return response;
+
+  const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
+
+  return json;
 }
 
 async function getAll() {
   const response = await fetch(`${API_URL}/getAll`);
   const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
+
   return json;
 }
 
 async function getAllForCalendar() {
   const response = await fetch(`${API_URL}/getAllForCalendar`);
   const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
+
   return json;
 }
 
@@ -69,6 +91,11 @@ async function getAppointmentsByDateAndDoctor(date: string, doctorId: number) {
     `${API_URL}/getAllByDateAndDoctor?date=${date}&doctorId=${doctorId}`
   );
   const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
+
   return json;
 }
 
@@ -85,18 +112,27 @@ async function getAllPageable(
   );
 
   const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
   return json;
 }
 
 async function updateStatus(appointmentId: number, status: string) {
-  const response = fetch(
+  const response = await fetch(
     API_URL + "/status?appointmentId=" + appointmentId + "&status=" + status,
     {
       method: "PUT",
     }
   );
 
-  return response;
+  const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
+  return json;
 }
 
 async function getUpcomingAppointments(doctorId: number) {
@@ -115,12 +151,18 @@ async function getTotalAppointments(doctorId: number, status: string) {
       status
   );
   const json = await response.json();
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
   return json;
 }
 
 async function getWeeklyAppointmentsNumber(doctorId: number) {
   const response = await fetch(API_URL + "/weekly?doctorId=" + doctorId);
   const json = await response.json();
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
   return json;
 }
 
@@ -140,15 +182,16 @@ export async function getDoctorAppointments(
       },
     }
   );
+  const json = await response?.json();
 
-  if (!response.ok) {
-    throw new Error("Failed to get appointments by date and type");
+  if (response && !response.ok) {
+    throw new Error(json.message);
   }
 
   if (response.status === 204) {
     return [];
   }
-  const json = await response.json();
+
   return json;
 }
 
@@ -169,15 +212,14 @@ export async function getHistoryOfCustomer(
     }
   );
 
-  if (!response.ok) {
-    throw new Error("Failed to get history for current customerId");
+  const json = await response?.json();
+  if (response && !response.ok) {
+    throw new Error(json.message);
   }
 
   if (response.status === 204) {
     return [];
   }
-
-  const json = await response.json();
 
   return json;
 }

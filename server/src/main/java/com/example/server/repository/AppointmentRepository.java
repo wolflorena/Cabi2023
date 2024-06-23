@@ -27,6 +27,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Page<Appointment> findAllByDoctorIdInAndStatusIn(List<Long> doctorIds, List<Appointment.AppointmentStatus> statuses, Pageable pageable);
     @Query("SELECT a FROM Appointment a WHERE (a.date < :today OR (a.date = :today AND a.time <= :now)) AND a.status = 'SCHEDULED'")
     List<Appointment> findPastDueAppointments(LocalDate today, LocalTime now);
+    @Query("SELECT a FROM Appointment a WHERE (a.date < :today OR (a.date = :today AND a.time <= :now)) AND a.status = 'REQUESTED'")
+    List<Appointment> findPastDueRequestedAppointments(LocalDate today, LocalTime now);
     @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.date = :date AND a.status != 'CANCELLED'")
     List<Appointment> findBookedTimesAndDurationsByDoctorIdAndDate(Long doctorId, LocalDate date);
 

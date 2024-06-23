@@ -9,6 +9,7 @@ import router from "@/router";
 import InfoField from "@/components/InfoField.vue";
 import { getUserIdAndToken } from "@/services/authentication_service";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import Swal from "sweetalert2";
 
 const route = useRoute();
 const patientId = ref(route.params.id);
@@ -19,10 +20,17 @@ async function getPatientDetails(patientId: number) {
   isLoading.value = true;
   const { userId, token } = getUserIdAndToken();
 
-  await getById(patientId, token).then((res: any) => {
-    patient.value = res;
-    isLoading.value = false;
-  });
+  await getById(patientId, token)
+    .then((res: any) => {
+      patient.value = res;
+      isLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 onMounted(() => {

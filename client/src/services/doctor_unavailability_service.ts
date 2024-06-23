@@ -46,6 +46,10 @@ async function createUnavailability(
 async function getVacationsForCalendar() {
   const response = await fetch(`${API_URL}/forCalendar`);
   const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
   return json;
 }
 
@@ -54,8 +58,13 @@ async function getVacationsForCalendarForYear(doctorId: number) {
     `${API_URL}/forCalendarForYear?doctorId=${doctorId}`
   );
   const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
   return json;
 }
+
 export {
   createUnavailability,
   getVacationsForCalendar,

@@ -17,6 +17,7 @@ const props = withDefaults(
 const fileInput = ref<HTMLInputElement | null>(null);
 const files = ref<PdfDocument[]>([]);
 const isLoading = ref<boolean>(false);
+const isDraggedOver = ref<boolean>(false);
 
 async function fetchFiles() {
   isLoading.value = true;
@@ -32,16 +33,19 @@ watch(() => props.patientId, fetchFiles);
 const dragOver = (event: DragEvent) => {
   const target = event.target as HTMLElement;
   target.classList.add("drag-over");
+  isDraggedOver.value = true;
 };
 
 const dragLeave = (event: DragEvent) => {
   const target = event.target as HTMLElement;
   target.classList.remove("drag-over");
+  isDraggedOver.value = false;
 };
 
 const handleDrop = async (event: DragEvent) => {
   const target = event.target as HTMLElement;
   target.classList.remove("drag-over");
+  isDraggedOver.value = false;
   const droppedFiles = event.dataTransfer?.files;
   if (droppedFiles && droppedFiles.length) {
     await upload(droppedFiles[0]);
@@ -95,7 +99,10 @@ async function upload(file: File) {
       @dragover="dragOver"
       @dragleave="dragLeave"
     >
-      <p>Drag & Drop files here</p>
+      <font-awesome-icon icon="folder" v-if="!isDraggedOver" id="icon" />
+      <font-awesome-icon icon="folder-open" v-else id="icon" />
+      <p>Drag your PDF document here</p>
+      <p id="warning">Maximum size is 10MB</p>
     </div>
     <input
       type="file"
@@ -134,9 +141,20 @@ async function upload(file: File) {
     height: 25vh;
     border: 2px dashed @gray;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     margin-bottom: 10px;
+
+    #icon {
+      height: 50px;
+      color: @gray;
+    }
+
+    #warning {
+      font-size: 10px;
+      color: rgb(184, 184, 184);
+    }
   }
 
   .drag-over {

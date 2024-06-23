@@ -102,9 +102,16 @@ const handleContentChanged = (newContent: string) => {
 };
 
 async function loadDoctors() {
-  await getAllDoctors().then((res: any) => {
-    doctors.value = res;
-  });
+  await getAllDoctors()
+    .then((res: any) => {
+      doctors.value = res;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 function prepareAddAppointmentModal() {
@@ -124,16 +131,21 @@ async function addAppointment(
 ) {
   updateAppointments.value = false;
   if (date && hour && doctor && service && patient) {
-    await createAppointment(date, hour, doctor, service, patient).then(
-      (res) => {
+    await createAppointment(date, hour, doctor, service, patient)
+      .then((res) => {
         if (res) {
           Swal.fire({
             titleText: "Appointment have been created successfully",
             icon: "success",
           });
         }
-      }
-    );
+      })
+      .catch((error) => {
+        Swal.fire({
+          titleText: error.message,
+          icon: "error",
+        });
+      });
     updateAppointments.value = true;
     showModal.value = false;
   }
@@ -318,6 +330,22 @@ onMounted(() => {
         .checkbox-wrapper-4 * {
           box-sizing: border-box;
         }
+
+        &::-webkit-scrollbar {
+          width: 5px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: #424d65;
+          border-radius: 5px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background-color: transparent;
+        }
+
+        scrollbar-width: thin;
+        scrollbar-color: #424d65 transparent;
       }
     }
   }

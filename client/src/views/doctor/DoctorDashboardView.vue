@@ -18,6 +18,7 @@ import { formatDate, formatTime } from "@/utils/helpers";
 import BarChart from "@/components/BarChart.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import { getUserIdAndToken } from "@/services/authentication_service";
+import Swal from "sweetalert2";
 
 const treatments = ref<TreatmentType[]>();
 const appointments = ref<AppointmentDetail[]>();
@@ -47,40 +48,78 @@ onMounted(() => {
 
 async function getTreatmentTypes() {
   treatmentsAreLoading.value = true;
-  await getServicesInCurrentMonth(loggedDoctorId.value).then((res) => {
-    treatments.value = res;
-    treatmentsAreLoading.value = false;
-  });
+  await getServicesInCurrentMonth(loggedDoctorId.value)
+    .then((res) => {
+      treatments.value = res;
+      treatmentsAreLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function loadUpcomingAppointments() {
   upcomingIsLoading.value = true;
-  await getUpcomingAppointments(loggedDoctorId.value).then((res) => {
-    appointments.value = res;
-    upcomingIsLoading.value = false;
-  });
+  await getUpcomingAppointments(loggedDoctorId.value)
+    .then((res) => {
+      appointments.value = res;
+      upcomingIsLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function loadScheduledAppointments() {
   numbersAreLoading.value = true;
   for (const type of types.value) {
-    const count = await getScheduledAppointmentsNumber(type);
+    let count: number = 0;
+    await getScheduledAppointmentsNumber(type)
+      .then((res) => {
+        count = res;
+      })
+      .catch((error) => {
+        Swal.fire({
+          titleText: error.message,
+          icon: "error",
+        });
+      });
     appointmentsCount.value[type] = count;
   }
   numbersAreLoading.value = false;
 }
 
 async function getScheduledAppointmentsNumber(status: string): Promise<number> {
-  const res = await getTotalAppointments(loggedDoctorId.value, status);
+  const res = await getTotalAppointments(loggedDoctorId.value, status).catch(
+    (error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    }
+  );
   return res;
 }
 
 async function getDataForBarChart() {
   barChartIsLoading.value = true;
-  await getWeeklyAppointmentsNumber(loggedDoctorId.value).then((res) => {
-    appointmentsWeekly.value = res;
-    barChartIsLoading.value = false;
-  });
+  await getWeeklyAppointmentsNumber(loggedDoctorId.value)
+    .then((res) => {
+      appointmentsWeekly.value = res;
+      barChartIsLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 const formattedDate = computed(() => {
@@ -182,7 +221,6 @@ const formattedDate = computed(() => {
 
 .container {
   display: flex;
-
   .header {
     position: absolute;
     top: 0;
@@ -207,6 +245,8 @@ const formattedDate = computed(() => {
     margin: 100px 0 0 30px;
     display: flex;
     flex-direction: column;
+    height: 90vh;
+    overflow-y: scroll;
 
     .upper {
       display: flex;
@@ -215,7 +255,7 @@ const formattedDate = computed(() => {
       gap: 3vw;
 
       .treatments {
-        height: 33vw;
+        height: 30vw;
         border: 1px solid @gray;
         border-radius: 20px;
         padding: 30px;
@@ -224,6 +264,7 @@ const formattedDate = computed(() => {
       }
 
       .right-side {
+        height: calc(50vh + 40px);
         width: 53vw;
         display: flex;
         flex-direction: column;
@@ -263,6 +304,7 @@ const formattedDate = computed(() => {
       text-align: center;
       color: @gray;
       user-select: none;
+      font-size: 2vw;
     }
 
     .down {
@@ -289,6 +331,22 @@ const formattedDate = computed(() => {
         }
       }
     }
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #424d65;
+      border-radius: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+
+    scrollbar-width: thin;
+    scrollbar-color: #424d65 transparent;
   }
 }
 </style>

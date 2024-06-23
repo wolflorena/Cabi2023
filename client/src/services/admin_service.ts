@@ -26,33 +26,4 @@ async function addAdmin(email: string, hashPassword: string) {
   return json;
 }
 
-async function loginAdmin(email: string, hashPassword: string) {
-  let connectionError = false;
-  let response;
-  try {
-    response = await fetch(`${API_URL}/login`, {
-      method: "POST",
-      body: JSON.stringify({
-        email: email,
-        password: hashPassword,
-      }),
-    });
-  } catch (error) {
-    connectionError = true;
-  }
-
-  if (connectionError) {
-    throw new Error("Server connection error");
-  }
-
-  const json = await response?.json();
-
-  if (!response?.ok) {
-    throw new Error("Invalid email or password");
-  } else {
-    localStorage.setItem("email", json.email);
-  }
-  return json;
-}
-
-export { addAdmin, loginAdmin };
+export { addAdmin };

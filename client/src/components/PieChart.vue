@@ -144,8 +144,8 @@ function hideTooltip() {
 
 .chart-container {
   position: relative;
-  width: 300px;
-  height: 300px;
+  width: 250px;
+  height: 250px;
 
   .pie-chart {
     width: 100%;

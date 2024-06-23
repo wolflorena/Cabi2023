@@ -40,6 +40,7 @@ const appointmentIdForUpdateModal = ref<number>();
 const doctors = ref<SelectedDoctor[]>([]);
 const doctorIds = ref<number[]>([]);
 const appointments = ref<AppointmentAdmin[]>([]);
+const errorMessage = ref("");
 
 const appointmentStatus = ref("SCHEDULED");
 
@@ -48,12 +49,22 @@ const totalPages = ref(0);
 
 async function loadDoctors() {
   doctorsAreLoading.value = true;
-  await getAllDoctors().then((res: any) => {
-    if (res) {
-      doctors.value = res.map((doctor: any) => ({ ...doctor, checked: true }));
-      doctorsAreLoading.value = false;
-    }
-  });
+  await getAllDoctors()
+    .then((res: any) => {
+      if (res) {
+        doctors.value = res.map((doctor: any) => ({
+          ...doctor,
+          checked: true,
+        }));
+        doctorsAreLoading.value = false;
+      }
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function loadAppointments() {
@@ -64,12 +75,19 @@ async function loadAppointments() {
     currentPage.value - 1,
     doctorIds.value,
     appointmentStatus.value
-  ).then((res: any) => {
-    appointments.value = res.pagedAppointments.content;
-    totalPages.value = Math.ceil(res.total / 10);
-    isLoading.value = false;
-    console.log(isLoading.value);
-  });
+  )
+    .then((res: any) => {
+      appointments.value = res.pagedAppointments.content;
+      totalPages.value = Math.ceil(res.total / 10);
+      isLoading.value = false;
+      console.log(isLoading.value);
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function changePage(pageNumber: number) {
@@ -80,11 +98,18 @@ async function changePage(pageNumber: number) {
     currentPage.value - 1,
     doctorIds.value,
     appointmentStatus.value
-  ).then((res: any) => {
-    appointments.value = res.pagedAppointments.content;
-    totalPages.value = Math.ceil(res.total / 10);
-    isLoading.value = false;
-  });
+  )
+    .then((res: any) => {
+      appointments.value = res.pagedAppointments.content;
+      totalPages.value = Math.ceil(res.total / 10);
+      isLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 function computeSelectedDoctorIds() {
@@ -109,16 +134,30 @@ watch(
 
 async function showInfoModal(appointmentId: number) {
   showInfo.value = true;
-  await getById(appointmentId).then((res) => {
-    appointmentDetails.value = res;
-  });
+  await getById(appointmentId)
+    .then((res) => {
+      appointmentDetails.value = res;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function showDeleteModal(appointmentId: number) {
   showDelete.value = true;
-  await getById(appointmentId).then((res) => {
-    appointmentDetails.value = res;
-  });
+  await getById(appointmentId)
+    .then((res) => {
+      appointmentDetails.value = res;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function deleteAppointmentById(appointmentId: number | undefined) {
@@ -137,7 +176,10 @@ async function deleteAppointmentById(appointmentId: number | undefined) {
         }
       })
       .catch((error) => {
-        console.log(error);
+        Swal.fire({
+          titleText: error.message,
+          icon: "error",
+        });
       });
   } else return;
 }
@@ -145,12 +187,19 @@ async function deleteAppointmentById(appointmentId: number | undefined) {
 async function updateAppointmentStatus(appointmentId: number, status: string) {
   isLoading.value = true;
   if (appointmentId) {
-    await updateStatus(appointmentId, status).then((res) => {
-      if (res) {
-        loadAppointments();
-      }
-      isLoading.value = false;
-    });
+    await updateStatus(appointmentId, status)
+      .then((res) => {
+        if (res) {
+          loadAppointments();
+        }
+        isLoading.value = false;
+      })
+      .catch((error) => {
+        Swal.fire({
+          titleText: error.message,
+          icon: "error",
+        });
+      });
   } else return;
 }
 
@@ -177,8 +226,8 @@ async function addAppointment(
   patient: number
 ) {
   if (date && hour && doctor && service && patient) {
-    await createAppointment(date, hour, doctor, service, patient).then(
-      (res) => {
+    await createAppointment(date, hour, doctor, service, patient)
+      .then((res) => {
         if (res) {
           Swal.fire({
             titleText: "Appointment have been created successfully",
@@ -186,8 +235,13 @@ async function addAppointment(
           });
         }
         closeModal();
-      }
-    );
+      })
+      .catch((error) => {
+        Swal.fire({
+          titleText: error.message,
+          icon: "error",
+        });
+      });
   }
 }
 </script>
@@ -427,6 +481,22 @@ async function addAppointment(
         color: @gray;
         margin-left: 6px;
       }
+
+      &::-webkit-scrollbar {
+        width: 5px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #424d65;
+        border-radius: 5px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background-color: transparent;
+      }
+
+      scrollbar-width: thin;
+      scrollbar-color: #424d65 transparent;
     }
   }
 

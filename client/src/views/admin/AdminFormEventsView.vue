@@ -7,6 +7,7 @@ import { onMounted, ref } from "vue";
 import { getFormEvents } from "@/services/form_service";
 import { FormEvent } from "@/data/types/Entities";
 import FormDetails from "@/components/FormDetails.vue";
+import Swal from "sweetalert2";
 
 const route = useRoute();
 const signedForms = ref<FormEvent[]>();
@@ -21,12 +22,19 @@ function goBack() {
 }
 
 async function getFormDetails(formId: number) {
-  await getFormEvents(formId).then((res) => {
-    signedForms.value = res.signed;
-    viewedForms.value = res.viewed;
-    totalSigned.value = res.signed.length;
-    totalViewed.value = res.viewed.length;
-  });
+  await getFormEvents(formId)
+    .then((res) => {
+      signedForms.value = res.signed;
+      viewedForms.value = res.viewed;
+      totalSigned.value = res.signed.length;
+      totalViewed.value = res.viewed.length;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 onMounted(() => {

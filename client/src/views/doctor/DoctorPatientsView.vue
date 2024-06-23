@@ -9,6 +9,7 @@ import { PatientAdmin } from "@/data/types/Entities";
 import { DoctorSidebarOptions } from "@/data/types/SidebarOptions";
 import { getUserIdAndToken } from "@/services/authentication_service";
 import { getAllPatientsForDoctor } from "@/services/customer_service";
+import Swal from "sweetalert2";
 import { onMounted, ref } from "vue";
 
 const isLoading = ref(false);
@@ -21,29 +22,35 @@ const loggedDoctorId = ref<number>(-1);
 
 async function loadPatients() {
   isLoading.value = true;
-  await getAllPatientsForDoctor(
-    10,
-    currentPage.value - 1,
-    loggedDoctorId.value
-  ).then((res: any) => {
-    patients.value = res.pagedCustomers.content;
-    totalPages.value = Math.ceil(res.total / 10);
-    isLoading.value = false;
-  });
+  await getAllPatientsForDoctor(10, currentPage.value - 1, loggedDoctorId.value)
+    .then((res: any) => {
+      patients.value = res.pagedCustomers.content;
+      totalPages.value = Math.ceil(res.total / 10);
+      isLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function changePage(pageNumber: number) {
   isLoading.value = true;
   currentPage.value = pageNumber;
-  await getAllPatientsForDoctor(
-    10,
-    currentPage.value - 1,
-    loggedDoctorId.value
-  ).then((res: any) => {
-    patients.value = res.pagedCustomers.content;
-    totalPages.value = Math.ceil(res.total / 10);
-    isLoading.value = false;
-  });
+  await getAllPatientsForDoctor(10, currentPage.value - 1, loggedDoctorId.value)
+    .then((res: any) => {
+      patients.value = res.pagedCustomers.content;
+      totalPages.value = Math.ceil(res.total / 10);
+      isLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 onMounted(() => {

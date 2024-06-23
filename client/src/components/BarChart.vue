@@ -82,7 +82,7 @@ function hideTooltip() {
         class="y-label"
         v-for="(n, index) in yAxisLabels"
         :key="n"
-        :style="{ top: `${(index * 240) / yAxisIntervals - 7}px` }"
+        :style="{ top: `${(index * 150) / yAxisIntervals - 7}px` }"
       >
         {{ n }}
       </div>
@@ -92,7 +92,7 @@ function hideTooltip() {
         class="horizontal-line"
         v-for="(n, index) in yAxisLabels"
         :key="n"
-        :style="{ top: `${(index * 240) / yAxisIntervals}px` }"
+        :style="{ top: `${(index * 150) / yAxisIntervals}px` }"
       ></div>
       <div class="chart">
         <div
@@ -105,7 +105,7 @@ function hideTooltip() {
           <div
             class="bar-inner"
             :style="{
-              height: (item.count * 240) / maxAppointments + 'px',
+              height: (item.count * 150) / maxAppointments + 'px',
             }"
           ></div>
           <span class="label">{{ item.week }}</span>
@@ -150,7 +150,7 @@ function hideTooltip() {
     display: flex;
     flex-direction: column;
     position: relative;
-    height: 270px;
+    height: 180px;
 
     .horizontal-line {
       position: absolute;
@@ -166,7 +166,7 @@ function hideTooltip() {
       height: 100%;
 
       .bar {
-        width: 15%;
+        width: 10%;
         display: flex;
         flex-direction: column;
         align-items: center;

@@ -16,6 +16,7 @@ import CustomButton from "@/components/CustomButton.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import Swal from "sweetalert2";
 import { getUserIdAndToken } from "@/services/authentication_service";
+import router from "@/router";
 
 const viewOnly = ref(false);
 const security = ref(false);
@@ -74,7 +75,14 @@ onMounted(() => {
 
 async function updateProfile() {
   if (avatarFile.value) {
-    await uploadAvatar(loggedDoctorId.value, avatarFile.value);
+    await uploadAvatar(loggedDoctorId.value, avatarFile.value).catch(
+      (error) => {
+        Swal.fire({
+          titleText: error.message,
+          icon: "error",
+        });
+      }
+    );
   }
   await updateDoctor(
     loggedDoctorId.value,
@@ -84,7 +92,16 @@ async function updateProfile() {
     phoneno.value,
     address.value,
     dateOfEmployment.value
-  );
+  )
+    .then((res) => {
+      viewOnly.value = true;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function handlePasswordChange() {
@@ -95,7 +112,12 @@ async function handlePasswordChange() {
         loggedDoctorId.value,
         currentPassword.value,
         newPassword.value
-      );
+      ).catch((error) => {
+        Swal.fire({
+          titleText: error.message,
+          icon: "error",
+        });
+      });
       currentPassword.value = "";
       newPassword.value = "";
       confirmPassword.value = "";
@@ -127,7 +149,11 @@ function handleFileChange(event: Event) {
   if (target.files && target.files[0]) {
     const file = target.files[0];
     if (file.size > 500 * 1024) {
-      alert("File size exceeds 500KB");
+      Swal.fire({
+        titleText: "File size exceeds 500KB",
+        icon: "error",
+      });
+
       return;
     }
     const fileReader = new FileReader();
@@ -138,6 +164,7 @@ function handleFileChange(event: Event) {
     avatarFile.value = file;
   }
 }
+
 function triggerFileInput() {
   const fileInput = document.getElementById("fileInput");
   if (fileInput) {
@@ -240,7 +267,7 @@ function triggerFileInput() {
         />
         <InfoField
           uuid="doe"
-          label="Date of Employment"
+          label="Date of Employment (yyyy-mm-dd)"
           v-model:input-value="dateOfEmployment"
           :is-readonly="viewOnly"
           type="text"
@@ -343,7 +370,7 @@ function triggerFileInput() {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 9vh;
+    gap: 4vh;
 
     .avatar-change {
       display: flex;
@@ -353,6 +380,9 @@ function triggerFileInput() {
 
     img {
       height: 200px;
+      border-radius: 50%;
+      border: 10px solid @gray;
+      margin-bottom: 3px;
     }
 
     .doctor-info {
@@ -365,7 +395,7 @@ function triggerFileInput() {
 
     .button {
       position: absolute;
-      bottom: 50px;
+      bottom: 40px;
     }
   }
 

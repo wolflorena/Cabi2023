@@ -21,11 +21,17 @@ async function getPatientDetails() {
   isLoading.value = true;
   const { userId, token } = getUserIdAndToken();
 
-  await getById(+patientId.value, token).then((res: any) => {
-    patient.value = res;
-    console.log(patient.value?.accountStatus);
-    isLoading.value = false;
-  });
+  await getById(+patientId.value, token)
+    .then((res: any) => {
+      patient.value = res;
+      isLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 onMounted(() => {
@@ -37,45 +43,66 @@ function goBack() {
 }
 
 async function deactivateAccount() {
-  await editStatus(+patientId.value, "INACTIVE").then((res) => {
-    Swal.fire({
-      title: "Account successfully deactivated.",
-      icon: "success",
-      confirmButtonText: "OK",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        getPatientDetails();
-      }
+  await editStatus(+patientId.value, "INACTIVE")
+    .then((res) => {
+      Swal.fire({
+        title: "Account successfully deactivated.",
+        icon: "success",
+        confirmButtonText: "OK",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          getPatientDetails();
+        }
+      });
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
     });
-  });
 }
 
 async function reactivateAccount() {
-  await editStatus(+patientId.value, "ACTIVE").then((res) => {
-    Swal.fire({
-      title: "Account successfully reactivated.",
-      icon: "success",
-      confirmButtonText: "OK",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        getPatientDetails();
-      }
+  await editStatus(+patientId.value, "ACTIVE")
+    .then((res) => {
+      Swal.fire({
+        title: "Account successfully reactivated.",
+        icon: "success",
+        confirmButtonText: "OK",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          getPatientDetails();
+        }
+      });
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
     });
-  });
 }
 
 async function deleteAccount() {
-  await editStatus(+patientId.value, "SUSPENDED").then((res) => {
-    Swal.fire({
-      title: "Account successfully suspended.",
-      icon: "success",
-      confirmButtonText: "OK",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        goBack();
-      }
+  await editStatus(+patientId.value, "SUSPENDED")
+    .then((res) => {
+      Swal.fire({
+        title: "Account successfully suspended.",
+        icon: "success",
+        confirmButtonText: "OK",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          goBack();
+        }
+      });
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
     });
-  });
 }
 </script>
 

@@ -41,6 +41,9 @@ async function getAllForms() {
   const response = await fetch(`${API_URL}/all`);
 
   const json = await response.json();
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
   return json;
 }
 
@@ -48,20 +51,32 @@ async function getForm(formId: number) {
   const response = await fetch(`${API_URL}?formId=${formId}`);
 
   const json = await response.json();
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
   return json;
 }
 
 async function deleteForm(formId: number) {
-  const response = fetch(API_URL + "?formId=" + formId, {
+  const response = await fetch(API_URL + "?formId=" + formId, {
     method: "DELETE",
   });
-  return response;
+
+  const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
+  return json;
 }
 
 async function getFormEvents(formId: number) {
   const response = await fetch(API_URL + "/" + formId + "/customers");
 
   const json = await response.json();
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
   return json;
 }
 
