@@ -82,12 +82,6 @@ function handleClickOnAppointment(appointment: HistoryAppointmentCalendar) {
   }
 }
 
-watch(
-  () => userHistoryAppointments.value,
-  () => {
-    console.log(userHistoryAppointments.value);
-  }
-);
 onMounted(async () => {
   await fetchUserHistoryAppointments(pageNumber.value);
 });

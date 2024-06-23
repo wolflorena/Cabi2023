@@ -78,7 +78,7 @@ async function fetchData() {
       await getAvailableHours(
         props.selectedDoctor.id,
         selectedService.value,
-        formatISO(props.selectedDate).split("T")[0]
+        formatISO(props.selectedDate, { representation: "date" })
       ).then((res: any) => {
         SwalLoading.close();
         availableHours.value = res;
@@ -99,12 +99,24 @@ async function fetchData() {
 }
 
 function addAppointment() {
+  if (props.variant === "DAY") {
+    selectedDate.value = props.selectedDate;
+  }
   emit(
     "addAppointment",
     selectedDate.value,
     selectedHour.value,
     props.selectedDoctor?.id,
     selectedService.value
+  );
+  console.log(
+    selectedDate.value +
+      " " +
+      selectedHour.value +
+      " " +
+      props.selectedDoctor?.firstName +
+      " " +
+      selectedService.value
   );
 
   selectedDate.value = "";
@@ -117,6 +129,8 @@ function addAppointment() {
 watch(
   () => selectedDate.value,
   async () => {
+    console.log(selectedDate.value);
+
     if (props.selectedDoctor && selectedDate.value !== "") {
       await getAvailableHours(
         props.selectedDoctor.id,
