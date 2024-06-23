@@ -28,11 +28,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
-
     private final CustomerRepository customerRepository;
-
     private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
-
     @Autowired
     private PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
@@ -42,33 +39,41 @@ public class CustomerServiceImpl implements CustomerService {
         this.modelMapper = modelMapper;
     }
 
-    public ResponseCustomerDTO register(RegisterCustomerDTO registerCustomerDto){
+    public ResponseCustomerDTO register(RegisterCustomerDTO registerCustomerDto) {
+        // Converteste email-ul la litere mici pentru consistență
         registerCustomerDto.setEmail(registerCustomerDto.getEmail().toLowerCase());
-        if(emailExists(registerCustomerDto.getEmail())){
+
+        // Verifica daca email-ul exista deja in baza de date
+        if(emailExists(registerCustomerDto.getEmail())) {
             throw new EmailExistsException("Email already in use");
         }
 
+        // Cripteaza parola folosind passwordEncoder
         String encodedPassword = passwordEncoder.encode(registerCustomerDto.getPassword());
         registerCustomerDto.setPassword(encodedPassword);
 
+        // Maparea DTO-ului RegisterCustomerDTO la entitatea Customer
         Customer customerToBeSaved = new Customer(registerCustomerDto);
         byte[] defaultAvatar = new byte[0];
 
         try {
+            // Incarca avatarul implicit
             defaultAvatar = loadDefaultAvatar();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         customerToBeSaved.setAvatar(defaultAvatar);
 
+        // Salveaza entitatea Customer in baza de date
         customerRepository.save(customerToBeSaved);
+
+        // Maparea entitatii salvate la DTO-ul de raspuns
         return modelMapper.map(customerToBeSaved, ResponseCustomerDTO.class);
     }
-
     public ResponseCustomerDTO getById(Long id){
         Customer returnedCustomer = customerRepository.findById(id).orElse(null);
         if(returnedCustomer==null){
-            //TODO THROW EXCEPTION
+            throw new IllegalArgumentException();
         }
 
         return modelMapper.map(returnedCustomer, ResponseCustomerDTO.class);

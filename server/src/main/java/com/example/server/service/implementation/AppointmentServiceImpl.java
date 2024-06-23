@@ -108,7 +108,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public AppointmentDetailDTO getAppointmentById(Long appointmentId){
-        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(() -> new NotFoundException("Appointment not found"));
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new NotFoundException("Appointment not found"));
         return modelMapper.map(appointment, AppointmentDetailDTO.class);
     }
 
@@ -186,7 +187,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public HistoryPageDTO getHistoryByCustomerId(Long customerId, Pageable pageable){
         HistoryPageDTO historyPageDTO = new HistoryPageDTO();
-        Page<Appointment> appointments = appointmentRepository.findAllByCustomerIdOrderByDateTimeDesc(customerId,PageRequest.of(pageable.getPageNumber(),pageable.getPageSize()));
+        Page<Appointment> appointments = appointmentRepository
+                .findAllByCustomerIdOrderByDateTimeDesc(customerId,PageRequest.of(pageable.getPageNumber(),pageable.getPageSize()));
 
         historyPageDTO.setTotal((int) appointments.getTotalElements());
 

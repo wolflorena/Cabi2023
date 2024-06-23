@@ -17,6 +17,23 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(AccountDeactivatedException.class)
+    public ResponseEntity<Object> handleAccountDeactivatedException(AccountDeactivatedException ex, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "Account is deactivated");
+
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(CouldNotRetrieveAppointmentsByDateAndTypeException.class)
+    public ResponseEntity<Object> CouldNotRetrieveAppointmentsByDateAndTypeException (CouldNotRetrieveAppointmentsByDateAndTypeException  ex, WebRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "Can not retrieve appointments based on type and date");
+
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
     private ResponseEntity<Object> buildResponseEntity(HttpStatus status, String message) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
@@ -57,23 +74,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnavailabilityExistsException.class)
     public ResponseEntity<Object> handleUnavailabilityExistsException(UnavailabilityExistsException ex, WebRequest request) {
         return buildResponseEntity(HttpStatus.CONFLICT, ex.getMessage());
-    }
-
-    @ExceptionHandler(AccountDeactivatedException.class)
-    public ResponseEntity<Object> handleAccountDeactivatedException(AccountDeactivatedException ex, WebRequest request) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", "Account is deactivated");
-
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
-    }
-    @ExceptionHandler(CouldNotRetrieveAppointmentsByDateAndTypeException.class)
-    public ResponseEntity<Object> CouldNotRetrieveAppointmentsByDateAndTypeException (CouldNotRetrieveAppointmentsByDateAndTypeException  ex, WebRequest request) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", "Can not retrieve appointments based on type and date");
-
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(FormEventAlreadyExistsException.class)

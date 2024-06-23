@@ -1,5 +1,4 @@
 import { RegisterCustomerBody, jwtPayload } from "@/data/types/Entities";
-import { parseJSON } from "date-fns";
 import { jwtDecode } from "jwt-decode";
 
 const API_URL = "http://localhost:9090/api/auth";
