@@ -18,6 +18,7 @@ import {
   deleteProduct,
   updateProduct,
 } from "@/services/inventory_service";
+import Swal from "sweetalert2";
 
 const showDelete = ref(false);
 const showAddModal = ref(false);
@@ -35,21 +36,35 @@ const selectedProduct = ref<Product>();
 
 async function loadProducts() {
   isLoading.value = true;
-  await getAllPageable(10, currentPage.value - 1).then((res: any) => {
-    inventory.value = res.pagedInventory.content;
-    totalPages.value = Math.ceil(res.total / 10);
-    isLoading.value = false;
-  });
+  await getAllPageable(10, currentPage.value - 1)
+    .then((res: any) => {
+      inventory.value = res.pagedInventory.content;
+      totalPages.value = Math.ceil(res.total / 10);
+      isLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function changePage(pageNumber: number) {
   isLoading.value = true;
   currentPage.value = pageNumber;
-  await getAllPageable(10, currentPage.value - 1).then((res: any) => {
-    inventory.value = res.pagedInventory.content;
-    totalPages.value = Math.ceil(res.total / 10);
-    isLoading.value = false;
-  });
+  await getAllPageable(10, currentPage.value - 1)
+    .then((res: any) => {
+      inventory.value = res.pagedInventory.content;
+      totalPages.value = Math.ceil(res.total / 10);
+      isLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 onMounted(() => {
@@ -58,14 +73,30 @@ onMounted(() => {
 
 async function showDeleteModal(productId: number) {
   showDelete.value = true;
-  await getProductById(productId).then(
-    (res: Product) => (selectedProduct.value = res)
-  );
+  await getProductById(productId)
+    .then((res: Product) => (selectedProduct.value = res))
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function createProduct() {
-  await addProduct(productName.value, quantity.value);
-  loadProducts();
+  if (productName.value && quantity.value) {
+    await addProduct(productName.value, quantity.value)
+      .then((res) => {
+        loadProducts();
+      })
+      .catch((error) => {
+        Swal.fire({
+          titleText: error.message,
+          icon: "error",
+        });
+      });
+  }
+
   showAddModal.value = false;
   productName.value = "";
   quantity.value = 0;
@@ -73,11 +104,18 @@ async function createProduct() {
 
 async function showEditModal(productId: number) {
   showEdit.value = true;
-  await getProductById(productId).then((res: Product) => {
-    selectedProduct.value = res;
-    productName.value = res.product;
-    quantity.value = res.quantity;
-  });
+  await getProductById(productId)
+    .then((res: Product) => {
+      selectedProduct.value = res;
+      productName.value = res.product;
+      quantity.value = res.quantity;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function editProduct() {
@@ -86,7 +124,12 @@ async function editProduct() {
       selectedProduct.value.inventoryId,
       productName.value,
       quantity.value
-    );
+    ).catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
     loadProducts();
     showEdit.value = false;
   }
@@ -94,8 +137,21 @@ async function editProduct() {
 
 async function deleteProductFromInventory() {
   if (selectedProduct.value) {
-    await deleteProduct(selectedProduct.value.inventoryId);
-    loadProducts();
+    await deleteProduct(selectedProduct.value.inventoryId)
+      .then((res) => {
+        loadProducts();
+        Swal.fire({
+          titleText: "Product has been successfully deleted!",
+          icon: "success",
+        });
+      })
+      .catch((error) => {
+        Swal.fire({
+          titleText: error.message,
+          icon: "error",
+        });
+      });
+
     showDelete.value = false;
   }
 }

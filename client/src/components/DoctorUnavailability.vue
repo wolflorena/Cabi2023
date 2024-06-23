@@ -266,7 +266,7 @@ async function addVacation() {
 
   .button {
     position: absolute;
-    bottom: 50px;
+    bottom: 40px;
 
     display: flex;
     flex-direction: column;

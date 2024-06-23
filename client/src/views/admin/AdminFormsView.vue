@@ -18,10 +18,17 @@ const isLoading = ref(false);
 
 async function loadForms() {
   isLoading.value = true;
-  await getAllForms().then((res) => {
-    forms.value = res;
-    isLoading.value = false;
-  });
+  await getAllForms()
+    .then((res) => {
+      forms.value = res;
+      isLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 onMounted(() => {
@@ -30,9 +37,16 @@ onMounted(() => {
 
 async function showDeleteModal(formId: number) {
   showDelete.value = true;
-  await getForm(formId).then((res) => {
-    formDetails.value = res;
-  });
+  await getForm(formId)
+    .then((res) => {
+      formDetails.value = res;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function deleteFormById(formId: number | undefined) {
@@ -40,15 +54,13 @@ async function deleteFormById(formId: number | undefined) {
   if (formId) {
     await deleteForm(formId)
       .then((res) => {
-        if (res.ok) {
-          showDelete.value = false;
-          loadForms();
-          isLoading.value = false;
-          Swal.fire({
-            titleText: "Form has been successfully deleted!",
-            icon: "success",
-          });
-        }
+        showDelete.value = false;
+        loadForms();
+        isLoading.value = false;
+        Swal.fire({
+          titleText: "Form has been successfully deleted!",
+          icon: "success",
+        });
       })
       .catch((error) => {
         Swal.fire({

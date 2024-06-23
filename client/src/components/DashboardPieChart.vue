@@ -48,7 +48,7 @@ const colors = computed(
 @import (reference) "@/assets/styles.less";
 
 .container {
-  height: 33vw;
+  height: 50vh;
   border: 1px solid @gray;
   border-radius: 20px;
   padding: 30px;
@@ -56,8 +56,10 @@ const colors = computed(
 
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 30px;
 
+  overflow-y: scroll;
   h1 {
     text-align: center;
     color: @gray;

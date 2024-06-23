@@ -36,10 +36,15 @@ async function getFilesByPatient(customerId: number) {
 }
 
 async function deleteDocument(formId: number) {
-  const response = fetch(API_URL + "/" + formId, {
+  const response = await fetch(API_URL + "/" + formId, {
     method: "DELETE",
   });
-  return response;
+  const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
+  return json;
 }
 
 export { uploadFile, getFilesByPatient, deleteDocument };

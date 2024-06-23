@@ -27,8 +27,8 @@ function goBack() {
 }
 
 async function createForm() {
-  await addForm(title.value, description.value, visibility.value).then(
-    (res) => {
+  await addForm(title.value, description.value, visibility.value)
+    .then((res) => {
       if (res) {
         Swal.fire({
           titleText: "Form has been successfully created!",
@@ -39,19 +39,31 @@ async function createForm() {
           }
         });
       }
-    }
-  );
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function getFormDetails(formId: number) {
   isLoading.value = true;
-  await getForm(formId).then((res) => {
-    form.value = res;
-    title.value = res.title;
-    description.value = res.description;
-    visibility.value = res.visibility;
-    isLoading.value = false;
-  });
+  await getForm(formId)
+    .then((res) => {
+      form.value = res;
+      title.value = res.title;
+      description.value = res.description;
+      visibility.value = res.visibility;
+      isLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 onMounted(() => {
@@ -67,11 +79,19 @@ async function submitChanges() {
       title.value,
       description.value,
       visibility.value
-    );
-    Swal.fire({
-      titleText: "Form has been successfully edited!",
-      icon: "success",
-    });
+    )
+      .then((res) => {
+        Swal.fire({
+          titleText: "Form has been successfully edited!",
+          icon: "success",
+        });
+      })
+      .catch((error) => {
+        Swal.fire({
+          titleText: error.message,
+          icon: "error",
+        });
+      });
   }
 }
 

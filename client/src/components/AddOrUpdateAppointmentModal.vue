@@ -37,6 +37,7 @@ const selectedDate = ref("");
 const selectedHour = ref("");
 const selectedPatient = ref();
 const availableHours = ref<string[]>([]);
+const errorMessage = ref("");
 
 const isLoading = ref(false);
 
@@ -51,7 +52,12 @@ onMounted(() => {
 
 async function fetchAppointmentDetails(appointmentId: number) {
   isLoading.value = true;
-  const res = await getById(appointmentId);
+  const res = await getById(appointmentId).catch((error) => {
+    Swal.fire({
+      titleText: error.message,
+      icon: "error",
+    });
+  });
   selectedDoctor.value = res.doctorId;
   selectedService.value = res.serviceId;
   selectedDate.value = res.date;

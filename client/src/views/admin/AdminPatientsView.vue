@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-
 import Sidebar from "@/components/Sidebar.vue";
 import Pagination from "@/components/Pagination.vue";
 import { AdminSidebarOptions } from "@/data/types/SidebarOptions";
@@ -17,6 +16,7 @@ import TableHeader from "@/components/TableHeader.vue";
 import TableRow from "@/components/TableRow.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import { getUserIdAndToken } from "@/services/authentication_service";
+import Swal from "sweetalert2";
 
 const showDelete = ref(false);
 const isLoading = ref(false);
@@ -31,39 +31,67 @@ const router = useRouter();
 
 async function loadPatients() {
   isLoading.value = true;
-  await getAllPageable(10, currentPage.value - 1).then((res: any) => {
-    patients.value = res.pagedCustomers.content;
-    totalPages.value = Math.ceil(res.total / 10);
-    isLoading.value = false;
-  });
+  await getAllPageable(10, currentPage.value - 1)
+    .then((res: any) => {
+      patients.value = res.pagedCustomers.content;
+      totalPages.value = Math.ceil(res.total / 10);
+      isLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function changePage(pageNumber: number) {
   isLoading.value = true;
   currentPage.value = pageNumber;
-  await getAllPageable(10, currentPage.value - 1).then((res: any) => {
-    patients.value = res.pagedCustomers.content;
-    totalPages.value = Math.ceil(res.total / 10);
-    isLoading.value = false;
-  });
+  await getAllPageable(10, currentPage.value - 1)
+    .then((res: any) => {
+      patients.value = res.pagedCustomers.content;
+      totalPages.value = Math.ceil(res.total / 10);
+      isLoading.value = false;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function showDeleteModal(patientId: number) {
   const { userId, token } = getUserIdAndToken();
 
   showDelete.value = true;
-  await getById(patientId, token).then((res: any) => {
-    patientDetails.value = res;
-  });
+  await getById(patientId, token)
+    .then((res: any) => {
+      patientDetails.value = res;
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 async function deletePatient(patientId: number | undefined) {
   if (patientId) {
-    await editStatus(patientId, "SUSPENDED").then((res) => {
-      console.log("Account successfull deleted");
-      showDelete.value = false;
-      loadPatients();
-    });
+    await editStatus(patientId, "SUSPENDED")
+      .then((res) => {
+        console.log("Account successfull deleted");
+        showDelete.value = false;
+        loadPatients();
+      })
+      .catch((error) => {
+        Swal.fire({
+          titleText: error.message,
+          icon: "error",
+        });
+      });
   }
 }
 

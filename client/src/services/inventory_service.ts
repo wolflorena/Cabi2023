@@ -36,6 +36,9 @@ async function getAllPageable(pageSize: number, pageNumber: number) {
   );
 
   const json = await response.json();
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
   return json;
 }
 
@@ -43,14 +46,22 @@ async function getProductById(id: number) {
   const response = await fetch(`${API_URL}?inventoryId=${id}`);
 
   const json = await response.json();
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
   return json;
 }
 
 async function deleteProduct(id: number) {
-  const response = fetch(API_URL + "?inventoryId=" + id, {
+  const response = await fetch(API_URL + "?inventoryId=" + id, {
     method: "DELETE",
   });
-  return response;
+  const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
+  return json;
 }
 
 async function updateProduct(
@@ -69,6 +80,13 @@ async function updateProduct(
       }),
     }
   );
+
+  const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
+  return json;
 }
 
 export {

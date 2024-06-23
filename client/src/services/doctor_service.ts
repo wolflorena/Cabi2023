@@ -3,12 +3,21 @@ const API_URL = "http://localhost:9090/api/doctors";
 async function getAllDoctors() {
   const response = await fetch(`${API_URL}/getAll`);
   const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
   return json;
 }
 
 async function getDoctorById(doctorId: number) {
   const response = await fetch(`${API_URL}/get?doctorId=${doctorId}`);
   const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
+
   return json;
 }
 
@@ -22,7 +31,9 @@ async function getAvailableDates(doctorId: number, serviceId: number) {
     `${API_URL}/available-dates?doctorId=${doctorId}&serviceId=${serviceId}`
   );
   const json = await response.json();
-
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
   return json;
 }
 
@@ -35,6 +46,9 @@ async function getAvailableHours(
     `${API_URL}/available-hours?doctorId=${doctorId}&serviceId=${serviceId}&date=${date}`
   );
   const json = await response.json();
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
   return json;
 }
 
@@ -62,6 +76,13 @@ async function updateDoctor(
       }),
     }
   );
+
+  const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
+  }
+  return json;
 }
 
 async function uploadAvatar(doctorId: number, avatar: File) {
@@ -75,8 +96,10 @@ async function uploadAvatar(doctorId: number, avatar: File) {
     }
   );
 
-  if (!response.ok) {
-    throw new Error("Failed to upload avatar");
+  const json = await response.json();
+
+  if (response && !response.ok) {
+    throw new Error(json.message);
   }
 }
 

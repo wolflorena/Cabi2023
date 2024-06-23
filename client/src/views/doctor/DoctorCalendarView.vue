@@ -9,6 +9,7 @@ import { getDoctorById } from "@/services/doctor_service";
 import CustomButton from "@/components/CustomButton.vue";
 import DoctorUnavailability from "@/components/DoctorUnavailability.vue";
 import { getUserIdAndToken } from "@/services/authentication_service";
+import Swal from "sweetalert2";
 
 const daySelected = ref(new Date());
 const updateAppointments = ref(false);
@@ -20,9 +21,16 @@ const loggedDoctorId = ref<number>(-1);
 const selectedDoctor = ref<SelectedDoctor[]>([]);
 
 async function getDoctorDetails() {
-  await getDoctorById(loggedDoctorId.value).then((res) => {
-    selectedDoctor.value.push({ ...res, checked: true });
-  });
+  await getDoctorById(loggedDoctorId.value)
+    .then((res) => {
+      selectedDoctor.value.push({ ...res, checked: true });
+    })
+    .catch((error) => {
+      Swal.fire({
+        titleText: error.message,
+        icon: "error",
+      });
+    });
 }
 
 function toggleCalendar() {

@@ -450,6 +450,22 @@ watch(
             border-radius: 5px;
           }
         }
+
+        &::-webkit-scrollbar {
+          width: 5px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: #424d65;
+          border-radius: 5px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background-color: transparent;
+        }
+
+        scrollbar-width: thin;
+        scrollbar-color: #424d65 transparent;
       }
     }
   }
