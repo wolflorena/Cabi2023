@@ -73,7 +73,7 @@ public class CustomerServiceImpl implements CustomerService {
     public ResponseCustomerDTO getById(Long id){
         Customer returnedCustomer = customerRepository.findById(id).orElse(null);
         if(returnedCustomer==null){
-            //TODO THROW EXCEPTION
+            throw new IllegalArgumentException();
         }
 
         return modelMapper.map(returnedCustomer, ResponseCustomerDTO.class);
