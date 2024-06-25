@@ -116,9 +116,11 @@ function weeksInMonth(date: Date): Day[][] {
       fullDate.getMonth() === today.getMonth() &&
       fullDate.getFullYear() === today.getFullYear();
 
+    const previousFullDate = new Date(fullDate);
+    previousFullDate.setDate(fullDate.getDate() + 1);
     const dayObj: Day = {
       date,
-      fullDate: fullDate.toISOString().split("T")[0],
+      fullDate: previousFullDate.toISOString().split("T")[0],
       isToday,
     };
 

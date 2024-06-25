@@ -62,11 +62,7 @@ public class InventoryServiceImpl implements InventoryService {
     public Inventory updateProduct(Long inventoryId, InventoryUpdateDTO inventoryUpdateDTO) {
         Inventory inventory = inventoryRepository.findById(inventoryId).orElseThrow();
         if (inventoryUpdateDTO.getProduct() != null) {
-            if (inventoryRepository.findByProduct(inventoryUpdateDTO.getProduct()).isEmpty()) {
                 inventory.setProduct(inventoryUpdateDTO.getProduct());
-            } else {
-                throw new ProductExistsException("This product already exists");
-            }
         }
         if (inventoryUpdateDTO.getQuantity() != 0) {
             inventory.setQuantity(inventoryUpdateDTO.getQuantity());

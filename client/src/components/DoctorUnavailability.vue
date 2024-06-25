@@ -6,6 +6,8 @@ import TimeInput from "./TimeInput.vue";
 import CustomButton from "./CustomButton.vue";
 import { createUnavailability } from "@/services/doctor_unavailability_service";
 import ErrorMessage from "./ErrorMessage.vue";
+import { faPeopleArrows } from "@fortawesome/free-solid-svg-icons";
+import Swal from "sweetalert2";
 
 const multipleDays = ref<boolean>(false);
 const allDay = ref<boolean>(false);
@@ -19,6 +21,13 @@ const endDateErrorMessage = ref<string>("");
 const endTimeError = ref<boolean>(false);
 const endTimeErrorMessage = ref<string>("");
 const errorMessage = ref<string>("");
+
+const props = withDefaults(
+  defineProps<{
+    doctorId: number;
+  }>(),
+  {}
+);
 
 function handleStartDateUpdate(date: string) {
   selectedStartDate.value = date;
@@ -74,11 +83,16 @@ async function addVacation() {
         await createUnavailability(
           selectedStartDate.value,
           selectedEndDate.value,
-          1,
+          props.doctorId,
           reason.value
         )
           .then((res) => {
             if (res) {
+              Swal.fire({
+                title: "Unavailability successfully created.",
+                icon: "success",
+                confirmButtonText: "OK",
+              });
               multipleDays.value = false;
               selectedStartDate.value = "";
               selectedEndDate.value = "";
@@ -96,11 +110,16 @@ async function addVacation() {
         await createUnavailability(
           selectedStartDate.value,
           selectedStartDate.value,
-          1,
+          props.doctorId,
           reason.value
         )
           .then((res) => {
             if (res) {
+              Swal.fire({
+                title: "Unavailability successfully created.",
+                icon: "success",
+                confirmButtonText: "OK",
+              });
               allDay.value = false;
               selectedStartDate.value = "";
               selectedEndDate.value = "";
@@ -115,12 +134,18 @@ async function addVacation() {
           await createUnavailability(
             selectedStartDate.value,
             selectedStartDate.value,
-            1,
+            props.doctorId,
+            reason.value,
             selectedStartTime.value + ":00",
             selectedEndTime.value + ":00"
           )
             .then((res) => {
               if (res) {
+                Swal.fire({
+                  title: "Unavailability successfully created.",
+                  icon: "success",
+                  confirmButtonText: "OK",
+                });
                 multipleDays.value = false;
                 allDay.value = false;
                 selectedStartDate.value = "";
