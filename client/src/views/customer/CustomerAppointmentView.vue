@@ -8,6 +8,8 @@ import AppointmentContent from "./appointment-content/AppointmentContent.vue";
 import { useLoadAppointments } from "@/store/useLoadAppointments";
 import { useUserProfile } from "@/store/useUserProfile";
 import { getUserIdAndToken } from "@/services/authentication_service";
+import { useUserAppointments } from "@/store/useUserAppointments";
+import { SwalLoading } from "@/utils/helpers";
 
 const {
   doctors,
@@ -52,9 +54,11 @@ watch([selectedDoctor, calendarDate, calendarViewtype], async () => {
 
 onMounted(async () => {
   if (doctors.value === null) {
+    SwalLoading.fire();
     await loadDoctors();
     await fetchUserProfile();
     await retrieveUserAvatar();
+    SwalLoading.close();
   } else {
     await fetchAppointments();
   }
@@ -113,7 +117,7 @@ onMounted(async () => {
       align-self: flex-end;
       background-color: @gray;
       min-height: 70px;
-      width: 1450px;
+      width: 85vw;
       border-bottom-left-radius: 40px;
       transition: border-bottom-left-radius 0.3s ease, opacity 0.3s ease;
       display: flex;

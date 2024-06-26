@@ -15,6 +15,7 @@ import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import Swal from "sweetalert2";
 import { updateStatus } from "@/services/appointments_service";
 import { SwalLoading } from "@/utils/helpers";
+import { useLoadAppointments } from "@/store/useLoadAppointments";
 
 const {
   userHistoryAppointments,
@@ -24,8 +25,11 @@ const {
   fetchUserHistoryAppointments,
 } = useUserAppointments();
 
+const { fetchAppointments } = useLoadAppointments();
+
 const currentPage = ref<number>(1);
 const pageNumber = ref<number>(1);
+const noAppointments = ref<boolean>(false);
 
 function handleChangePage(pageNumber: number) {
   currentPage.value = pageNumber;
@@ -60,6 +64,7 @@ function handleClickOnAppointment(appointment: HistoryAppointmentCalendar) {
         SwalLoading.fire();
         await updateStatus(appointment.appointmentId, "CANCELLED");
         await fetchUserHistoryAppointments(pageNumber.value, true);
+        await fetchAppointments(true);
         handleChangePage(1);
         SwalLoading.close();
       }
@@ -83,7 +88,10 @@ function handleClickOnAppointment(appointment: HistoryAppointmentCalendar) {
 }
 
 onMounted(async () => {
-  await fetchUserHistoryAppointments(pageNumber.value);
+  await fetchUserHistoryAppointments(pageNumber.value, true);
+  if (userHistoryAppointments.value.length < 1) {
+    noAppointments.value = true;
+  }
 });
 </script>
 
@@ -92,7 +100,7 @@ onMounted(async () => {
     <Sidebar :options="CustomerSidebarOptions" />
     <div class="history-container">
       <div class="history-content">
-        <table v-if="userHistoryAppointments.length > 0 && !isLoading">
+        <table v-if="!noAppointments && !isLoading">
           <TableHeader
             :columns="['Service', 'Doctor', 'Date', 'Status']"
             :has-empty-row="false"
@@ -128,7 +136,8 @@ onMounted(async () => {
             </TableRow>
           </tbody>
         </table>
-        <LoadingSpinner class="loading-spinner" v-else />
+        <LoadingSpinner class="loading-spinner" v-else-if="!noAppointments" />
+        <div v-else class="no-app-yet">No Appointments Yet</div>
       </div>
       <Pagination
         :total-pages="totalPages"
@@ -177,6 +186,15 @@ onMounted(async () => {
         background-color: @completed-appointment;
       }
     }
+
+    .no-app-yet {
+      display: flex;
+      align-items: center;
+
+      font-size: 46px;
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+    }
+
     table {
       width: 100%;
       border-collapse: separate;

@@ -17,6 +17,7 @@ async function getVisibleFormsStore() {
   await getVisibleForms(token, userId).then((res) => {
     if (res.length > 0) {
       forms.value = res;
+      console.log("visible FORMS " + forms.value);
     }
   });
 }

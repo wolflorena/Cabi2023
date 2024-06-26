@@ -9,6 +9,7 @@ import { ref } from "vue";
 
 const userHistoryAppointments = ref<HistoryAppointmentCalendar[]>([]);
 const isLoading = ref<boolean>(false);
+const noAppointments = ref<boolean>(false);
 const totalPages = ref<number>(0);
 const appointmentsCache = ref(new Map());
 
@@ -37,7 +38,10 @@ async function fetchUserHistoryAppointments(
       10,
       pageNumber - 1
     );
-    if (response) {
+    if (response === "No Appointments") {
+      noAppointments.value = true;
+      console.log("No appointmentssss");
+    } else if (response) {
       const appointments: HistoryAppointmentCalendar[] =
         response.pagedAppointments.content;
       if (appointments.length > 0) {

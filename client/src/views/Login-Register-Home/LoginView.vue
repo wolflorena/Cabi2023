@@ -56,11 +56,18 @@ async function login() {
           "Your account have been deactivated. Please contact support.",
         icon: "error",
       });
+    } else if (err.message === "Authentication failed: Bad credentials") {
+      Swal.fire({
+        titleText: "Bad Credentials",
+        text: "Please check your details",
+        icon: "error",
+        position: "top-end",
+      });
     } else {
+      error.value = "" + err;
+      emailText.value = "";
+      passwordText.value = "";
     }
-    error.value = "" + err;
-    emailText.value = "";
-    passwordText.value = "";
   }
 }
 

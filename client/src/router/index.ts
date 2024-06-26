@@ -35,6 +35,10 @@ type RouteMeta = {
 
 const routes: Array<RouteRecordRaw> = [
   {
+    path: "/",
+    redirect: "/home",
+  },
+  {
     path: "/register",
     name: "register",
     component: SignupView,

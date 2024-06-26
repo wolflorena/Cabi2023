@@ -28,9 +28,11 @@ function handleClickOnCalendarButton(value: string) {
 }
 
 async function loadDoctors() {
+  SwalLoading.fire();
   await getAllDoctors().then((res: any) => {
     doctors.value = res;
   });
+  SwalLoading.close;
 }
 
 async function fetchAppointments(forceUpdate: boolean = false) {

@@ -58,6 +58,8 @@ async function handleOpenForm(form: FormWithStatus) {
 }
 
 onMounted(async () => {
+  console.log("forms view");
+
   await getVisibleFormsStore();
 });
 </script>
