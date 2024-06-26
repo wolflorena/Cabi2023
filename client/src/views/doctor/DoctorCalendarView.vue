@@ -73,7 +73,7 @@ onMounted(() => {
       @toggle-calendar="toggleCalendar"
       :full-width="true"
     />
-    <DoctorUnavailability v-else />
+    <DoctorUnavailability :doctor-id="loggedDoctorId" v-else />
 
     <div class="button">
       <CustomButton

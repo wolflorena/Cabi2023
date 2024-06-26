@@ -75,14 +75,7 @@ onMounted(() => {
 
 async function updateProfile() {
   if (avatarFile.value) {
-    await uploadAvatar(loggedDoctorId.value, avatarFile.value).catch(
-      (error) => {
-        Swal.fire({
-          titleText: error.message,
-          icon: "error",
-        });
-      }
-    );
+    await uploadAvatar(loggedDoctorId.value, avatarFile.value);
   }
   await updateDoctor(
     loggedDoctorId.value,
